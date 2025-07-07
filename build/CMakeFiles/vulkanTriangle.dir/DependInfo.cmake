@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/j/projects/playground/vulkanTriangle/src/triangle.cpp" "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/window.cpp" "CMakeFiles/vulkanTriangle.dir/src/window.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/window.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

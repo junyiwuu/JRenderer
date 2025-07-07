@@ -12,9 +12,9 @@
 #include <limits>
 #include <optional>
 #include <set>
+#include <memory>
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+#include "window.hpp"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -63,17 +63,32 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
+
+
+
+
+
+
 class HelloTriangleApplication {
 public:
+
+
     void run() {
-        initWindow();
+        window_app =  std::make_unique<JWindow>(WIDTH, HEIGHT, "vulkan");
+        window  = window_app->getGLFWwindow();
+        
         initVulkan();
         mainLoop();
         cleanup();
     }
 
 private:
-    GLFWwindow* window;
+    std::unique_ptr<JWindow> window_app;
+    GLFWwindow* window  = nullptr;
+
+    const uint32_t WIDTH = 800;
+    const uint32_t HEIGHT = 600;
+
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -106,20 +121,7 @@ private:
 
     bool framebufferResized = false;
 
-    void initWindow() {
-        glfwInit();
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-        glfwSetWindowUserPointer(window, this);
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-    }
-
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-        auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
-        app->framebufferResized = true;
-    }
 
     void initVulkan() {
         createInstance();
