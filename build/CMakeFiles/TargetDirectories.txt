@@ -1,0 +1,4 @@
+/home/j/projects/playground/vulkanTriangle/build/CMakeFiles/vulkanTriangle.dir
+/home/j/projects/playground/vulkanTriangle/build/CMakeFiles/compile_shaders.dir
+/home/j/projects/playground/vulkanTriangle/build/CMakeFiles/edit_cache.dir
+/home/j/projects/playground/vulkanTriangle/build/CMakeFiles/rebuild_cache.dir
