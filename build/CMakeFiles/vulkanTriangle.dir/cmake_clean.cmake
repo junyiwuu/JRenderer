@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o"
+  "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/window.cpp.o"

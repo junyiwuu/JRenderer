@@ -69,10 +69,24 @@ include CMakeFiles/vulkanTriangle.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/vulkanTriangle.dir/flags.make
 
+CMakeFiles/vulkanTriangle.dir/src/device.cpp.o: CMakeFiles/vulkanTriangle.dir/flags.make
+CMakeFiles/vulkanTriangle.dir/src/device.cpp.o: /home/j/projects/playground/vulkanTriangle/src/device.cpp
+CMakeFiles/vulkanTriangle.dir/src/device.cpp.o: CMakeFiles/vulkanTriangle.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/vulkanTriangle.dir/src/device.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vulkanTriangle.dir/src/device.cpp.o -MF CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d -o CMakeFiles/vulkanTriangle.dir/src/device.cpp.o -c /home/j/projects/playground/vulkanTriangle/src/device.cpp
+
+CMakeFiles/vulkanTriangle.dir/src/device.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vulkanTriangle.dir/src/device.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/j/projects/playground/vulkanTriangle/src/device.cpp > CMakeFiles/vulkanTriangle.dir/src/device.cpp.i
+
+CMakeFiles/vulkanTriangle.dir/src/device.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vulkanTriangle.dir/src/device.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/j/projects/playground/vulkanTriangle/src/device.cpp -o CMakeFiles/vulkanTriangle.dir/src/device.cpp.s
+
 CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o: CMakeFiles/vulkanTriangle.dir/flags.make
 CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o: /home/j/projects/playground/vulkanTriangle/src/triangle.cpp
 CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o: CMakeFiles/vulkanTriangle.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o -MF CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o.d -o CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o -c /home/j/projects/playground/vulkanTriangle/src/triangle.cpp
 
 CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.i: cmake_force
@@ -86,7 +100,7 @@ CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.s: cmake_force
 CMakeFiles/vulkanTriangle.dir/src/window.cpp.o: CMakeFiles/vulkanTriangle.dir/flags.make
 CMakeFiles/vulkanTriangle.dir/src/window.cpp.o: /home/j/projects/playground/vulkanTriangle/src/window.cpp
 CMakeFiles/vulkanTriangle.dir/src/window.cpp.o: CMakeFiles/vulkanTriangle.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/vulkanTriangle.dir/src/window.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/vulkanTriangle.dir/src/window.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vulkanTriangle.dir/src/window.cpp.o -MF CMakeFiles/vulkanTriangle.dir/src/window.cpp.o.d -o CMakeFiles/vulkanTriangle.dir/src/window.cpp.o -c /home/j/projects/playground/vulkanTriangle/src/window.cpp
 
 CMakeFiles/vulkanTriangle.dir/src/window.cpp.i: cmake_force
@@ -99,19 +113,21 @@ CMakeFiles/vulkanTriangle.dir/src/window.cpp.s: cmake_force
 
 # Object files for target vulkanTriangle
 vulkanTriangle_OBJECTS = \
+"CMakeFiles/vulkanTriangle.dir/src/device.cpp.o" \
 "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o" \
 "CMakeFiles/vulkanTriangle.dir/src/window.cpp.o"
 
 # External object files for target vulkanTriangle
 vulkanTriangle_EXTERNAL_OBJECTS =
 
+vulkanTriangle: CMakeFiles/vulkanTriangle.dir/src/device.cpp.o
 vulkanTriangle: CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o
 vulkanTriangle: CMakeFiles/vulkanTriangle.dir/src/window.cpp.o
 vulkanTriangle: CMakeFiles/vulkanTriangle.dir/build.make
 vulkanTriangle: /lib64/libvulkan.so
 vulkanTriangle: /usr/lib64/libglfw.so.3.4
 vulkanTriangle: CMakeFiles/vulkanTriangle.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable vulkanTriangle"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable vulkanTriangle"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vulkanTriangle.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
