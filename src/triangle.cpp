@@ -17,6 +17,7 @@
 #include "window.hpp"
 #include "device.hpp"
 #include "swapchain.hpp"
+#include "util.hpp"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -157,8 +158,8 @@ private:
    
 
     void createGraphicsPipeline() {
-        auto vertShaderCode = readFile("../shaders/shader.vert.spv");
-        auto fragShaderCode = readFile("../shaders/shader.frag.spv");
+        auto vertShaderCode = util::readFile("../shaders/shader.vert.spv");
+        auto fragShaderCode = util::readFile("../shaders/shader.frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -428,29 +429,6 @@ private:
 
 
 
-
-    
-
-
-
-
-    static std::vector<char> readFile(const std::string& filename) {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open()) {
-            throw std::runtime_error("failed to open file!");
-        }
-
-        size_t fileSize = (size_t) file.tellg();
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-
-        file.close();
-
-        return buffer;
-    }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
         std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
