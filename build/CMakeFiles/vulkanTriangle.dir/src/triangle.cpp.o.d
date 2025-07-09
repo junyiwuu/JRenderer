@@ -194,4 +194,5 @@ CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o: \
  /usr/include/c++/11/bits/stl_multimap.h \
  /home/j/projects/playground/vulkanTriangle/src/device.hpp \
  /home/j/projects/playground/vulkanTriangle/src/swapchain.hpp \
- /home/j/projects/playground/vulkanTriangle/src/util.hpp
+ /home/j/projects/playground/vulkanTriangle/src/util.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/shaderModule.hpp

@@ -166,6 +166,30 @@ src/device.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.s
 .PHONY : src/device.cpp.s
 
+src/shaderModule.o: src/shaderModule.cpp.o
+.PHONY : src/shaderModule.o
+
+# target to build an object file
+src/shaderModule.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o
+.PHONY : src/shaderModule.cpp.o
+
+src/shaderModule.i: src/shaderModule.cpp.i
+.PHONY : src/shaderModule.i
+
+# target to preprocess a source file
+src/shaderModule.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.i
+.PHONY : src/shaderModule.cpp.i
+
+src/shaderModule.s: src/shaderModule.cpp.s
+.PHONY : src/shaderModule.s
+
+# target to generate assembly for a file
+src/shaderModule.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.s
+.PHONY : src/shaderModule.cpp.s
+
 src/swapchain.o: src/swapchain.cpp.o
 .PHONY : src/swapchain.o
 
@@ -251,6 +275,9 @@ help:
 	@echo "... src/device.o"
 	@echo "... src/device.i"
 	@echo "... src/device.s"
+	@echo "... src/shaderModule.o"
+	@echo "... src/shaderModule.i"
+	@echo "... src/shaderModule.s"
 	@echo "... src/swapchain.o"
 	@echo "... src/swapchain.i"
 	@echo "... src/swapchain.s"

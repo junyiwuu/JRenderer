@@ -18,6 +18,7 @@
 #include "device.hpp"
 #include "swapchain.hpp"
 #include "util.hpp"
+#include "shaderModule.hpp"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -41,9 +42,9 @@ public:
 
         swapchain_app = std::make_unique<JSwapchain>(*device_app, *window_app);
         swapChain = swapchain_app->swapChain();
-        swapChainExtent = swapchain_app->getSwapChainExtent();
-        swapChainImageFormat = swapchain_app->getSwapChainImageFormat();
-        renderPass = swapchain_app->renderPass();
+ 
+       
+ 
 
 
         
@@ -77,9 +78,8 @@ private:
     //one window only need one swapchain
     std::unique_ptr<JSwapchain> swapchain_app;
     VkSwapchainKHR swapChain;
-    VkExtent2D swapChainExtent;
-    VkFormat swapChainImageFormat;
-    VkRenderPass renderPass;
+
+
 //-----------------------------------------------------------------------------------
 
 
@@ -161,8 +161,16 @@ private:
         auto vertShaderCode = util::readFile("../shaders/shader.vert.spv");
         auto fragShaderCode = util::readFile("../shaders/shader.frag.spv");
 
-        VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+        // auto vertShaderModule_obj = std::make_unique<JShaderModule>(device, vertShaderCode);
+        // VkShaderModule vertShaderModule = vertShaderModule_obj->getShaderModule();
+        // auto fragShaderModule_obj = std::make_unique<JShaderModule>(device, fragShaderCode);
+        // VkShaderModule fragShaderModule = fragShaderModule_obj->getShaderModule();
+
+        JShaderModule vertShaderModule_obj{device, vertShaderCode};
+        VkShaderModule vertShaderModule = vertShaderModule_obj.getShaderModule();
+        JShaderModule fragShaderModule_obj{device, fragShaderCode};
+        VkShaderModule fragShaderModule = fragShaderModule_obj.getShaderModule();
+
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -253,7 +261,7 @@ private:
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = pipelineLayout;
-        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.renderPass = swapchain_app->renderPass();;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -261,8 +269,7 @@ private:
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
-        vkDestroyShaderModule(device, fragShaderModule, nullptr);
-        vkDestroyShaderModule(device, vertShaderModule, nullptr);
+
     }
 
   
@@ -294,6 +301,7 @@ private:
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = swapchain_app->renderPass();
+        // renderPassInfo.renderPass = renderPass;
         renderPassInfo.framebuffer = swapchain_app->getFrameBuffer(imageIndex);
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapchain_app->getSwapChainExtent();
@@ -413,28 +421,9 @@ private:
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
-    VkShaderModule createShaderModule(const std::vector<char>& code) {
-        VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-        VkShaderModule shaderModule;
-        if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create shader module!");
-        }
-
-        return shaderModule;
-    }
+    
 
 
-
-
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-        return VK_FALSE;
-    }
 };
 
 int main() {
