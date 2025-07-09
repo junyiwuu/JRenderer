@@ -159,19 +159,8 @@ private:
 
 
 
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-        createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        createInfo.pfnUserCallback = debugCallback;
-    }
-
-
-
-
     void createSwapChain() {
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+        SwapChainSupportDetails swapChainSupport =  device_app->getSwapChainSupport();
 
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -617,30 +606,7 @@ private:
         }
     }
 
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
-        SwapChainSupportDetails details;
-
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
-
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-
-        if (formatCount != 0) {
-            details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
-        }
-
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0) {
-            details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
-        }
-
-        return details;
-    }
-
+    
 
 
 
