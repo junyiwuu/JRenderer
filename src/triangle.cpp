@@ -158,22 +158,6 @@ private:
 
    
 
-
-    void createCommandBuffers() {
-        commandBuffers.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
-
-        VkCommandBufferAllocateInfo allocInfo{}; // 告诉x个command buffer进入command pool
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
-
-        //正式把command buffer放入command pool
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate command buffers!");
-        }
-    }
-
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
