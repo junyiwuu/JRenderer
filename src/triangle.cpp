@@ -35,6 +35,7 @@ public:
         graphicsQueue = device_app->graphicsQueue();
         presentQueue = device_app->presentQueue();
         physicalDevice = device_app->physicalDevice();
+        commandPool = device_app->getCommandPool();
 
         
         initVulkan();
@@ -61,6 +62,8 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+    VkCommandPool commandPool;
+
 
 //-----------------------------------------------------------------------------------
 
@@ -75,7 +78,7 @@ private:
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
 
-    VkCommandPool commandPool;
+  
     std::vector<VkCommandBuffer> commandBuffers;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -94,7 +97,7 @@ private:
         createRenderPass();
         createGraphicsPipeline();
         createFramebuffers();
-        createCommandPool();
+    
         createCommandBuffers();
         createSyncObjects();
     }
@@ -416,18 +419,6 @@ private:
         }
     }
 
-    void createCommandPool() {
-        QueueFamilyIndices queueFamilyIndices =  device_app->findPhysicalQueueFamilies();
-
-        VkCommandPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create command pool!");
-        }
-    }
 
     void createCommandBuffers() {
         commandBuffers.resize(MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面

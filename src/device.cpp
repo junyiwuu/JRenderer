@@ -7,6 +7,7 @@ JDevice::JDevice(JWindow& window):window_app(window){
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+    createCommandPool();
 }
 
 
