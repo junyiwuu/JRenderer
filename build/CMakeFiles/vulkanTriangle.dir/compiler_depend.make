@@ -1201,7 +1201,8 @@ CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o: /home/j/projects/playground/vu
   /home/j/projects/playground/vulkanTriangle/src/swapchain.hpp \
   /home/j/projects/playground/vulkanTriangle/src/util.hpp \
   /home/j/projects/playground/vulkanTriangle/src/shaderModule.hpp \
-  /home/j/projects/playground/vulkanTriangle/src/pipeline.hpp
+  /home/j/projects/playground/vulkanTriangle/src/pipeline.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/commandBuffers.hpp
 
 CMakeFiles/vulkanTriangle.dir/src/window.cpp.o: /home/j/projects/playground/vulkanTriangle/src/window.cpp \
   /usr/include/stdc-predef.h \
@@ -1402,6 +1403,8 @@ CMakeFiles/vulkanTriangle.dir/src/window.cpp.o: /home/j/projects/playground/vulk
 
 
 /home/j/projects/playground/vulkanTriangle/src/window.cpp:
+
+/home/j/projects/playground/vulkanTriangle/src/commandBuffers.hpp:
 
 /home/j/projects/playground/vulkanTriangle/src/triangle.cpp:
 

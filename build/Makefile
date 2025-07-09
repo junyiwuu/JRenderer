@@ -142,6 +142,30 @@ compile_shaders/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/build
 .PHONY : compile_shaders/fast
 
+src/commandBuffers.o: src/commandBuffers.cpp.o
+.PHONY : src/commandBuffers.o
+
+# target to build an object file
+src/commandBuffers.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o
+.PHONY : src/commandBuffers.cpp.o
+
+src/commandBuffers.i: src/commandBuffers.cpp.i
+.PHONY : src/commandBuffers.i
+
+# target to preprocess a source file
+src/commandBuffers.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.i
+.PHONY : src/commandBuffers.cpp.i
+
+src/commandBuffers.s: src/commandBuffers.cpp.s
+.PHONY : src/commandBuffers.s
+
+# target to generate assembly for a file
+src/commandBuffers.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.s
+.PHONY : src/commandBuffers.cpp.s
+
 src/device.o: src/device.cpp.o
 .PHONY : src/device.o
 
@@ -296,6 +320,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... compile_shaders"
 	@echo "... vulkanTriangle"
+	@echo "... src/commandBuffers.o"
+	@echo "... src/commandBuffers.i"
+	@echo "... src/commandBuffers.s"
 	@echo "... src/device.o"
 	@echo "... src/device.i"
 	@echo "... src/device.s"

@@ -20,8 +20,9 @@
 #include "util.hpp"
 #include "shaderModule.hpp"
 #include "pipeline.hpp"
+#include "commandBuffers.hpp"
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+
 
 
 
@@ -44,13 +45,17 @@ public:
         swapchain_app = std::make_unique<JSwapchain>(*device_app, *window_app);
         swapChain = swapchain_app->swapChain();
  
-       PipelineConfigInfo pipelineConfig{};
-       JPipeline::defaultPipelineConfigInfo(pipelineConfig);
-       pipelineConfig.renderPass = swapchain_app->renderPass();
-       pipeline_app = std::make_unique<JPipeline>(device, 
-                    "../shaders/shader.vert.spv",
-                    "../shaders/shader.frag.spv",
-                    pipelineConfig );
+        PipelineConfigInfo pipelineConfig{};
+        JPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        pipelineConfig.renderPass = swapchain_app->renderPass();
+        pipeline_app = std::make_unique<JPipeline>(device, 
+                        "../shaders/shader.vert.spv",
+                        "../shaders/shader.frag.spv",
+                        pipelineConfig );
+
+        commandBuffers_app = std::make_unique<JCommandBuffers>(*device_app);
+        commandBuffers = commandBuffers_app->getCommandBuffers();
+            
 
         initVulkan();
         mainLoop();
@@ -86,6 +91,10 @@ private:
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
 
+    //commandbuffers
+    std::unique_ptr<JCommandBuffers> commandBuffers_app;
+    std::vector<VkCommandBuffer> commandBuffers;
+
 //-----------------------------------------------------------------------------------
 
 
@@ -110,7 +119,7 @@ private:
     }
     
 
-    std::vector<VkCommandBuffer> commandBuffers;
+
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -121,7 +130,7 @@ private:
 
     void initVulkan() {
   
-        createCommandBuffers();
+   
         createSyncObjects();
     }
 
@@ -138,7 +147,7 @@ private:
 
     void cleanup() {
     
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < JSwapchain::MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(device, inFlightFences[i], nullptr);
@@ -151,7 +160,7 @@ private:
 
 
     void createCommandBuffers() {
-        commandBuffers.resize(MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
+        commandBuffers.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
 
         VkCommandBufferAllocateInfo allocInfo{}; // 告诉x个command buffer进入command pool
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -213,9 +222,9 @@ private:
     }
 
     void createSyncObjects() {
-        imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+        imageAvailableSemaphores.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT);
+        renderFinishedSemaphores.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT);
+        inFlightFences.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -224,7 +233,7 @@ private:
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < JSwapchain::MAX_FRAMES_IN_FLIGHT; i++) {
             if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
                 vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
                 vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
@@ -293,7 +302,7 @@ private:
             throw std::runtime_error("failed to present swap chain image!");
         }
 
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        currentFrame = (currentFrame + 1) % JSwapchain::MAX_FRAMES_IN_FLIGHT;
     }
 
     
