@@ -166,6 +166,30 @@ src/device.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.s
 .PHONY : src/device.cpp.s
 
+src/swapchain.o: src/swapchain.cpp.o
+.PHONY : src/swapchain.o
+
+# target to build an object file
+src/swapchain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o
+.PHONY : src/swapchain.cpp.o
+
+src/swapchain.i: src/swapchain.cpp.i
+.PHONY : src/swapchain.i
+
+# target to preprocess a source file
+src/swapchain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.i
+.PHONY : src/swapchain.cpp.i
+
+src/swapchain.s: src/swapchain.cpp.s
+.PHONY : src/swapchain.s
+
+# target to generate assembly for a file
+src/swapchain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.s
+.PHONY : src/swapchain.cpp.s
+
 src/triangle.o: src/triangle.cpp.o
 .PHONY : src/triangle.o
 
@@ -227,6 +251,9 @@ help:
 	@echo "... src/device.o"
 	@echo "... src/device.i"
 	@echo "... src/device.s"
+	@echo "... src/swapchain.o"
+	@echo "... src/swapchain.i"
+	@echo "... src/swapchain.s"
 	@echo "... src/triangle.o"
 	@echo "... src/triangle.i"
 	@echo "... src/triangle.s"
