@@ -8,6 +8,10 @@ class JShaderModule{
 
 
 public:
+
+
+
+
     JShaderModule(VkDevice& device, const std::vector<char>& code);
     ~JShaderModule();
 
@@ -25,6 +29,7 @@ private:
     const std::vector<char>& code;
 
     VkShaderModule shaderModule_;
+
 
     void createShaderModule(const std::vector<char>& code);
 

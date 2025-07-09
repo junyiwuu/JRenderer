@@ -166,6 +166,30 @@ src/device.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.s
 .PHONY : src/device.cpp.s
 
+src/pipeline.o: src/pipeline.cpp.o
+.PHONY : src/pipeline.o
+
+# target to build an object file
+src/pipeline.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o
+.PHONY : src/pipeline.cpp.o
+
+src/pipeline.i: src/pipeline.cpp.i
+.PHONY : src/pipeline.i
+
+# target to preprocess a source file
+src/pipeline.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.i
+.PHONY : src/pipeline.cpp.i
+
+src/pipeline.s: src/pipeline.cpp.s
+.PHONY : src/pipeline.s
+
+# target to generate assembly for a file
+src/pipeline.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.s
+.PHONY : src/pipeline.cpp.s
+
 src/shaderModule.o: src/shaderModule.cpp.o
 .PHONY : src/shaderModule.o
 
@@ -275,6 +299,9 @@ help:
 	@echo "... src/device.o"
 	@echo "... src/device.i"
 	@echo "... src/device.s"
+	@echo "... src/pipeline.o"
+	@echo "... src/pipeline.i"
+	@echo "... src/pipeline.s"
 	@echo "... src/shaderModule.o"
 	@echo "... src/shaderModule.i"
 	@echo "... src/shaderModule.s"
