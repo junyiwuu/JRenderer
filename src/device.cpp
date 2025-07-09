@@ -12,7 +12,7 @@ JDevice::JDevice(JWindow& window):window_app(window){
 
 
 JDevice::~JDevice(){
-
+    vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);
 
     if (enableValidationLayers){
@@ -20,6 +20,7 @@ JDevice::~JDevice(){
 
     vkDestroySurfaceKHR(instance_, surface_, nullptr);
     vkDestroyInstance(instance_, nullptr);
+    
 }
 
 

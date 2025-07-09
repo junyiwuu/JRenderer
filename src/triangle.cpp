@@ -52,10 +52,6 @@ public:
                     "../shaders/shader.frag.spv",
                     pipelineConfig );
 
- 
-
-
-        
         initVulkan();
         mainLoop();
         cleanup();
@@ -113,10 +109,7 @@ private:
 
     }
     
-    
 
-
-  
     std::vector<VkCommandBuffer> commandBuffers;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -126,12 +119,8 @@ private:
 
     bool framebufferResized = false;
 
-
-
     void initVulkan() {
-        
-
-   
+  
         createCommandBuffers();
         createSyncObjects();
     }
@@ -155,7 +144,7 @@ private:
             vkDestroyFence(device, inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(device, commandPool, nullptr);
+        
     }
 
    
