@@ -16,7 +16,11 @@ JSwapchain::JSwapchain(JDevice& device, JWindow& window, std::shared_ptr<JSwapch
 JSwapchain::~JSwapchain(){
     cleanupSwapChain();
     vkDestroyRenderPass(device_app.device(), renderPass_, nullptr);
-
+    for (size_t i = 0; i < JSwapchain::MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(device_app.device(), renderFinishedSemaphores_[i], nullptr);
+        vkDestroySemaphore(device_app.device(), imageAvailableSemaphores_[i], nullptr);
+        vkDestroyFence(device_app.device(), inFlightFences_[i], nullptr);
+    }
 }
 
 
@@ -25,6 +29,7 @@ void JSwapchain::init() {
     createImageViews();
     createRenderPass();
     createFramebuffers();
+    createSyncObjects();
 }
 
 void JSwapchain::cleanupSwapChain() {
@@ -239,17 +244,26 @@ VkExtent2D JSwapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabili
 }
 
 
-// VkResult JSwapchain::acquireNextImage(uint32_t* imageIndex){
+void JSwapchain::createSyncObjects() {
+    imageAvailableSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
+    inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
 
-//     vkAcquireNextImageKHR(device_app.device(), swapChain_, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-
-
-
-
-
-// }
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        if (vkCreateSemaphore(device_app.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(device_app.device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
+            vkCreateFence(device_app.device(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create synchronization objects for a frame!");
+        }
+    }
+}
 
 
 

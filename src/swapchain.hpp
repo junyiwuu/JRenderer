@@ -30,6 +30,10 @@ public:
     VkRenderPass renderPass() {return renderPass_;}
 
     VkResult acquireNextImage(uint32_t* imageIndex);
+
+    VkSemaphore getCurrentImageAvailableSemaphore(int index) {return imageAvailableSemaphores_[index];}
+    VkSemaphore getCurrentRenderFinishedSemaphore(int index) {return renderFinishedSemaphores_[index];}
+    VkFence& getCurrentInFlightFence(int index){ return inFlightFences_[index];}
     
 
 
@@ -50,6 +54,12 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers_;
     VkRenderPass renderPass_;
 
+    std::vector<VkSemaphore> imageAvailableSemaphores_;
+    std::vector<VkSemaphore> renderFinishedSemaphores_;
+    std::vector<VkFence> inFlightFences_;
+    
+
+
     void init();
     void createSwapChain();
     void createImageViews();
@@ -57,6 +67,7 @@ private:
 
     void cleanupSwapChain();
     void createRenderPass();
+    void createSyncObjects();
 
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
