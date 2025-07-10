@@ -142,6 +142,30 @@ compile_shaders/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/build
 .PHONY : compile_shaders/fast
 
+src/JRenderer.o: src/JRenderer.cpp.o
+.PHONY : src/JRenderer.o
+
+# target to build an object file
+src/JRenderer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o
+.PHONY : src/JRenderer.cpp.o
+
+src/JRenderer.i: src/JRenderer.cpp.i
+.PHONY : src/JRenderer.i
+
+# target to preprocess a source file
+src/JRenderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.i
+.PHONY : src/JRenderer.cpp.i
+
+src/JRenderer.s: src/JRenderer.cpp.s
+.PHONY : src/JRenderer.s
+
+# target to generate assembly for a file
+src/JRenderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.s
+.PHONY : src/JRenderer.cpp.s
+
 src/buffer.o: src/buffer.cpp.o
 .PHONY : src/buffer.o
 
@@ -310,30 +334,6 @@ src/swapchain.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.s
 .PHONY : src/swapchain.cpp.s
 
-src/triangle.o: src/triangle.cpp.o
-.PHONY : src/triangle.o
-
-# target to build an object file
-src/triangle.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o
-.PHONY : src/triangle.cpp.o
-
-src/triangle.i: src/triangle.cpp.i
-.PHONY : src/triangle.i
-
-# target to preprocess a source file
-src/triangle.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.i
-.PHONY : src/triangle.cpp.i
-
-src/triangle.s: src/triangle.cpp.s
-.PHONY : src/triangle.s
-
-# target to generate assembly for a file
-src/triangle.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.s
-.PHONY : src/triangle.cpp.s
-
 src/utility.o: src/utility.cpp.o
 .PHONY : src/utility.o
 
@@ -392,6 +392,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... compile_shaders"
 	@echo "... vulkanTriangle"
+	@echo "... src/JRenderer.o"
+	@echo "... src/JRenderer.i"
+	@echo "... src/JRenderer.s"
 	@echo "... src/buffer.o"
 	@echo "... src/buffer.i"
 	@echo "... src/buffer.s"
@@ -413,9 +416,6 @@ help:
 	@echo "... src/swapchain.o"
 	@echo "... src/swapchain.i"
 	@echo "... src/swapchain.s"
-	@echo "... src/triangle.o"
-	@echo "... src/triangle.i"
-	@echo "... src/triangle.s"
 	@echo "... src/utility.o"
 	@echo "... src/utility.i"
 	@echo "... src/utility.s"

@@ -25,14 +25,17 @@
 
 
 const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+const std::vector<uint16_t> indices = {
+    0, 1, 2, 2, 3, 0
 };
 
 
-
-class HelloTriangleApplication {
+class JRenderer {
 public:
 
 
@@ -61,6 +64,7 @@ public:
         graphicPipeline = pipeline_app->getGraphicPipeline();
     
         vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vertices, commandPool, graphicsQueue);
+        indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, indices, commandPool, graphicsQueue);
 
   
         
@@ -115,7 +119,7 @@ private:
 
     //vertex
     std::unique_ptr<JVertexBuffer> vertexBuffer_obj;
-
+    std::unique_ptr<JIndexBuffer> indexBuffer_obj;
 //-----------------------------------------------------------------------------------
 
 
@@ -202,9 +206,12 @@ private:
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicPipeline);
             VkBuffer vertexBuffers[] = {vertexBuffer_obj->baseBuffer.buffer()};
             VkDeviceSize offsets[] = {0};
+            //binding
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT16);
 
-            vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+            vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+            // vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -284,7 +291,7 @@ private:
 };
 
 int main() {
-    HelloTriangleApplication app;
+    JRenderer app;
 
     try {
         app.run();

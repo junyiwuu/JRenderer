@@ -45,37 +45,39 @@ struct JVertexBuffer{
                     const std::vector<Vertex>& vertices, VkCommandPool commandPool, VkQueue queue):
     //initiate JBuffer                 
         baseBuffer(device_app ,sizeof(Vertex)*vertices.size(), 
-        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT )
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT )
 
-        {
-            JBuffer stagingBuffer(device_app, baseBuffer.getSize(), 
-                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-            void* data;
-            vkMapMemory(device_app.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &data);
-            memcpy(data, vertices.data(), (size_t)(stagingBuffer.getSize()));
-            vkUnmapMemory(device_app.device(), stagingBuffer.bufferMemory());
+    {
+        JBuffer stagingBuffer(device_app, baseBuffer.getSize(), 
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        void* data;
+        vkMapMemory(device_app.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &data);
+        memcpy(data, vertices.data(), (size_t)(stagingBuffer.getSize()));
+        vkUnmapMemory(device_app.device(), stagingBuffer.bufferMemory());
 
-            util::copyBuffer(stagingBuffer.buffer(), baseBuffer.buffer(), baseBuffer.getSize(), device_app.device(), commandPool, queue);
-
-            
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        util::copyBuffer(stagingBuffer.buffer(), baseBuffer.buffer(), baseBuffer.getSize(), device_app.device(), commandPool, queue);   
+    }
 };
 
+
+struct JIndexBuffer{
+    JBuffer baseBuffer;
+
+    JIndexBuffer(JDevice& device_app, 
+                 const std::vector<uint16_t>& indices, VkCommandPool commandPool, VkQueue queue):
+        baseBuffer(device_app, sizeof(indices[0])*indices.size(),
+                   VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT )
+    {
+        JBuffer stagingBuffer(device_app, baseBuffer.getSize(), 
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        void* data;
+        vkMapMemory(device_app.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &data);
+        memcpy(data, indices.data(), (size_t)(stagingBuffer.getSize()));
+        vkUnmapMemory(device_app.device(), stagingBuffer.bufferMemory());
+
+        util::copyBuffer(stagingBuffer.buffer(), baseBuffer.buffer(), baseBuffer.getSize(), device_app.device(), commandPool, queue);
+    }
+};
 
 
 
