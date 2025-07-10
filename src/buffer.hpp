@@ -2,16 +2,19 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <cstring>
+#include <chrono>
 
 #include "utility.hpp"
 #include "load_model.hpp"
 #include "device.hpp"
 
-
+struct UniformBufferObject {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 class JBuffer{
-
-
 
 public:
 
@@ -19,10 +22,15 @@ public:
         VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     ~JBuffer();
 
-
     VkBuffer buffer() {return buffer_;}
     VkDeviceMemory bufferMemory() {return bufferMemory_;}
     VkDeviceSize getSize() {return size_;}
+
+    struct externalCreateBufferResult {
+        VkBuffer r_buffer_; 
+        VkDeviceMemory r_bufferMemory_; };
+    static externalCreateBufferResult createBuffer(JDevice& device_app,  VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+    void destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory bufferMemory);
 
 
 
@@ -31,6 +39,8 @@ private:
     VkBuffer buffer_ = VK_NULL_HANDLE;
     VkDeviceMemory bufferMemory_ = VK_NULL_HANDLE;
     VkDeviceSize size_;
+
+
 
 
 };
@@ -86,14 +96,35 @@ struct JIndexBuffer{
 
 
 
+class JUniformBuffer{
+
+public:
+
+    JUniformBuffer(JDevice& device,  int frames);
+    ~JUniformBuffer();
+
+    JUniformBuffer(const JUniformBuffer&) = delete;
+    JUniformBuffer& operator=(const JUniformBuffer&) = delete;
+
+
+    const std::vector<VkBuffer>& buffers() {return uniformBuffers_;}
+    const std::vector<VkDeviceMemory>& buffersMemory(){ return uniformBuffersMemory_;}
+    const std::vector<void*>& buffersMapped() {return uniformBuffersMapped_;}
+
+    void update(uint32_t currentImage, const UniformBufferObject& UniformBufferObject);
+
+private:
+    JDevice& device_app;
+    int frames_;
+
+    std::vector<VkBuffer> uniformBuffers_;
+    std::vector<VkDeviceMemory> uniformBuffersMemory_;
+    std::vector<void*> uniformBuffersMapped_;
 
 
 
 
-
-
-
-
+};
 
 
 

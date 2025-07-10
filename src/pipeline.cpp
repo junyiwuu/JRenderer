@@ -8,10 +8,10 @@
 JPipeline::JPipeline(
         VkDevice& device ,
         const std::string& vertFilepath, const std::string& fragFilepath, 
-        const PipelineConfigInfo& configInfo
+        const PipelineConfigInfo& configInfo, const VkDescriptorSetLayout& descriptorSetLayout
     ): device{device}
 {
-    createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
+    createGraphicsPipeline(vertFilepath, fragFilepath, configInfo, descriptorSetLayout);
 
 }
 
@@ -27,7 +27,8 @@ JPipeline::~JPipeline(){
 
 
 void JPipeline::createGraphicsPipeline(
-        const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo ) 
+        const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo,
+        const VkDescriptorSetLayout& descriptorSetLayout ) 
         
 {
     auto vertShaderCode = util::readFile(vertFilepath);
@@ -73,7 +74,8 @@ void JPipeline::createGraphicsPipeline(
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {

@@ -33,26 +33,29 @@ class JPipeline{
 
 public:
     JPipeline(VkDevice& device ,const std::string& vertFilepath, const std::string& fragFilepath, 
-                const PipelineConfigInfo& configInfo);
+                const PipelineConfigInfo& configInfo, const VkDescriptorSetLayout& descriptorSetLayout);
     ~JPipeline();
 
     static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
     VkPipeline getGraphicPipeline() {return graphicsPipeline_;}
+    VkPipelineLayout getPipelineLayout(){ return pipelineLayout_;}
 
-
-
+        // graphic pipeline并非固定一个pipelinelayout，layout其实应该和descriptor set相关，之后要整理
 
 
 
 
 private:
     VkDevice& device;
+    // VkDescriptorSetLayout& descriptorSetLayout;
+
 
     VkPipelineLayout pipelineLayout_;
     VkPipeline graphicsPipeline_;
 
-    void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
+    void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, 
+            const PipelineConfigInfo& configInfo, const VkDescriptorSetLayout& descriptorSetLayout);
 
 
 

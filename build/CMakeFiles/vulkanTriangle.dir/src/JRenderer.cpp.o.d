@@ -188,19 +188,10 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: \
  /usr/include/c++/11/bits/atomic_base.h \
  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
  /usr/include/c++/11/backward/auto_ptr.h \
- /usr/include/c++/11/pstl/glue_memory_defs.h \
- /home/j/projects/playground/vulkanTriangle/src/window.hpp \
- /usr/include/c++/11/map /usr/include/c++/11/bits/stl_map.h \
- /usr/include/c++/11/bits/stl_multimap.h \
- /home/j/projects/playground/vulkanTriangle/src/device.hpp \
- /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
- /home/j/projects/playground/vulkanTriangle/src/swapchain.hpp \
- /home/j/projects/playground/vulkanTriangle/src/shaderModule.hpp \
- /home/j/projects/playground/vulkanTriangle/src/pipeline.hpp \
- /home/j/projects/playground/vulkanTriangle/src/load_model.hpp \
- /usr/include/glm/glm.hpp /usr/include/glm/detail/_fixes.hpp \
- /usr/include/c++/11/cmath /usr/include/math.h \
- /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
+ /usr/include/c++/11/pstl/glue_memory_defs.h /usr/include/glm/glm.hpp \
+ /usr/include/glm/detail/_fixes.hpp /usr/include/c++/11/cmath \
+ /usr/include/math.h /usr/include/bits/math-vector.h \
+ /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
  /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
@@ -339,5 +330,29 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: \
  /usr/include/glm/detail/type_half.hpp \
  /usr/include/glm/detail/type_half.inl /usr/include/glm/integer.hpp \
  /usr/include/glm/detail/func_integer.inl \
+ /usr/include/glm/gtc/matrix_transform.hpp \
+ /usr/include/glm/ext/matrix_projection.hpp \
+ /usr/include/glm/gtc/constants.hpp \
+ /usr/include/glm/ext/scalar_constants.hpp \
+ /usr/include/glm/ext/scalar_constants.inl \
+ /usr/include/glm/gtc/constants.inl \
+ /usr/include/glm/ext/matrix_projection.inl \
+ /usr/include/glm/ext/matrix_clip_space.hpp \
+ /usr/include/glm/ext/matrix_clip_space.inl \
+ /usr/include/glm/ext/matrix_transform.hpp \
+ /usr/include/glm/ext/matrix_transform.inl \
+ /usr/include/glm/gtc/matrix_transform.inl /usr/include/c++/11/chrono \
+ /usr/include/c++/11/ratio /usr/include/c++/11/ctime \
+ /usr/include/c++/11/bits/parse_numbers.h \
+ /home/j/projects/playground/vulkanTriangle/src/window.hpp \
+ /usr/include/c++/11/map /usr/include/c++/11/bits/stl_map.h \
+ /usr/include/c++/11/bits/stl_multimap.h \
+ /home/j/projects/playground/vulkanTriangle/src/device.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/swapchain.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/shaderModule.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/pipeline.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/load_model.hpp \
  /home/j/projects/playground/vulkanTriangle/src/commandBuffers.hpp \
- /home/j/projects/playground/vulkanTriangle/src/buffer.hpp
+ /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp

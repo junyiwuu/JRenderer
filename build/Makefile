@@ -214,6 +214,30 @@ src/commandBuffers.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.s
 .PHONY : src/commandBuffers.cpp.s
 
+src/descriptor.o: src/descriptor.cpp.o
+.PHONY : src/descriptor.o
+
+# target to build an object file
+src/descriptor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o
+.PHONY : src/descriptor.cpp.o
+
+src/descriptor.i: src/descriptor.cpp.i
+.PHONY : src/descriptor.i
+
+# target to preprocess a source file
+src/descriptor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.i
+.PHONY : src/descriptor.cpp.i
+
+src/descriptor.s: src/descriptor.cpp.s
+.PHONY : src/descriptor.s
+
+# target to generate assembly for a file
+src/descriptor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.s
+.PHONY : src/descriptor.cpp.s
+
 src/device.o: src/device.cpp.o
 .PHONY : src/device.o
 
@@ -401,6 +425,9 @@ help:
 	@echo "... src/commandBuffers.o"
 	@echo "... src/commandBuffers.i"
 	@echo "... src/commandBuffers.s"
+	@echo "... src/descriptor.o"
+	@echo "... src/descriptor.i"
+	@echo "... src/descriptor.s"
 	@echo "... src/device.o"
 	@echo "... src/device.i"
 	@echo "... src/device.s"

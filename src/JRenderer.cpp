@@ -13,6 +13,9 @@
 #include <optional>
 #include <set>
 #include <memory>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <chrono>
 
 #include "window.hpp"
 #include "device.hpp"
@@ -22,6 +25,7 @@
 #include "pipeline.hpp"
 #include "commandBuffers.hpp"
 #include "buffer.hpp"
+#include "descriptor.hpp"
 
 
 const std::vector<Vertex> vertices = {
@@ -33,6 +37,7 @@ const std::vector<Vertex> vertices = {
 const std::vector<uint16_t> indices = {
     0, 1, 2, 2, 3, 0
 };
+
 
 
 class JRenderer {
@@ -54,22 +59,33 @@ public:
         swapchain_app = std::make_unique<JSwapchain>(*device_app, *window_app);
         swapChain = swapchain_app->swapChain();
  
-        PipelineConfigInfo pipelineConfig{};
-        JPipeline::defaultPipelineConfigInfo(pipelineConfig);
-        pipelineConfig.renderPass = swapchain_app->renderPass();
-        pipeline_app = std::make_unique<JPipeline>(device, 
-                        "../shaders/shader.vert.spv",
-                        "../shaders/shader.frag.spv",
-                        pipelineConfig );
-        graphicPipeline = pipeline_app->getGraphicPipeline();
+        descriptorPool_obj = std::make_unique<JDescriptorPool>(device, JSwapchain::MAX_FRAMES_IN_FLIGHT);
+
+      
     
         vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vertices, commandPool, graphicsQueue);
         indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, indices, commandPool, graphicsQueue);
+        uniformBuffer_obj = std::make_unique<JUniformBuffer>(*device_app,JSwapchain::MAX_FRAMES_IN_FLIGHT);
 
-  
         
+        descriptorSets_obj = std::make_unique<JDescriptorSets>(device, *descriptorPool_obj,
+                JSwapchain::MAX_FRAMES_IN_FLIGHT, uniformBuffer_obj->buffers());
+
+
+        PipelineConfigInfo pipelineConfig{};
+        JPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        pipelineConfig.renderPass = swapchain_app->renderPass();
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+        pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        pipeline_app = std::make_unique<JPipeline>(device, 
+                        "../shaders/shader.vert.spv",
+                        "../shaders/shader.frag.spv",
+                        pipelineConfig , descriptorSets_obj->descriptorSetLayout());
+        graphicPipeline = pipeline_app->getGraphicPipeline();
+
         commandBuffers_app = std::make_unique<JCommandBuffers>(*device_app);
         commandBuffers = commandBuffers_app->getCommandBuffers();
+
         
         
        
@@ -117,9 +133,17 @@ private:
 
     uint32_t currentFrame = 0;
 
-    //vertex
+    //vertex, index, uniformBuffer
     std::unique_ptr<JVertexBuffer> vertexBuffer_obj;
     std::unique_ptr<JIndexBuffer> indexBuffer_obj;
+    std::unique_ptr<JUniformBuffer> uniformBuffer_obj;
+
+    //descriptor
+    std::unique_ptr<JDescriptorPool> descriptorPool_obj;
+    std::unique_ptr<JDescriptorSets> descriptorSets_obj;
+    
+
+
 //-----------------------------------------------------------------------------------
 
 
@@ -210,6 +234,9 @@ private:
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT16);
 
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getPipelineLayout(),0,1,
+                        &descriptorSets_obj->descriptorSets()[currentFrame], 0, nullptr );
+
             vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
             // vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
@@ -235,6 +262,22 @@ private:
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             throw std::runtime_error("failed to acquire swap chain image!");
         }
+
+        //--------- update uniform buffer
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float updateUniformBuffer_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.0f), updateUniformBuffer_time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), swapchain_app->getSwapChainExtent().width / (float)swapchain_app->getSwapChainExtent().height, 0.1f, 10.0f);
+        ubo.proj[1][1] *= -1;
+
+        uniformBuffer_obj->update(currentFrame, ubo);
+
+        //---------------------------------------
 
         vkResetFences(device, 1,  &swapchain_app->getCurrentInFlightFence(currentFrame));
 

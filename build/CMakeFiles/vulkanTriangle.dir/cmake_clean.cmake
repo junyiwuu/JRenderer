@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o.d"
+  "CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o"
+  "CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o"
