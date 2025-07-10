@@ -142,6 +142,30 @@ compile_shaders/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/build
 .PHONY : compile_shaders/fast
 
+src/buffer.o: src/buffer.cpp.o
+.PHONY : src/buffer.o
+
+# target to build an object file
+src/buffer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o
+.PHONY : src/buffer.cpp.o
+
+src/buffer.i: src/buffer.cpp.i
+.PHONY : src/buffer.i
+
+# target to preprocess a source file
+src/buffer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.i
+.PHONY : src/buffer.cpp.i
+
+src/buffer.s: src/buffer.cpp.s
+.PHONY : src/buffer.s
+
+# target to generate assembly for a file
+src/buffer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.s
+.PHONY : src/buffer.cpp.s
+
 src/commandBuffers.o: src/commandBuffers.cpp.o
 .PHONY : src/commandBuffers.o
 
@@ -189,6 +213,30 @@ src/device.s: src/device.cpp.s
 src/device.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.s
 .PHONY : src/device.cpp.s
+
+src/load_model.o: src/load_model.cpp.o
+.PHONY : src/load_model.o
+
+# target to build an object file
+src/load_model.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o
+.PHONY : src/load_model.cpp.o
+
+src/load_model.i: src/load_model.cpp.i
+.PHONY : src/load_model.i
+
+# target to preprocess a source file
+src/load_model.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.i
+.PHONY : src/load_model.cpp.i
+
+src/load_model.s: src/load_model.cpp.s
+.PHONY : src/load_model.s
+
+# target to generate assembly for a file
+src/load_model.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.s
+.PHONY : src/load_model.cpp.s
 
 src/pipeline.o: src/pipeline.cpp.o
 .PHONY : src/pipeline.o
@@ -286,6 +334,30 @@ src/triangle.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.s
 .PHONY : src/triangle.cpp.s
 
+src/utility.o: src/utility.cpp.o
+.PHONY : src/utility.o
+
+# target to build an object file
+src/utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/utility.cpp.o
+.PHONY : src/utility.cpp.o
+
+src/utility.i: src/utility.cpp.i
+.PHONY : src/utility.i
+
+# target to preprocess a source file
+src/utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/utility.cpp.i
+.PHONY : src/utility.cpp.i
+
+src/utility.s: src/utility.cpp.s
+.PHONY : src/utility.s
+
+# target to generate assembly for a file
+src/utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/utility.cpp.s
+.PHONY : src/utility.cpp.s
+
 src/window.o: src/window.cpp.o
 .PHONY : src/window.o
 
@@ -320,12 +392,18 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... compile_shaders"
 	@echo "... vulkanTriangle"
+	@echo "... src/buffer.o"
+	@echo "... src/buffer.i"
+	@echo "... src/buffer.s"
 	@echo "... src/commandBuffers.o"
 	@echo "... src/commandBuffers.i"
 	@echo "... src/commandBuffers.s"
 	@echo "... src/device.o"
 	@echo "... src/device.i"
 	@echo "... src/device.s"
+	@echo "... src/load_model.o"
+	@echo "... src/load_model.i"
+	@echo "... src/load_model.s"
 	@echo "... src/pipeline.o"
 	@echo "... src/pipeline.i"
 	@echo "... src/pipeline.s"
@@ -338,6 +416,9 @@ help:
 	@echo "... src/triangle.o"
 	@echo "... src/triangle.i"
 	@echo "... src/triangle.s"
+	@echo "... src/utility.o"
+	@echo "... src/utility.i"
+	@echo "... src/utility.s"
 	@echo "... src/window.o"
 	@echo "... src/window.i"
 	@echo "... src/window.s"

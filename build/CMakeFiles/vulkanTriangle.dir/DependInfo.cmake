@@ -8,12 +8,15 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/j/projects/playground/vulkanTriangle/src/buffer.cpp" "CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/commandBuffers.cpp" "CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/device.cpp" "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/load_model.cpp" "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/pipeline.cpp" "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/shaderModule.cpp" "CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/swapchain.cpp" "CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/triangle.cpp" "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/triangle.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/utility.cpp" "CMakeFiles/vulkanTriangle.dir/src/utility.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/utility.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/window.cpp" "CMakeFiles/vulkanTriangle.dir/src/window.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/window.cpp.o.d"
   )
 

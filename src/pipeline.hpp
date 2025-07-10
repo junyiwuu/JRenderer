@@ -1,9 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "util.hpp"
+#include "utility.hpp"
 #include "shaderModule.hpp"
-
+#include "load_model.hpp"
 
 struct PipelineConfigInfo
 {

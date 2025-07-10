@@ -135,8 +135,9 @@ CMakeFiles/vulkanTriangle.dir/src/device.cpp.o: \
  /usr/include/c++/11/array /usr/include/c++/11/bits/uses_allocator.h \
  /usr/include/c++/11/bits/invoke.h \
  /usr/include/c++/11/bits/stl_multimap.h \
- /usr/include/c++/11/bits/erase_if.h /usr/include/c++/11/vector \
- /usr/include/c++/11/bits/stl_uninitialized.h \
+ /usr/include/c++/11/bits/erase_if.h \
+ /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
+ /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc /usr/include/c++/11/iostream \
@@ -160,7 +161,11 @@ CMakeFiles/vulkanTriangle.dir/src/device.cpp.o: \
  /usr/include/c++/11/bits/locale_facets.tcc \
  /usr/include/c++/11/bits/basic_ios.tcc \
  /usr/include/c++/11/bits/ostream.tcc /usr/include/c++/11/istream \
- /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/cstring \
+ /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/fstream \
+ /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/c++/11/x86_64-redhat-linux/bits/basic_file.h \
+ /usr/include/c++/11/x86_64-redhat-linux/bits/c++io.h \
+ /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/cstring \
  /usr/include/string.h /usr/include/strings.h \
  /usr/include/c++/11/optional \
  /usr/include/c++/11/bits/enable_special_members.h \

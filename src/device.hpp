@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include "window.hpp"
+#include "utility.hpp"
 #include <vector>
 #include <iostream>
 #include <cstring>
@@ -40,14 +41,14 @@ public:
     VkQueue graphicsQueue() { return graphicsQueue_; }
     VkQueue presentQueue() { return presentQueue_; }
     VkPhysicalDevice physicalDevice() {return physicalDevice_;}
-    VkCommandPool getCommandPool() {return commandPool;}
+    VkCommandPool getCommandPool() {return commandPool_;}
 
 
     QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice_); }
     SwapChainSupportDetails getSwapChainSupport() {return querySwapChainSupport(physicalDevice_);}
     VkFormat findSupportFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     // memory allocation      
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
 
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
@@ -56,11 +57,9 @@ public:
             VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
             VkImage& image, VkDeviceMemory& imageMemory);
 
-    VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
             
 
@@ -75,7 +74,7 @@ private:
     VkQueue graphicsQueue_;
     VkSurfaceKHR surface_;
     VkQueue presentQueue_;
-    VkCommandPool commandPool;
+    VkCommandPool commandPool_;
 
 
 

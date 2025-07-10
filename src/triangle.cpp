@@ -17,12 +17,18 @@
 #include "window.hpp"
 #include "device.hpp"
 #include "swapchain.hpp"
-#include "util.hpp"
+#include "utility.hpp"
 #include "shaderModule.hpp"
 #include "pipeline.hpp"
 #include "commandBuffers.hpp"
+#include "buffer.hpp"
 
 
+const std::vector<Vertex> vertices = {
+    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
 
 
 
@@ -52,10 +58,19 @@ public:
                         "../shaders/shader.vert.spv",
                         "../shaders/shader.frag.spv",
                         pipelineConfig );
+        graphicPipeline = pipeline_app->getGraphicPipeline();
+    
+        vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vertices, commandPool, graphicsQueue);
 
+  
+        
         commandBuffers_app = std::make_unique<JCommandBuffers>(*device_app);
         commandBuffers = commandBuffers_app->getCommandBuffers();
-            
+        
+        
+       
+        
+
 
 
         mainLoop();
@@ -90,13 +105,17 @@ private:
 
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
+    VkPipeline graphicPipeline;
 
     //commandbuffers
     std::unique_ptr<JCommandBuffers> commandBuffers_app;
     std::vector<VkCommandBuffer> commandBuffers;
 
-
     uint32_t currentFrame = 0;
+
+    //vertex
+    std::unique_ptr<JVertexBuffer> vertexBuffer_obj;
+
 //-----------------------------------------------------------------------------------
 
 
@@ -164,7 +183,7 @@ private:
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
  
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicPipeline);
 
             VkViewport viewport{};
             viewport.x = 0.0f;
@@ -180,7 +199,12 @@ private:
             scissor.extent = swapchain_app->getSwapChainExtent();
             vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-            vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicPipeline);
+            VkBuffer vertexBuffers[] = {vertexBuffer_obj->baseBuffer.buffer()};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+            vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
