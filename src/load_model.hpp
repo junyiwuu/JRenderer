@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <vector>
 #include <array>
