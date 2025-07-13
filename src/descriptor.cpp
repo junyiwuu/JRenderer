@@ -131,11 +131,11 @@ JDescriptorWriter &JDescriptorWriter::writeBuffer(uint32_t n_binding, VkDescript
 
     VkWriteDescriptorSet descriptorWrite{};
     descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.descriptorType = bindingDescription.descriptorType;
     descriptorWrite.dstBinding = n_binding;
-    descriptorWrite.pBufferInfo = bufferInfo;
     descriptorWrite.descriptorCount = 1;
-
+    descriptorWrite.descriptorType = bindingDescription.descriptorType;
+    descriptorWrite.pBufferInfo = bufferInfo;
+    
     descriptorWrites_.push_back(descriptorWrite);
     return *this;
 }
@@ -146,10 +146,10 @@ JDescriptorWriter &JDescriptorWriter::writeImage(uint32_t n_binding, VkDescripto
 
     VkWriteDescriptorSet descriptorWrite{};
     descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.descriptorType = bindingDescription.descriptorType;
     descriptorWrite.dstBinding = n_binding;
-    descriptorWrite.pImageInfo = imageInfo;
     descriptorWrite.descriptorCount = 1;
+    descriptorWrite.descriptorType = bindingDescription.descriptorType;    
+    descriptorWrite.pImageInfo = imageInfo;
 
     descriptorWrites_.push_back(descriptorWrite);
     return *this;

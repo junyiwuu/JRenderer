@@ -8,13 +8,16 @@ JTexture::JTexture(const std::string& path, JDevice& device):
     device_app(device)    
 {
     createTextureImage(path, device_app);
-
+    createTextureImageView();
+    createTextureSampler();
 }
 
 
 JTexture::~JTexture(){
-    vkDestroyImage(device_app.device(), textureImage, nullptr);
-    vkFreeMemory(device_app.device(), textureImageMemory, nullptr);
+    vkDestroyImage(device_app.device(), textureImage_, nullptr);
+    vkFreeMemory(device_app.device(), textureImageMemory_, nullptr);
+    vkDestroySampler(device_app.device(), textureSampler_, nullptr);
+    vkDestroyImageView(device_app.device(), textureImageView_, nullptr);
 
 }
 
@@ -56,20 +59,24 @@ void JTexture::createTextureImage(const std::string& path, JDevice& device_app) 
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;  //for multisampling
     imageInfo.flags = 0;
     imageInfo.mipLevels = 1;
-    device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+    device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage_, textureImageMemory_);
 
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, 
+    transitionImageLayout(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, 
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-    copyBufferToImage(stagingBuffer.buffer(), textureImage, 
+    copyBufferToImage(stagingBuffer.buffer(), textureImage_, 
         static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, 
+    transitionImageLayout(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, 
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 }
 
 
+void JTexture::createTextureImageView(){
+    auto viewInfo = ImageViewCreateInfoBuilder(textureImage_).getInfo();
+    device_app.createImageViewWithInfo(viewInfo, textureImageView_);
 
+}
 
 void JTexture::transitionImageLayout(VkImage image, VkFormat format, 
             VkImageLayout oldLayout, VkImageLayout newLayout) 
@@ -107,7 +114,16 @@ void JTexture::transitionImageLayout(VkImage image, VkFormat format,
     } else {
         throw std::invalid_argument("unsupported layout transition!");
     }
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        sourceStage, destinationStage,
+        0,
+        0, nullptr,
+        0, nullptr,
+        1, &barrier
+    );
 
+    util::endSingleTimeCommands(device_app.device(), commandBuffer, device_app.getCommandPool(), device_app.graphicsQueue());
 }
 
 
@@ -157,8 +173,11 @@ void JTexture::createTextureSampler() {
     samplerInfo.compareEnable = VK_FALSE;
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
 
-    if (vkCreateSampler(device_app.device(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+    if (vkCreateSampler(device_app.device(), &samplerInfo, nullptr, &textureSampler_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
 }

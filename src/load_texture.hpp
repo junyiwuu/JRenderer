@@ -16,6 +16,11 @@ public:
 
     JTexture(const std::string& path, JDevice& device);
     ~JTexture();
+    
+    VkImageView textureImageView() const {return textureImageView_;}
+    VkSampler textureSampler() const {return textureSampler_;}
+
+
 
 
 
@@ -26,11 +31,13 @@ private:
     int texWidth;
     int texHeight;
     int texChannels;
-    VkImage textureImage;
-    VkDeviceMemory textureImageMemory;
-    VkSampler textureSampler;
+    VkImage textureImage_;
+    VkImageView textureImageView_;
+    VkDeviceMemory textureImageMemory_;
+    VkSampler textureSampler_;
 
     void createTextureImage(const std::string& path, JDevice& device_app);    
+    void createTextureImageView();
     void transitionImageLayout(VkImage image, VkFormat format, 
         VkImageLayout oldLayout, VkImageLayout newLayout) ;
 

@@ -434,35 +434,34 @@ VkFormat JDevice::findSupportFormat(const std::vector<VkFormat>& candidates, VkI
 
 
 
-VkImageView JDevice::createImageView(VkImage image, VkFormat format, 
-    VkImageAspectFlags aspectFlags, uint32_t mipLevels){
+VkImageView JDevice::createImageViewWithInfo(
+    const VkImageViewCreateInfo& imageViewInfo, VkImageView& imageView ){
 
-VkImageViewCreateInfo viewInfo{};
-viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-viewInfo.image = image;
-viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-viewInfo.format = format;
-// viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;  // swizzle: channel remap
-// viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-// viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-// viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-//subresourceRange describe what image's purpose, and which part of image should be accessed
-viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;  // for example, depth wiill need: VK_IMAGE_ASPECT_DEPTH_BIT
-viewInfo.subresourceRange.baseMipLevel = 0;
-viewInfo.subresourceRange.levelCount = mipLevels;
-viewInfo.subresourceRange.baseArrayLayer = 0;
-viewInfo.subresourceRange.layerCount = 1;
-viewInfo.subresourceRange.aspectMask = aspectFlags;
-
-
-VkImageView imageView;
-if(vkCreateImageView(device_, &viewInfo, nullptr, &imageView) != VK_SUCCESS){
+if(vkCreateImageView(device_, &imageViewInfo, nullptr, &imageView) != VK_SUCCESS){
     throw std::runtime_error("failed to create image views!"); }
 
-return imageView;
+
 }
 
 
+void JDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo, 
+    VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+{
+    // create the image
+    if(vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS){
+        throw std::runtime_error("failed to create image!");}
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(device_, image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice_);
+    if(vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS){
+        throw std::runtime_error("failed to allocate image memory!");}
+    vkBindImageMemory(device_, image, imageMemory, 0);
+}
 
 
 
@@ -483,24 +482,6 @@ void JDevice::createCommandPool(){
 
 
 
-void JDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo, 
-    VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
-{
-    // create the image
-    if(vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS){
-        throw std::runtime_error("failed to create image!");}
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(device_, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, physicalDevice_);
-    if(vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS){
-        throw std::runtime_error("failed to allocate image memory!");}
-    vkBindImageMemory(device_, image, imageMemory, 0);
-}
 
 
 

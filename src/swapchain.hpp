@@ -15,7 +15,7 @@ class JSwapchain{
 
 public:
      
-    static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+    static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
     JSwapchain(JDevice& device, JWindow& window);
     JSwapchain(JDevice& device, JWindow& window, std::shared_ptr<JSwapchain> previous);
     ~JSwapchain();

@@ -30,10 +30,10 @@
 
 
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 };
 const std::vector<uint16_t> indices = {
     0, 1, 2, 2, 3, 0
@@ -61,20 +61,21 @@ public:
         swapChain = swapchain_app->swapChain();
  
 
-
-      
-    
         vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vertices, commandPool, graphicsQueue);
         indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, indices, commandPool, graphicsQueue);
 
         descriptorSetLayout_obj = JDescriptorSetLayout::Builder{*device_app}
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();
         descriptorPool_obj  = JDescriptorPool::Builder{*device_app}
             .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3)
+            .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 3)
             .setMaxSets(3)
             .build();
     
+        texture_obj = std::make_unique<JTexture>("../assets/cat.jpg", *device_app);
+
 
         uniformBuffer_objs.reserve(JSwapchain::MAX_FRAMES_IN_FLIGHT);
         descriptorSets.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT);
@@ -89,7 +90,14 @@ public:
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
 
-            if( !writer.writeBuffer(0, &bufferInfo).build(descriptorSets[i])){
+            VkDescriptorImageInfo imageInfo{};
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView = texture_obj->textureImageView();
+            imageInfo.sampler = texture_obj->textureSampler();
+
+            if( !writer.writeBuffer(0, &bufferInfo)
+                        .writeImage(1, &imageInfo)
+                        .build(descriptorSets[i])){
                 throw std::runtime_error("failed to allocate descriptor set!");    }
             
         }
@@ -105,8 +113,6 @@ public:
                         pipelineConfig , descriptorSetLayout_obj->descriptorSetLayout());
         graphicPipeline = pipeline_app->getGraphicPipeline();
 
-
-        // texture_obj = std::make_unique<JTexture>("../assets/cat.jpg", *device_app);
 
 
 
@@ -166,7 +172,7 @@ private:
     std::vector<VkDescriptorSet> descriptorSets;
     
     //texture
-    // std::unique_ptr<JTexture> texture_obj;
+    std::unique_ptr<JTexture> texture_obj;
 
 
 //-----------------------------------------------------------------------------------
