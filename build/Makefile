@@ -286,6 +286,30 @@ src/load_model.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.s
 .PHONY : src/load_model.cpp.s
 
+src/load_texture.o: src/load_texture.cpp.o
+.PHONY : src/load_texture.o
+
+# target to build an object file
+src/load_texture.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o
+.PHONY : src/load_texture.cpp.o
+
+src/load_texture.i: src/load_texture.cpp.i
+.PHONY : src/load_texture.i
+
+# target to preprocess a source file
+src/load_texture.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.i
+.PHONY : src/load_texture.cpp.i
+
+src/load_texture.s: src/load_texture.cpp.s
+.PHONY : src/load_texture.s
+
+# target to generate assembly for a file
+src/load_texture.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.s
+.PHONY : src/load_texture.cpp.s
+
 src/pipeline.o: src/pipeline.cpp.o
 .PHONY : src/pipeline.o
 
@@ -434,6 +458,9 @@ help:
 	@echo "... src/load_model.o"
 	@echo "... src/load_model.i"
 	@echo "... src/load_model.s"
+	@echo "... src/load_texture.o"
+	@echo "... src/load_texture.i"
+	@echo "... src/load_texture.s"
 	@echo "... src/pipeline.o"
 	@echo "... src/pipeline.i"
 	@echo "... src/pipeline.s"

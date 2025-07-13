@@ -59,7 +59,8 @@ public:
 
 
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
-
+    void createImageWithInfo(const VkImageCreateInfo &imageInfo, 
+        VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
             
 

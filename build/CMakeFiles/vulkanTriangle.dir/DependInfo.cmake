@@ -14,6 +14,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/j/projects/playground/vulkanTriangle/src/descriptor.cpp" "CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/device.cpp" "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/load_model.cpp" "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/load_texture.cpp" "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/pipeline.cpp" "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/shaderModule.cpp" "CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/swapchain.cpp" "CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o.d"

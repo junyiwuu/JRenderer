@@ -96,44 +96,44 @@ void JBuffer::destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory
 
 
 
-JUniformBuffer::JUniformBuffer(JDevice& device,  int frames):
-    device_app(device), frames_(frames)
+JUniformBuffer::JUniformBuffer(JDevice& device):
+    device_app(device)
 
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    uniformBuffers_.resize(frames);
-    uniformBuffersMemory_.resize(frames);
-    uniformBuffersMapped_.resize(frames);
+    // uniformBuffers_.resize(frames);
+    // uniformBuffersMemory_.resize(frames);
+    // uniformBuffersMapped_.resize(frames);
 
-    for (size_t i = 0; i < frames; i++) {
 
-        auto result = JBuffer::createBuffer(device, bufferSize, 
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        uniformBuffers_[i] = result.r_buffer_ ;
-        uniformBuffersMemory_[i] = result.r_bufferMemory_;
+    auto result = JBuffer::createBuffer(device, bufferSize, 
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        vkMapMemory(device.device(), uniformBuffersMemory_[i], 0, bufferSize, 0, &uniformBuffersMapped_[i]);
-    }
+    uniformBuffer_ = result.r_buffer_ ;
+    uniformBufferMemory_ = result.r_bufferMemory_;
+
+    vkMapMemory(device.device(), uniformBufferMemory_, 0, bufferSize, 0, &uniformBufferMapped_);
 }
+
 
 
 JUniformBuffer::~JUniformBuffer(){
-    for (size_t i = 0; i < frames_; i++) {
-        vkDestroyBuffer(device_app.device(), uniformBuffers_[i], nullptr);
-        vkFreeMemory(device_app.device(), uniformBuffersMemory_[i], nullptr);
-    }
+
+    vkDestroyBuffer(device_app.device(), uniformBuffer_, nullptr);
+    vkFreeMemory(device_app.device(), uniformBufferMemory_, nullptr);
+    
 }
 
 
 
 
 
-void JUniformBuffer::update(uint32_t currentImage, const UniformBufferObject& targetUbo){
+// void JUniformBuffer::update(uint32_t currentImage, const UniformBufferObject& targetUbo){
 
-    memcpy(uniformBuffersMapped_[currentImage], &targetUbo, sizeof(targetUbo));
-}
+//     memcpy(uniformBufferMapped_[currentImage], &targetUbo, sizeof(targetUbo));
+// }
 
 
 

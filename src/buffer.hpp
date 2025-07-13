@@ -102,26 +102,26 @@ class JUniformBuffer{
 
 public:
 
-    JUniformBuffer(JDevice& device,  int frames);
+    JUniformBuffer(JDevice& device);
     ~JUniformBuffer();
 
     JUniformBuffer(const JUniformBuffer&) = delete;
     JUniformBuffer& operator=(const JUniformBuffer&) = delete;
 
 
-    const std::vector<VkBuffer>& buffers() {return uniformBuffers_;}
-    const std::vector<VkDeviceMemory>& buffersMemory(){ return uniformBuffersMemory_;}
-    const std::vector<void*>& buffersMapped() {return uniformBuffersMapped_;}
+    const VkBuffer& buffer() {return uniformBuffer_;}
+    const VkDeviceMemory& bufferMemory(){ return uniformBufferMemory_;}
+    void* bufferMapped() {return uniformBufferMapped_;}
 
-    void update(uint32_t currentImage, const UniformBufferObject& UniformBufferObject);
+    // void update(uint32_t currentImage, const UniformBufferObject& UniformBufferObject);
 
 private:
     JDevice& device_app;
-    int frames_;
 
-    std::vector<VkBuffer> uniformBuffers_;
-    std::vector<VkDeviceMemory> uniformBuffersMemory_;
-    std::vector<void*> uniformBuffersMapped_;
+
+    VkBuffer uniformBuffer_;
+    VkDeviceMemory uniformBufferMemory_;
+    void* uniformBufferMapped_;
 
 
 

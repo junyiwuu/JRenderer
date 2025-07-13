@@ -11,6 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o.d"
+  "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o"
+  "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o"

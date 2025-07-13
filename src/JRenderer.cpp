@@ -26,6 +26,7 @@
 #include "commandBuffers.hpp"
 #include "buffer.hpp"
 #include "descriptor.hpp"
+#include "load_texture.hpp"
 
 
 const std::vector<Vertex> vertices = {
@@ -59,18 +60,39 @@ public:
         swapchain_app = std::make_unique<JSwapchain>(*device_app, *window_app);
         swapChain = swapchain_app->swapChain();
  
-        descriptorPool_obj = std::make_unique<JDescriptorPool>(device, JSwapchain::MAX_FRAMES_IN_FLIGHT);
+
 
       
     
         vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vertices, commandPool, graphicsQueue);
         indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, indices, commandPool, graphicsQueue);
-        uniformBuffer_obj = std::make_unique<JUniformBuffer>(*device_app,JSwapchain::MAX_FRAMES_IN_FLIGHT);
 
-        
-        descriptorSets_obj = std::make_unique<JDescriptorSets>(device, *descriptorPool_obj,
-                JSwapchain::MAX_FRAMES_IN_FLIGHT, uniformBuffer_obj->buffers());
+        descriptorSetLayout_obj = JDescriptorSetLayout::Builder{*device_app}
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
+            .build();
+        descriptorPool_obj  = JDescriptorPool::Builder{*device_app}
+            .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3)
+            .setMaxSets(3)
+            .build();
+    
 
+        uniformBuffer_objs.reserve(JSwapchain::MAX_FRAMES_IN_FLIGHT);
+        descriptorSets.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT);
+        for(size_t i =0; i< JSwapchain::MAX_FRAMES_IN_FLIGHT; ++i){
+            
+            uniformBuffer_objs.emplace_back( std::make_unique<JUniformBuffer>(*device_app) );
+            auto& ubo = *uniformBuffer_objs.back();
+            JDescriptorWriter writer{*descriptorSetLayout_obj, *descriptorPool_obj };
+
+            VkDescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = ubo.buffer();
+            bufferInfo.offset = 0;
+            bufferInfo.range = sizeof(UniformBufferObject);
+
+            if( !writer.writeBuffer(0, &bufferInfo).build(descriptorSets[i])){
+                throw std::runtime_error("failed to allocate descriptor set!");    }
+            
+        }
 
         PipelineConfigInfo pipelineConfig{};
         JPipeline::defaultPipelineConfigInfo(pipelineConfig);
@@ -80,18 +102,18 @@ public:
         pipeline_app = std::make_unique<JPipeline>(device, 
                         "../shaders/shader.vert.spv",
                         "../shaders/shader.frag.spv",
-                        pipelineConfig , descriptorSets_obj->descriptorSetLayout());
+                        pipelineConfig , descriptorSetLayout_obj->descriptorSetLayout());
         graphicPipeline = pipeline_app->getGraphicPipeline();
 
+
+        // texture_obj = std::make_unique<JTexture>("../assets/cat.jpg", *device_app);
+
+
+
+
+
         commandBuffers_app = std::make_unique<JCommandBuffers>(*device_app);
-        commandBuffers = commandBuffers_app->getCommandBuffers();
-
-        
-        
-       
-        
-
-
+        commandBuffers = commandBuffers_app->getCommandBuffers(); 
 
         mainLoop();
       
@@ -136,12 +158,15 @@ private:
     //vertex, index, uniformBuffer
     std::unique_ptr<JVertexBuffer> vertexBuffer_obj;
     std::unique_ptr<JIndexBuffer> indexBuffer_obj;
-    std::unique_ptr<JUniformBuffer> uniformBuffer_obj;
+    std::vector<std::unique_ptr<JUniformBuffer>> uniformBuffer_objs;
 
     //descriptor
     std::unique_ptr<JDescriptorPool> descriptorPool_obj;
-    std::unique_ptr<JDescriptorSets> descriptorSets_obj;
+    std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_obj;//现在只用一种layout.如果需要不同的layout就设置多个
+    std::vector<VkDescriptorSet> descriptorSets;
     
+    //texture
+    // std::unique_ptr<JTexture> texture_obj;
 
 
 //-----------------------------------------------------------------------------------
@@ -235,7 +260,7 @@ private:
             vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT16);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getPipelineLayout(),0,1,
-                        &descriptorSets_obj->descriptorSets()[currentFrame], 0, nullptr );
+                        &descriptorSets[currentFrame], 0, nullptr );
 
             vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
             // vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
@@ -275,7 +300,8 @@ private:
         ubo.proj = glm::perspective(glm::radians(45.0f), swapchain_app->getSwapChainExtent().width / (float)swapchain_app->getSwapChainExtent().height, 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
 
-        uniformBuffer_obj->update(currentFrame, ubo);
+        memcpy(uniformBuffer_objs[currentFrame]->bufferMapped(), &ubo, sizeof(ubo) );
+        // uniformBuffer_obj->update(currentFrame, ubo);
 
         //---------------------------------------
 

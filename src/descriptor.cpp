@@ -1,113 +1,179 @@
 #include "descriptor.hpp"
+////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Descriptor Pool /////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-JDescriptorPool::JDescriptorPool(VkDevice& device, int frames):
-    device_(device)
+JDescriptorPool::JDescriptorPool(JDevice& device_app, uint32_t maxDescriptorSets, VkDescriptorPoolCreateFlags poolCreateFlags,
+    const std::vector<VkDescriptorPoolSize> &poolSize):
+    device_app(device_app)
 {
-    createDescriptorPool(device, frames);
+    VkDescriptorPoolCreateInfo descriptorPoolInfo{};
+    descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSize.size());
+    descriptorPoolInfo.pPoolSizes = poolSize.data();
+    descriptorPoolInfo.maxSets = maxDescriptorSets;
+    descriptorPoolInfo.flags = poolCreateFlags;
 
-}
+    if (vkCreateDescriptorPool(device_app.device(), &descriptorPoolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");}
+    }
+
 
 JDescriptorPool::~JDescriptorPool()
 {
-    vkDestroyDescriptorPool(device_, descriptorPool_, nullptr);
+    vkDestroyDescriptorPool(device_app.device(), descriptorPool_, nullptr);
+}
+
+
+JDescriptorPool::Builder& JDescriptorPool::Builder::reservePoolDescriptors(VkDescriptorType descriptorType, uint32_t descriptorCount){
+    b_poolSizes.push_back({descriptorType, descriptorCount});
+    return *this;}
+
+JDescriptorPool::Builder& JDescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags){
+    b_poolCreateFlags = flags; //pool flags是打开或关闭descriptor pool的特性的
+    return* this;}
+
+
+JDescriptorPool::Builder& JDescriptorPool::Builder::setMaxSets(uint32_t descriptorCount){
+    b_maxDescriptorSets = descriptorCount;
+    return* this;}
+
+
+std::unique_ptr<JDescriptorPool> JDescriptorPool::Builder::build() const{
+    return std::make_unique<JDescriptorPool>(device_app, b_maxDescriptorSets, b_poolCreateFlags, b_poolSizes );
+}
+
+
+bool JDescriptorPool::allocateDescriptorSet(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptorSet){
+    VkDescriptorSetAllocateInfo descriptorSetAllocInfo{};
+    descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocInfo.descriptorPool = descriptorPool_;
+    descriptorSetAllocInfo.pSetLayouts = &descriptorSetLayout;
+    descriptorSetAllocInfo.descriptorSetCount = 1;
+
+    if (vkAllocateDescriptorSets(device_app.device(), &descriptorSetAllocInfo, &descriptorSet) != VK_SUCCESS){
+        return false;}
+    return true;
+
 }
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Descriptor Set Layout //////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
-void JDescriptorPool::createDescriptorPool(VkDevice& device,  int frames) {
-    VkDescriptorPoolSize poolSize{};
-    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = static_cast<uint32_t>(frames);
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = 1;
-    poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = static_cast<uint32_t>(frames);
-
-    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor pool!");
+JDescriptorSetLayout::JDescriptorSetLayout(JDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings) 
+    : device_app(device), bindings_(bindings)
+{
+    std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
+    for (auto kv: bindings_){
+        setLayoutBindings.push_back(kv.second);
     }
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-JDescriptorSets::JDescriptorSets(VkDevice& device, JDescriptorPool& descriptorPool_obj, 
-        int frames, std::vector<VkBuffer> uniformBuffers):
-    device_(device)
-{
-    createDescriptorSetLayout(device);
-    createDescriptorSets(device, descriptorPool_obj,frames, uniformBuffers);
-}
-
-JDescriptorSets::~JDescriptorSets()
-{
-    vkDestroyDescriptorSetLayout(device_, descriptorSetLayout_, nullptr);
-}
-
-
-
-
-void JDescriptorSets::createDescriptorSetLayout(VkDevice& device) {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &uboLayoutBinding;
-
-    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
+    layoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+    layoutInfo.pBindings = setLayoutBindings.data();
+ 
+    if (vkCreateDescriptorSetLayout(device.device(), &layoutInfo, nullptr, &descriptorSetLayout_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor set layout!");  }
 }
 
 
 
-void JDescriptorSets::createDescriptorSets(VkDevice& device, JDescriptorPool& descriptorPool_obj,int frames,
-        std::vector<VkBuffer> uniformBuffers) 
+JDescriptorSetLayout::~JDescriptorSetLayout(){
+    vkDestroyDescriptorSetLayout(device_app.device(), descriptorSetLayout_, nullptr);
+}
+
+
+JDescriptorSetLayout::Builder& JDescriptorSetLayout::Builder::addBinding(  // by default count=1
+    uint32_t binding,  VkDescriptorType descriptorType, VkShaderStageFlags stageFlags, uint32_t descriptorCount)
 {
-    std::vector<VkDescriptorSetLayout> layouts(frames, descriptorSetLayout_);
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool_obj.descriptorPool();
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(frames);
-    allocInfo.pSetLayouts = layouts.data();
-
-    descriptorSets_.resize(frames);
-    if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets_.data()) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate descriptor sets!");
-    }
-
-    for (size_t i = 0; i < frames; i++) {
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = uniformBuffers[i];
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
-
-        VkWriteDescriptorSet descriptorWrite{};
-        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = descriptorSets_[i];
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo = &bufferInfo;
-
-        vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
-    }
+    VkDescriptorSetLayoutBinding layoutBinding{};
+    layoutBinding.binding = binding;
+    layoutBinding.descriptorCount = descriptorCount;
+    layoutBinding.descriptorType = descriptorType;
+    layoutBinding.stageFlags = stageFlags;
+    bindings[binding] = layoutBinding;
+    return *this; // 解指针，否则返回的就是指针。解指针后得到的是当前对象的引用
 }
+
+
+std::unique_ptr<JDescriptorSetLayout>  JDescriptorSetLayout::Builder::build() const {
+    return std::make_unique<JDescriptorSetLayout>(device_app, bindings);
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////// Descriptor Sets /////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+// JDescriptorSets(JDescriptorSetLayout& descriptorSetLayout, JDescriptorPool& descriptorPool);
+
+JDescriptorWriter::JDescriptorWriter(JDescriptorSetLayout& descriptorSetLayout, JDescriptorPool& descriptorPool):
+    descriptorSetLayout_{descriptorSetLayout}, descriptorPool_{descriptorPool}
+{
+
+}
+
+// JDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
+// JDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
+
+
+JDescriptorWriter &JDescriptorWriter::writeBuffer(uint32_t n_binding, VkDescriptorBufferInfo* bufferInfo){
+    assert(descriptorSetLayout_.bindings_.count(n_binding) == 1 && "Descriptor layout does not contain specified binding");
+    auto& bindingDescription = descriptorSetLayout_.bindings_[n_binding];
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.descriptorType = bindingDescription.descriptorType;
+    descriptorWrite.dstBinding = n_binding;
+    descriptorWrite.pBufferInfo = bufferInfo;
+    descriptorWrite.descriptorCount = 1;
+
+    descriptorWrites_.push_back(descriptorWrite);
+    return *this;
+}
+
+JDescriptorWriter &JDescriptorWriter::writeImage(uint32_t n_binding, VkDescriptorImageInfo* imageInfo){
+    assert(descriptorSetLayout_.bindings_.count(n_binding) == 1 && "Descriptor layout does not contain specified binding");
+    auto& bindingDescription = descriptorSetLayout_.bindings_[n_binding];
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.descriptorType = bindingDescription.descriptorType;
+    descriptorWrite.dstBinding = n_binding;
+    descriptorWrite.pImageInfo = imageInfo;
+    descriptorWrite.descriptorCount = 1;
+
+    descriptorWrites_.push_back(descriptorWrite);
+    return *this;
+}
+
+
+bool JDescriptorWriter::build(VkDescriptorSet& set){
+    bool success = descriptorPool_.allocateDescriptorSet(descriptorSetLayout_.descriptorSetLayout(), set);
+    if(!success) { return false;}
+    overwrite(set); 
+    return true;
+}
+
+
+bool JDescriptorWriter::overwrite(VkDescriptorSet& set){
+    for (auto& write: descriptorWrites_){
+        write.dstSet = set;  }
+    vkUpdateDescriptorSets(descriptorPool_.device_app.device(), 
+            descriptorWrites_.size(), descriptorWrites_.data(), 0, nullptr);
+}
+
+
+
+
 
 
 
