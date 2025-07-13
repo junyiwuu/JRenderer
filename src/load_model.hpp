@@ -4,7 +4,9 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <array>
-
+#include <unordered_map>
+#include <glm/gtx/hash.hpp>
+#include <string>
 
 
 
@@ -53,48 +55,38 @@ struct Vertex {
 
 };
 
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}
+
+
+class JModel{
+
+
+public:
 
 
 
+    JModel(const std::string& model_path);
+    ~JModel();
+
+    JModel(const JModel &) = delete;
+    JModel &operator=(const JModel &) = delete;
+
+    std::vector<Vertex> vertices() {return vertices_;}
+    std::vector<uint32_t> indices() {return indices_;}
 
 
+private:
 
+    std::vector<Vertex> vertices_;
+    std::vector<uint32_t> indices_;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+};
 
 
 

@@ -76,7 +76,7 @@ struct JIndexBuffer{
     JBuffer baseBuffer;
 
     JIndexBuffer(JDevice& device_app, 
-                 const std::vector<uint16_t>& indices, VkCommandPool commandPool, VkQueue queue):
+                 const std::vector<uint32_t>& indices, VkCommandPool commandPool, VkQueue queue):
         baseBuffer(device_app, sizeof(indices[0])*indices.size(),
                    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT )
     {

@@ -27,25 +27,10 @@
 #include "buffer.hpp"
 #include "descriptor.hpp"
 #include "load_texture.hpp"
+#include "load_model.hpp"
 
 
-const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
 
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-    {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-};
-
-
-const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0,
-    4, 5, 6, 6, 7, 4
-};
 
 
 class JRenderer {
@@ -67,9 +52,11 @@ public:
         swapchain_app = std::make_unique<JSwapchain>(*device_app, *window_app);
         swapChain = swapchain_app->swapChain();
  
+        vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", *device_app);
+        vikingModel_obj = std::make_unique<JModel>("../assets/viking_room.obj");
 
-        vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vertices, commandPool, graphicsQueue);
-        indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, indices, commandPool, graphicsQueue);
+        vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vikingModel_obj->vertices(), commandPool, graphicsQueue);
+        indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, vikingModel_obj->indices(), commandPool, graphicsQueue);
 
         descriptorSetLayout_obj = JDescriptorSetLayout::Builder{*device_app}
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
@@ -81,8 +68,7 @@ public:
             .setMaxSets(3)
             .build();
     
-        texture_obj = std::make_unique<JTexture>("../assets/cat.jpg", *device_app);
-
+        
 
         uniformBuffer_objs.reserve(JSwapchain::MAX_FRAMES_IN_FLIGHT);
         descriptorSets.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT);
@@ -99,8 +85,8 @@ public:
 
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = texture_obj->textureImageView();
-            imageInfo.sampler = texture_obj->textureSampler();
+            imageInfo.imageView = vikingTexture_obj->textureImageView();
+            imageInfo.sampler = vikingTexture_obj->textureSampler();
 
             if( !writer.writeBuffer(0, &bufferInfo)
                         .writeImage(1, &imageInfo)
@@ -112,8 +98,8 @@ public:
         PipelineConfigInfo pipelineConfig{};
         JPipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = swapchain_app->renderPass();
-        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-        pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+        pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
         pipeline_app = std::make_unique<JPipeline>(device, 
                         "../shaders/shader.vert.spv",
                         "../shaders/shader.frag.spv",
@@ -168,6 +154,9 @@ private:
 
     uint32_t currentFrame = 0;
 
+
+    // const std::vector<Vertex> vertices ;
+    // const std::vector<uint32_t> indices ;
     //vertex, index, uniformBuffer
     std::unique_ptr<JVertexBuffer> vertexBuffer_obj;
     std::unique_ptr<JIndexBuffer> indexBuffer_obj;
@@ -179,7 +168,8 @@ private:
     std::vector<VkDescriptorSet> descriptorSets;
     
     //texture
-    std::unique_ptr<JTexture> texture_obj;
+    std::unique_ptr<JTexture> vikingTexture_obj;
+    std::unique_ptr<JModel> vikingModel_obj;
 
 
 //-----------------------------------------------------------------------------------
@@ -276,12 +266,12 @@ private:
             VkDeviceSize offsets[] = {0};
             //binding
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getPipelineLayout(),0,1,
                         &descriptorSets[currentFrame], 0, nullptr );
 
-            vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vikingModel_obj->indices().size()), 1, 0, 0, 0);
             // vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);

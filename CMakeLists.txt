@@ -34,4 +34,4 @@ add_custom_target(compile_shaders
 add_dependencies(vulkanTriangle compile_shaders)
 
 
-include_directories(${CMAKE_SOURCE_DIR}/third_party/tinyobjloader)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/third_party/tinyobjloader)
