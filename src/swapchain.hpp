@@ -7,7 +7,7 @@
 #include <limits>
 #include <algorithm>
 #include <memory>
-
+#include <cassert>
 
 
 
@@ -58,6 +58,9 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores_;
     std::vector<VkFence> inFlightFences_;
     
+    VkImage depthImage_;
+    VkDeviceMemory depthImageMemory_;
+    VkImageView depthImageView_;
 
 
     void init();
@@ -69,9 +72,11 @@ private:
     void createRenderPass();
     void createSyncObjects();
 
+    void createDepthResources() ;
+    
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) ;
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-
+    VkFormat findDepthFormat();
 };

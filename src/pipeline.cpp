@@ -94,6 +94,7 @@ void JPipeline::createGraphicsPipeline(
     pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
     pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
     pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
+    pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
     pipelineInfo.layout = pipelineLayout_;
     pipelineInfo.renderPass = configInfo.renderPass;
     pipelineInfo.subpass = configInfo.subpass;
@@ -126,15 +127,12 @@ void JPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo){
     configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
     configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
 
-    
     configInfo.multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
     configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
     
     configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
-
     
     configInfo.colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     configInfo.colorBlendInfo.logicOpEnable = VK_FALSE;
@@ -151,6 +149,19 @@ void JPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo){
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags=0;
+
+    configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
+    configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;
+    configInfo.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+    configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
+    configInfo.depthStencilInfo.minDepthBounds = 0.0f; // Optional
+    configInfo.depthStencilInfo.maxDepthBounds = 1.0f; // Optional
+    configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
+    configInfo.depthStencilInfo.front = {}; // Optional
+    configInfo.depthStencilInfo.back = {}; // Optional
+    
+
 }
 
 

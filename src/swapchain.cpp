@@ -28,11 +28,16 @@ void JSwapchain::init() {
     createSwapChain();
     createImageViews();
     createRenderPass();
+    createDepthResources();
     createFramebuffers();
     createSyncObjects();
 }
 
 void JSwapchain::cleanupSwapChain() {
+    vkDestroyImageView(device_app.device(), depthImageView_, nullptr);
+    vkDestroyImage(device_app.device(), depthImage_, nullptr);
+    vkFreeMemory(device_app.device(), depthImageMemory_, nullptr);
+
     for (auto framebuffer : swapChainFramebuffers_) {
         vkDestroyFramebuffer(device_app.device(), framebuffer, nullptr);
     }
@@ -45,9 +50,17 @@ void JSwapchain::cleanupSwapChain() {
 }
 
 
+bool hasStencilComponent(VkFormat format) {
+    return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+}
 
-
-
+VkFormat JSwapchain::findDepthFormat() {
+    return device_app.findSupportedFormat(
+    {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+    );
+}
 
 
 
@@ -108,31 +121,35 @@ void JSwapchain::createSwapChain() {
 
 
 
+void JSwapchain::createDepthResources() {
+    VkFormat depthFormat = findDepthFormat();
+    device_app.createImage(swapChainExtent_.width, swapChainExtent_.height, 1,  depthFormat, VK_IMAGE_TILING_OPTIMAL, 
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage_, depthImageMemory_);
+    
+    auto viewInfo = ImageViewCreateInfoBuilder(depthImage_)
+                    .format(depthFormat)
+                    .aspectMask(VK_IMAGE_ASPECT_DEPTH_BIT)
+                    .getInfo();
+    VkResult res = device_app.createImageViewWithInfo(viewInfo,  depthImageView_);
+    assert(res == VK_SUCCESS && "failed to create depth image view in swapchain");
+}
+
 
 void JSwapchain::createImageViews() {
     swapChainImageViews_.resize(swapChainImages_.size());
 
-    for (size_t i = 0; i < swapChainImages_.size(); i++) {
-        VkImageViewCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = swapChainImages_[i];
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.format = swapChainImageFormat_;
-        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
-        createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
-
-        if (vkCreateImageView(device_app.device(), &createInfo, nullptr, &swapChainImageViews_[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image views!");
+    for (size_t i = 0; i < swapChainImages_.size(); ++i) {
+        auto viewInfo = ImageViewCreateInfoBuilder(swapChainImages_[i])
+                        .format(swapChainImageFormat_)
+                        .componentsRGBA(VK_COMPONENT_SWIZZLE_IDENTITY,VK_COMPONENT_SWIZZLE_IDENTITY,VK_COMPONENT_SWIZZLE_IDENTITY,VK_COMPONENT_SWIZZLE_IDENTITY)
+                        .getInfo();
+        VkResult result =  device_app.createImageViewWithInfo(viewInfo, swapChainImageViews_[i]);
+        if(result!= VK_SUCCESS){
+            std::cerr << "swapchain image view creation failed at index : " << i ;
+            assert(result == VK_SUCCESS && "swapchain image views create failed!");  }
         }
-    }
 }
+
 
 
 
@@ -151,23 +168,43 @@ void JSwapchain::createRenderPass() {
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentDescription depthAttachment{};
+    depthAttachment.format = findDepthFormat();
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthAttachmentRef{};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
     VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    //srcStageMask 外部操作中哪些pipeline阶段的完成必须字啊下游downstream开始前被确保完成
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    //srcAccessMask 外部操作中哪些访问类型要被同步
+    dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    // dstStageMask 在0号subpass中，要等待哪些pipeline stage完成后才能安全开始
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    //dstAccessMask 哪些类型的访问要等到srcStageMask和srcAccessMask完成后再开始。
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
+    std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
     renderPassInfo.dependencyCount = 1;
@@ -183,15 +220,16 @@ void JSwapchain::createFramebuffers() {
     swapChainFramebuffers_.resize(swapChainImageViews_.size());
 
     for (size_t i = 0; i < swapChainImageViews_.size(); i++) {
-        VkImageView attachments[] = {
-            swapChainImageViews_[i]
+        std::array<VkImageView, 2> attachments = {
+            swapChainImageViews_[i],
+            depthImageView_
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = renderPass_;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = swapChainExtent_.width;
         framebufferInfo.height = swapChainExtent_.height;
         framebufferInfo.layers = 1;

@@ -50,7 +50,7 @@ public:
     // memory allocation      
 
 
-    VkImageView createImageViewWithInfo(const VkImageViewCreateInfo& imageViewInfo, VkImageView& imageView);
+    VkResult createImageViewWithInfo(const VkImageViewCreateInfo& imageViewInfo, VkImageView& imageView);
 
     void createImage(uint32_t width, uint32_t height, 
             uint32_t mipLevels ,VkFormat format, 
@@ -61,7 +61,9 @@ public:
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
     void createImageWithInfo(const VkImageCreateInfo &imageInfo, 
         VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-
+    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, 
+        VkImageTiling tiling, VkFormatFeatureFlags features);
+    
             
 
 private:    
@@ -124,6 +126,8 @@ private:
 
 
     bool hasStencilComponent(VkFormat format);
+ 
+
 };
 
 
@@ -160,6 +164,13 @@ struct ImageViewCreateInfoBuilder{
     viewInfo.subresourceRange.baseArrayLayer = _baseArrayLayer;
     viewInfo.subresourceRange.layerCount     = _layerCount;
     return *this; }
+
+    ImageViewCreateInfoBuilder& componentsRGBA(VkComponentSwizzle r, VkComponentSwizzle g, VkComponentSwizzle b, VkComponentSwizzle a ){
+        viewInfo.components.r = r;
+        viewInfo.components.g = g;
+        viewInfo.components.b = b;
+        viewInfo.components.a = a;
+        return *this; }
 
     VkImageViewCreateInfo getInfo() const {return viewInfo;}
 

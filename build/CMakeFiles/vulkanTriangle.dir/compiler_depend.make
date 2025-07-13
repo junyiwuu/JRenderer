@@ -1178,7 +1178,9 @@ CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o: /home/j/projects/playgro
   /usr/include/c++/11/bits/atomic_base.h \
   /usr/include/c++/11/bits/atomic_lockfree_defines.h \
   /usr/include/c++/11/backward/auto_ptr.h \
-  /usr/include/c++/11/pstl/glue_memory_defs.h
+  /usr/include/c++/11/pstl/glue_memory_defs.h \
+  /usr/include/c++/11/cassert \
+  /usr/include/assert.h
 
 CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o: /home/j/projects/playground/vulkanTriangle/src/descriptor.cpp \
   /usr/include/stdc-predef.h \
@@ -3179,7 +3181,9 @@ CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o: /home/j/projects/playground/v
   /usr/include/c++/11/bits/atomic_base.h \
   /usr/include/c++/11/bits/atomic_lockfree_defines.h \
   /usr/include/c++/11/backward/auto_ptr.h \
-  /usr/include/c++/11/pstl/glue_memory_defs.h
+  /usr/include/c++/11/pstl/glue_memory_defs.h \
+  /usr/include/c++/11/cassert \
+  /usr/include/assert.h
 
 CMakeFiles/vulkanTriangle.dir/src/utility.cpp.o: /home/j/projects/playground/vulkanTriangle/src/utility.cpp \
   /usr/include/stdc-predef.h \
