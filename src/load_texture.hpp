@@ -31,6 +31,7 @@ private:
     int texWidth;
     int texHeight;
     int texChannels;
+    uint32_t mipLevels_;
     VkImage textureImage_;
     VkImageView textureImageView_;
     VkDeviceMemory textureImageMemory_;
@@ -45,7 +46,8 @@ private:
     void createTextureSampler() ;
   
 
-
+    void generateMipmaps(VkImage image, VkFormat imageFormat, 
+        int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
 
 

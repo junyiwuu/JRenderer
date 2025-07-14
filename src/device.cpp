@@ -441,7 +441,7 @@ VkResult JDevice::createImageViewWithInfo(
 }
 
 
-void JDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo, 
+VkResult JDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo, 
     VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
 {
     // create the image
@@ -455,9 +455,9 @@ void JDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo,
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice_);
-    if(vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS){
-        throw std::runtime_error("failed to allocate image memory!");}
+    VkResult res = vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory);
     vkBindImageMemory(device_, image, imageMemory, 0);
+    return res;
 }
 
 
@@ -546,36 +546,29 @@ void JDevice::transitionImageLayout(VkImage image, VkFormat format,
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = 0;
 
-
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
-
-
 
     if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout==VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL){
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
     sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;}
 
     else if(oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL){
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
     sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;}
 
     else if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
     sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;  // the earliest stage of the pipeline (the enrty of the pipeline)
     destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;} // 指在片元（像素）着色前，GPU 会做深度、模板测试等早期操作。等到 GPU 进入早期片元测试前，一定要保证 barrier 已经生效（比如 image layout 已经完成转换）
 
     else{
     throw std::invalid_argument("unsupported layout transition!");}
-
 
     if(newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;

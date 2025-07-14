@@ -123,15 +123,19 @@ void JSwapchain::createSwapChain() {
 
 void JSwapchain::createDepthResources() {
     VkFormat depthFormat = findDepthFormat();
-    device_app.createImage(swapChainExtent_.width, swapChainExtent_.height, 1,  depthFormat, VK_IMAGE_TILING_OPTIMAL, 
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage_, depthImageMemory_);
+    auto imageInfo = ImageCreateInfoBuilder(swapChainExtent_.width, swapChainExtent_.height)
+                    .format(depthFormat)
+                    .usage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+                    .getInfo();
+    VkResult res_createimg = device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage_, depthImageMemory_);
+    assert(res_createimg == VK_SUCCESS && "failed to create depth image in swapchain!");
     
     auto viewInfo = ImageViewCreateInfoBuilder(depthImage_)
                     .format(depthFormat)
                     .aspectMask(VK_IMAGE_ASPECT_DEPTH_BIT)
                     .getInfo();
-    VkResult res = device_app.createImageViewWithInfo(viewInfo,  depthImageView_);
-    assert(res == VK_SUCCESS && "failed to create depth image view in swapchain");
+    VkResult res_createview = device_app.createImageViewWithInfo(viewInfo,  depthImageView_);
+    assert(res_createview == VK_SUCCESS && "failed to create depth image view in swapchain");
 }
 
 

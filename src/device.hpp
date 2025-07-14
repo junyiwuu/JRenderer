@@ -51,6 +51,9 @@ public:
 
 
     VkResult createImageViewWithInfo(const VkImageViewCreateInfo& imageViewInfo, VkImageView& imageView);
+    VkResult createImageWithInfo(const VkImageCreateInfo &imageInfo, 
+            VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+
 
     void createImage(uint32_t width, uint32_t height, 
             uint32_t mipLevels ,VkFormat format, 
@@ -59,8 +62,7 @@ public:
 
 
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
-    void createImageWithInfo(const VkImageCreateInfo &imageInfo, 
-        VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+   
     VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, 
         VkImageTiling tiling, VkFormatFeatureFlags features);
     
@@ -176,6 +178,63 @@ struct ImageViewCreateInfoBuilder{
 
 };
 
+
+struct ImageCreateInfoBuilder{
+
+    VkImageCreateInfo imageInfo{};
+    ImageCreateInfoBuilder(uint32_t texWidth, uint32_t texHeight){
+        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width = texWidth;
+        imageInfo.extent.height = texHeight;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+        imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;  //for multisampling
+        imageInfo.flags = 0;
+    }
+
+    ImageCreateInfoBuilder& imageCreateFlags(VkImageCreateFlags _flags){
+        imageInfo.flags = _flags; return *this; }
+        
+    ImageCreateInfoBuilder& imageType(VkImageType _type){
+        imageInfo.imageType = _type; return *this; }
+    ImageCreateInfoBuilder& extentDepth(uint32_t _depth){
+        imageInfo.extent.depth = _depth; return *this; }
+
+    ImageCreateInfoBuilder& mipLevels(uint32_t _mipLevels){
+        imageInfo.mipLevels = _mipLevels; return *this; }
+    ImageCreateInfoBuilder& arrayLayers(uint32_t _arrayLayers){
+        imageInfo.arrayLayers = _arrayLayers; return *this; }
+
+    ImageCreateInfoBuilder& tiling(VkImageTiling _tiling){
+        imageInfo.tiling = _tiling; return *this; }
+
+    ImageCreateInfoBuilder& usage(VkImageUsageFlags _usage){
+        imageInfo.usage = _usage; return *this; }
+
+    ImageCreateInfoBuilder& sharingMode(VkSharingMode _sharingMode){
+        imageInfo.sharingMode = _sharingMode; return *this; }
+
+    ImageCreateInfoBuilder& samples(VkSampleCountFlagBits _samples){
+            imageInfo.samples = _samples; return *this; }
+            
+    ImageCreateInfoBuilder& initialLayout(VkImageLayout _initialLayout){
+        imageInfo.initialLayout = _initialLayout; return *this; }
+
+    ImageCreateInfoBuilder& format(VkFormat _format){
+        imageInfo.format = _format; return *this; }
+        
+    VkImageCreateInfo getInfo() const {return imageInfo;}
+
+
+
+};
 
 
 
