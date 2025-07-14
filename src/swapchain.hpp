@@ -43,17 +43,14 @@ private:
     JDevice& device_app;
     JWindow& window_app;
 
-    
     VkSwapchainKHR swapChain_;
     std::shared_ptr<JSwapchain> oldSwapChain_;
-
     std::vector<VkImage> swapChainImages_;
     VkFormat swapChainImageFormat_;
     VkExtent2D swapChainExtent_;
     std::vector<VkImageView> swapChainImageViews_;
     std::vector<VkFramebuffer> swapChainFramebuffers_;
     VkRenderPass renderPass_;
-
     std::vector<VkSemaphore> imageAvailableSemaphores_;
     std::vector<VkSemaphore> renderFinishedSemaphores_;
     std::vector<VkFence> inFlightFences_;
@@ -61,7 +58,9 @@ private:
     VkImage depthImage_;
     VkDeviceMemory depthImageMemory_;
     VkImageView depthImageView_;
-
+    VkImage colorImage_;
+    VkDeviceMemory colorImageMemory_;
+    VkImageView colorImageView_;
 
     void init();
     void createSwapChain();
@@ -73,6 +72,7 @@ private:
     void createSyncObjects();
 
     void createDepthResources() ;
+    void createColorResources();
     
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 

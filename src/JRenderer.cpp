@@ -100,6 +100,7 @@ public:
         pipelineConfig.renderPass = swapchain_app->renderPass();
         pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
         pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        pipelineConfig.multisampleInfo.rasterizationSamples = device_app->msaaSamples();
         pipeline_app = std::make_unique<JPipeline>(device, 
                         "../shaders/shader.vert.spv",
                         "../shaders/shader.frag.spv",

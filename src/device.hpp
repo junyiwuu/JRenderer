@@ -54,15 +54,9 @@ public:
     VkResult createImageWithInfo(const VkImageCreateInfo &imageInfo, 
             VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
-
-    void createImage(uint32_t width, uint32_t height, 
-            uint32_t mipLevels ,VkFormat format, 
-            VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
-            VkImage& image, VkDeviceMemory& imageMemory);
-
-
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
-   
+    VkSampleCountFlagBits msaaSamples() const {return msaaSamples_;}
+
     VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, 
         VkImageTiling tiling, VkFormatFeatureFlags features);
     
@@ -70,8 +64,6 @@ public:
 
 private:    
     JWindow& window_app;
-
-
     VkInstance instance_;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
@@ -80,8 +72,7 @@ private:
     VkSurfaceKHR surface_;
     VkQueue presentQueue_;
     VkCommandPool commandPool_;
-
-
+    VkSampleCountFlagBits msaaSamples_ = VK_SAMPLE_COUNT_1_BIT;
 
     // will be checked if supported
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation" };
@@ -93,16 +84,12 @@ private:
         const bool enableValidationLayers=true;
     #endif
 
-
     void createInstance();
     void setupDebugMessenger();
     void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();
-    void createCommandPool();
-    
-    
-
+    void createCommandPool(); 
 
     //helpler  ---  device
     bool isDeviceSuitable(VkPhysicalDevice device);
@@ -129,6 +116,8 @@ private:
 
     bool hasStencilComponent(VkFormat format);
  
+    //mmsa
+    VkSampleCountFlagBits getMaxUsableSampleCount();
 
 };
 

@@ -182,6 +182,22 @@ void JDevice::createSurface(){
 
 
 
+VkSampleCountFlagBits JDevice::getMaxUsableSampleCount(){
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(physicalDevice_, &physicalDeviceProperties);
+    VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+
+    if(counts & VK_SAMPLE_COUNT_64_BIT){return VK_SAMPLE_COUNT_64_BIT; }
+    if(counts & VK_SAMPLE_COUNT_32_BIT){return VK_SAMPLE_COUNT_32_BIT; }
+    if(counts & VK_SAMPLE_COUNT_16_BIT){return VK_SAMPLE_COUNT_16_BIT; }
+    if(counts & VK_SAMPLE_COUNT_8_BIT){return VK_SAMPLE_COUNT_8_BIT; }
+    if(counts & VK_SAMPLE_COUNT_4_BIT){return VK_SAMPLE_COUNT_4_BIT; }
+    if(counts & VK_SAMPLE_COUNT_2_BIT){return VK_SAMPLE_COUNT_2_BIT; }
+
+    return VK_SAMPLE_COUNT_1_BIT;
+}
+
+
 //Device
 void JDevice::pickPhysicalDevice(){
 
@@ -197,7 +213,13 @@ void JDevice::pickPhysicalDevice(){
 
     //add any suitable device
     for (const auto& device: devices){
-        if (isDeviceSuitable(device)){ physicalDevice_ = device; break; } }
+        if (isDeviceSuitable(device)){
+            physicalDevice_ = device; 
+            msaaSamples_ = getMaxUsableSampleCount();
+            break; } 
+                    
+    
+    }
 
     if (physicalDevice_ == VK_NULL_HANDLE){ throw std::runtime_error("failed to find a suitable GPU!");}
 
@@ -475,54 +497,6 @@ void JDevice::createCommandPool(){
     if(vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create command pool!");}
 }
-
-
-
-
-
-
-
-void JDevice::createImage(uint32_t width, uint32_t height, 
-    uint32_t mipLevels,
-    VkFormat format, 
-    VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
-    VkImage& image, VkDeviceMemory& imageMemory){
-    // parameters for an image
-    VkImageCreateInfo imageInfo{};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.format = format;
-    imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = usage;
-    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;  //for multisampling
-    imageInfo.flags = 0;
-    imageInfo.mipLevels = mipLevels;
-
-    // create the image
-    if(vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS){
-        throw std::runtime_error("failed to create image!");}
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(device_, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, physicalDevice_);
-    if(vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS){
-        throw std::runtime_error("failed to allocate image memory!");}
-    vkBindImageMemory(device_, image, imageMemory, 0);
-}
-
-
-
 
 
 

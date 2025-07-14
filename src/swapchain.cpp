@@ -28,12 +28,16 @@ void JSwapchain::init() {
     createSwapChain();
     createImageViews();
     createRenderPass();
+    createColorResources();
     createDepthResources();
     createFramebuffers();
     createSyncObjects();
 }
 
 void JSwapchain::cleanupSwapChain() {
+    vkDestroyImageView(device_app.device(), colorImageView_, nullptr);
+    vkDestroyImage(device_app.device(), colorImage_, nullptr);
+    vkFreeMemory(device_app.device(), colorImageMemory_, nullptr);
     vkDestroyImageView(device_app.device(), depthImageView_, nullptr);
     vkDestroyImage(device_app.device(), depthImage_, nullptr);
     vkFreeMemory(device_app.device(), depthImageMemory_, nullptr);
@@ -125,6 +129,7 @@ void JSwapchain::createDepthResources() {
     VkFormat depthFormat = findDepthFormat();
     auto imageInfo = ImageCreateInfoBuilder(swapChainExtent_.width, swapChainExtent_.height)
                     .format(depthFormat)
+                    .samples(device_app.msaaSamples())
                     .usage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
                     .getInfo();
     VkResult res_createimg = device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage_, depthImageMemory_);
@@ -154,7 +159,23 @@ void JSwapchain::createImageViews() {
         }
 }
 
+void JSwapchain::createColorResources() {
+    VkFormat colorFormat = swapChainImageFormat_;
+    auto imageInfo = ImageCreateInfoBuilder(swapChainExtent_.width, swapChainExtent_.height)
+                    .samples(device_app.msaaSamples())
+                    .format(colorFormat)
+                    .usage(VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT|VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+                    .getInfo();
+    VkResult res = device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage_, colorImageMemory_);
+    assert(res == VK_SUCCESS && "failed to create color image for color resources!");
 
+    auto viewInfo = ImageViewCreateInfoBuilder(colorImage_)
+                    .format(colorFormat)
+                    .getInfo();
+    VkResult res_view = device_app.createImageViewWithInfo(viewInfo, colorImageView_);
+    assert(res_view == VK_SUCCESS && "failed to create color image view for color resources!");
+
+}
 
 
 void JSwapchain::createRenderPass() {
@@ -166,11 +187,27 @@ void JSwapchain::createRenderPass() {
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachment.samples = device_app.msaaSamples();
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // mutisampled image cannot be present directly
 
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    // we need to add resolve attachement to present multi-sampled image
+    VkAttachmentDescription colorAttachmentResolve{};
+    colorAttachmentResolve.format = swapChainImageFormat_;
+    colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentResolveRef{};
+    colorAttachmentResolveRef.attachment = 2;
+    colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription depthAttachment{};
     depthAttachment.format = findDepthFormat();
@@ -180,6 +217,7 @@ void JSwapchain::createRenderPass() {
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.samples = device_app.msaaSamples();
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference depthAttachmentRef{};
@@ -190,6 +228,7 @@ void JSwapchain::createRenderPass() {
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pResolveAttachments = &colorAttachmentResolveRef;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
     VkSubpassDependency dependency{};
@@ -198,13 +237,13 @@ void JSwapchain::createRenderPass() {
     //srcStageMask 外部操作中哪些pipeline阶段的完成必须字啊下游downstream开始前被确保完成
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
     //srcAccessMask 外部操作中哪些访问类型要被同步
-    dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     // dstStageMask 在0号subpass中，要等待哪些pipeline stage完成后才能安全开始
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     //dstAccessMask 哪些类型的访问要等到srcStageMask和srcAccessMask完成后再开始。
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-    std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+    std::array<VkAttachmentDescription, 3> attachments = {colorAttachment, depthAttachment, colorAttachmentResolve};
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -224,9 +263,11 @@ void JSwapchain::createFramebuffers() {
     swapChainFramebuffers_.resize(swapChainImageViews_.size());
 
     for (size_t i = 0; i < swapChainImageViews_.size(); i++) {
-        std::array<VkImageView, 2> attachments = {
+        std::array<VkImageView, 3> attachments = { // order is very important here, need to match with above attachment description
+            colorImageView_,            
+            depthImageView_,
             swapChainImageViews_[i],
-            depthImageView_
+
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
