@@ -36,13 +36,13 @@ public:
     JDevice(const JDevice&) = delete;
     JDevice &operator=(const JDevice&) = delete;
 
-    VkDevice device() { return device_; }
-    VkSurfaceKHR surface() { return surface_; }
-    VkQueue graphicsQueue() { return graphicsQueue_; }
-    VkQueue presentQueue() { return presentQueue_; }
-    VkPhysicalDevice physicalDevice() {return physicalDevice_;}
-    VkCommandPool getCommandPool() {return commandPool_;}
-
+    VkDevice device() const { return device_; }
+    VkSurfaceKHR surface() const { return surface_; }
+    VkQueue graphicsQueue() const { return graphicsQueue_; }
+    VkQueue presentQueue() const { return presentQueue_; }
+    VkPhysicalDevice physicalDevice() const {return physicalDevice_;}
+    VkCommandPool getCommandPool() const {return commandPool_;}
+    VkPhysicalDeviceDriverProperties getDriverProperties() const {return driverProperties_;}
 
     QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice_); }
     SwapChainSupportDetails getSwapChainSupport() {return querySwapChainSupport(physicalDevice_);}
@@ -54,11 +54,17 @@ public:
     VkResult createImageWithInfo(const VkImageCreateInfo &imageInfo, 
             VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
-    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+    void transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image,  
+        VkImageLayout oldLayout, VkImageLayout newLayout,
+        VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, 
+        VkImageAspectFlags aspectMasek,  uint32_t mipLevels);
+
     VkSampleCountFlagBits msaaSamples() const {return msaaSamples_;}
 
     VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, 
         VkImageTiling tiling, VkFormatFeatureFlags features);
+
+    
     
             
 
@@ -73,10 +79,14 @@ private:
     VkQueue presentQueue_;
     VkCommandPool commandPool_;
     VkSampleCountFlagBits msaaSamples_ = VK_SAMPLE_COUNT_1_BIT;
+    VkPhysicalDeviceDriverProperties driverProperties_ = {};
 
     // will be checked if supported
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation" };
-    const std::vector<const char*> deviceExtensions={VK_KHR_SWAPCHAIN_EXTENSION_NAME};  // -> content is VK_KHR_swapchain
+    const std::vector<const char*> deviceExtensions={
+                    VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
+                    VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,
+                    };  // -> content is VK_KHR_swapchain
 
     #ifdef NDEBUG
         const bool enableValidationLayers=false;
@@ -96,6 +106,8 @@ private:
     int rateDeviceSuitability(VkPhysicalDevice device);
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     std::vector<const char*> getRequiredExtensions();
+
+    void checkDriverProperties();
 
 
     //helpler  ---  validation
@@ -122,7 +134,7 @@ private:
 };
 
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 struct ImageViewCreateInfoBuilder{
     VkImageViewCreateInfo viewInfo{};
     ImageViewCreateInfoBuilder(VkImage image){
@@ -190,12 +202,10 @@ struct ImageCreateInfoBuilder{
 
     ImageCreateInfoBuilder& imageCreateFlags(VkImageCreateFlags _flags){
         imageInfo.flags = _flags; return *this; }
-        
     ImageCreateInfoBuilder& imageType(VkImageType _type){
         imageInfo.imageType = _type; return *this; }
     ImageCreateInfoBuilder& extentDepth(uint32_t _depth){
         imageInfo.extent.depth = _depth; return *this; }
-
     ImageCreateInfoBuilder& mipLevels(uint32_t _mipLevels){
         imageInfo.mipLevels = _mipLevels; return *this; }
     ImageCreateInfoBuilder& arrayLayers(uint32_t _arrayLayers){
@@ -203,19 +213,14 @@ struct ImageCreateInfoBuilder{
 
     ImageCreateInfoBuilder& tiling(VkImageTiling _tiling){
         imageInfo.tiling = _tiling; return *this; }
-
     ImageCreateInfoBuilder& usage(VkImageUsageFlags _usage){
         imageInfo.usage = _usage; return *this; }
-
     ImageCreateInfoBuilder& sharingMode(VkSharingMode _sharingMode){
         imageInfo.sharingMode = _sharingMode; return *this; }
-
     ImageCreateInfoBuilder& samples(VkSampleCountFlagBits _samples){
             imageInfo.samples = _samples; return *this; }
-            
     ImageCreateInfoBuilder& initialLayout(VkImageLayout _initialLayout){
         imageInfo.initialLayout = _initialLayout; return *this; }
-
     ImageCreateInfoBuilder& format(VkFormat _format){
         imageInfo.format = _format; return *this; }
         

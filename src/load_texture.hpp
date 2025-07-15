@@ -4,6 +4,7 @@
 #include "device.hpp"
 #include "buffer.hpp"
 #include "utility.hpp"
+#include "commandBuffer.hpp"
 
 
 
@@ -39,10 +40,8 @@ private:
 
     void createTextureImage(const std::string& path, JDevice& device_app);    
     void createTextureImageView();
-    void transitionImageLayout(VkImage image, VkFormat format, 
-        VkImageLayout oldLayout, VkImageLayout newLayout) ;
 
-    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
+    void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
     void createTextureSampler() ;
   
 

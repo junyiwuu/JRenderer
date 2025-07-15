@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "global.hpp"
+
 namespace util{
 
 
@@ -22,19 +24,19 @@ inline VkCommandBuffer beginSingleTimeCommands(VkDevice device, VkCommandPool co
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+    VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer));
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    VK_CHECK_RESULT(vkBeginCommandBuffer(commandBuffer, &beginInfo));
     return commandBuffer;
 }
 
 inline void endSingleTimeCommands(VkDevice device, VkCommandBuffer commandBuffer, VkCommandPool commandPool ,VkQueue queue){
     
-    vkEndCommandBuffer(commandBuffer);
+    VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -43,7 +45,7 @@ inline void endSingleTimeCommands(VkDevice device, VkCommandBuffer commandBuffer
 
     vkQueueSubmit(queue, 1 , &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(queue);
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    // vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
 
@@ -99,3 +101,21 @@ uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, V
 
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

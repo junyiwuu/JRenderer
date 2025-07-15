@@ -219,6 +219,9 @@ glfw3_DIR:PATH=/usr/lib64/cmake/glfw3
 //The directory containing a CMake configuration file for glm.
 glm_DIR:PATH=/usr/share/cmake/glm
 
+//Dependencies for the target
+imgui_LIB_DEPENDS:STATIC=general;glfw;general;Vulkan::Vulkan;
+
 //Value Computed by CMake
 vulkanTriangle_BINARY_DIR:STATIC=/home/j/projects/playground/vulkanTriangle/build
 

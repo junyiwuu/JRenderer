@@ -34,7 +34,7 @@ public:
     static externalCreateBufferResult createBuffer(JDevice& device_app,  VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     void destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory bufferMemory);
 
-
+    void stagingAction(const void* transferData);
 
 private:
     JDevice& device_app;
@@ -42,7 +42,7 @@ private:
     VkDeviceMemory bufferMemory_ = VK_NULL_HANDLE;
     VkDeviceSize size_;
 
-
+    void* mapped_;
 
 
 };
@@ -60,12 +60,14 @@ struct JVertexBuffer{
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT )
 
     {
-        JBuffer stagingBuffer(device_app, baseBuffer.getSize(), 
+        JBuffer stagingBuffer(device_app, baseBuffer.getSize(),   // in gpu but cpu can access
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        void* data;
-        vkMapMemory(device_app.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &data);
-        memcpy(data, vertices.data(), (size_t)(stagingBuffer.getSize()));
-        vkUnmapMemory(device_app.device(), stagingBuffer.bufferMemory());
+
+        stagingBuffer.stagingAction(vertices.data());
+        // void* data;
+        // vkMapMemory(device_app.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &data);
+        // memcpy(data, vertices.data(), (size_t)(stagingBuffer.getSize()));
+        // vkUnmapMemory(device_app.device(), stagingBuffer.bufferMemory());
 
         util::copyBuffer(stagingBuffer.buffer(), baseBuffer.buffer(), baseBuffer.getSize(), device_app.device(), commandPool, queue);   
     }

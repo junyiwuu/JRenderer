@@ -49,11 +49,20 @@ void JTexture::createTextureImage(const std::string& path, JDevice& device_app) 
                     .getInfo();
     device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage_, textureImageMemory_);
 
-    device_app.transitionImageLayout(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, 
-        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels_);
+    JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    commandBuffer.beginSingleTimeCommands();
 
-    copyBufferToImage(stagingBuffer.buffer(), textureImage_, 
+    device_app.transitionImageLayout(commandBuffer.getCommandBuffer() ,textureImage_,  
+        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,   VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_);
+
+    copyBufferToImage(commandBuffer.getCommandBuffer(), stagingBuffer.buffer(), textureImage_, 
         static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    
+    commandBuffer.endSingleTimeCommands(device_app.graphicsQueue());
+
+
     // device_app.transitionImageLayout(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, 
     //     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels_);
     generateMipmaps(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels_);
@@ -70,9 +79,9 @@ void JTexture::createTextureImageView(){
 }
 
 
-void JTexture::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) 
+void JTexture::copyBufferToImage(VkCommandBuffer commandBuffer,VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) 
 {
-    VkCommandBuffer commandBuffer = util::beginSingleTimeCommands(device_app.device(), device_app.getCommandPool());
+    // VkCommandBuffer commandBuffer = util::beginSingleTimeCommands(device_app.device(), device_app.getCommandPool());
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
     region.bufferRowLength = 0;
@@ -89,7 +98,7 @@ void JTexture::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
     };
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-    util::endSingleTimeCommands(device_app.device(), commandBuffer, device_app.getCommandPool(), device_app.graphicsQueue());
+    // util::endSingleTimeCommands(device_app.device(), commandBuffer, device_app.getCommandPool(), device_app.graphicsQueue());
 }
 
 

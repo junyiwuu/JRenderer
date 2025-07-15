@@ -165,8 +165,10 @@ CMakeFiles/vulkanTriangle.dir/src/device.cpp.o: \
  /usr/include/c++/11/bits/codecvt.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/cstring \
- /usr/include/string.h /usr/include/strings.h \
+ /usr/include/c++/11/bits/fstream.tcc \
+ /home/j/projects/playground/vulkanTriangle/src/global.hpp \
+ /usr/include/c++/11/cassert /usr/include/assert.h \
+ /usr/include/c++/11/cstring /usr/include/string.h /usr/include/strings.h \
  /usr/include/c++/11/optional \
  /usr/include/c++/11/bits/enable_special_members.h \
  /usr/include/c++/11/set /usr/include/c++/11/bits/stl_set.h \

@@ -152,4 +152,6 @@ CMakeFiles/vulkanTriangle.dir/src/utility.cpp.o: \
  /usr/include/c++/11/bits/codecvt.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc
+ /usr/include/c++/11/bits/fstream.tcc \
+ /home/j/projects/playground/vulkanTriangle/src/global.hpp \
+ /usr/include/c++/11/cassert /usr/include/assert.h

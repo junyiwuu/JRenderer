@@ -23,7 +23,7 @@
 #include "utility.hpp"
 #include "shaderModule.hpp"
 #include "pipeline.hpp"
-#include "commandBuffers.hpp"
+#include "commandBuffer.hpp"
 #include "buffer.hpp"
 #include "descriptor.hpp"
 #include "load_texture.hpp"
@@ -64,8 +64,8 @@ public:
             .build();
         descriptorPool_obj  = JDescriptorPool::Builder{*device_app}
             .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3)
-            .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 3)
-            .setMaxSets(3)
+            .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6)
+            .setMaxSets(6)
             .build();
     
         
@@ -109,12 +109,12 @@ public:
 
 
 
-
-
-
-        commandBuffers_app = std::make_unique<JCommandBuffers>(*device_app);
-        commandBuffers = commandBuffers_app->getCommandBuffers(); 
-
+        commandBuffers_app.reserve(JSwapchain::MAX_FRAMES_IN_FLIGHT);
+        for(size_t i =0; i< JSwapchain::MAX_FRAMES_IN_FLIGHT; ++i){
+            std::unique_ptr<JCommandBuffer> commandBuffer_app = std::make_unique<JCommandBuffer>(*device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+            commandBuffers_app.push_back(std::move(commandBuffer_app));
+        }
+        
         mainLoop();
       
     }
@@ -150,8 +150,8 @@ private:
     VkPipeline graphicPipeline;
 
     //commandbuffers
-    std::unique_ptr<JCommandBuffers> commandBuffers_app;
-    std::vector<VkCommandBuffer> commandBuffers;
+    std::vector<std::unique_ptr<JCommandBuffer>> commandBuffers_app;
+    
 
     uint32_t currentFrame = 0;
 
@@ -221,6 +221,7 @@ private:
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("failed to begin recording command buffer!");
@@ -312,13 +313,13 @@ private:
 
         memcpy(uniformBuffer_objs[currentFrame]->bufferMapped(), &ubo, sizeof(ubo) );
         // uniformBuffer_obj->update(currentFrame, ubo);
-
+        recordCommandBuffer(commandBuffers_app[currentFrame]->getCommandBuffer(), imageIndex);
         //---------------------------------------
 
         vkResetFences(device, 1,  &swapchain_app->getCurrentInFlightFence(currentFrame));
 
-        vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-        recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+        // vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+        
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -330,7 +331,7 @@ private:
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+        submitInfo.pCommandBuffers = &(commandBuffers_app[currentFrame]->getCommandBuffer());
 
         VkSemaphore signalSemaphores[] = {swapchain_app->getCurrentRenderFinishedSemaphore(currentFrame)};
         submitInfo.signalSemaphoreCount = 1;

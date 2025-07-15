@@ -349,6 +349,7 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: \
  /usr/include/c++/11/bits/stl_multimap.h \
  /home/j/projects/playground/vulkanTriangle/src/device.hpp \
  /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/global.hpp \
  /home/j/projects/playground/vulkanTriangle/src/swapchain.hpp \
  /home/j/projects/playground/vulkanTriangle/src/shaderModule.hpp \
  /home/j/projects/playground/vulkanTriangle/src/pipeline.hpp \
@@ -388,7 +389,7 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: \
  /usr/include/glm/detail/setup.hpp /usr/include/glm/gtc/epsilon.inl \
  /usr/include/glm/gtx/dual_quaternion.hpp \
  /usr/include/glm/gtx/dual_quaternion.inl /usr/include/glm/gtx/hash.inl \
- /home/j/projects/playground/vulkanTriangle/src/commandBuffers.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
  /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
  /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp \
  /home/j/projects/playground/vulkanTriangle/src/load_texture.hpp

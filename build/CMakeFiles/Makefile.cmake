@@ -54,6 +54,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/imgui.dir/DependInfo.cmake"
   "CMakeFiles/vulkanTriangle.dir/DependInfo.cmake"
   "CMakeFiles/compile_shaders.dir/DependInfo.cmake"
   )

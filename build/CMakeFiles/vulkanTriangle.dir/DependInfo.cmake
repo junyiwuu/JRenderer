@@ -10,9 +10,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/j/projects/playground/vulkanTriangle/src/JRenderer.cpp" "CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/buffer.cpp" "CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o.d"
-  "/home/j/projects/playground/vulkanTriangle/src/commandBuffers.cpp" "CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/commandBuffers.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/commandBuffer.cpp" "CMakeFiles/vulkanTriangle.dir/src/commandBuffer.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/commandBuffer.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/descriptor.cpp" "CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/device.cpp" "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/global.cpp" "CMakeFiles/vulkanTriangle.dir/src/global.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/global.cpp.o.d"
+  "/home/j/projects/playground/vulkanTriangle/src/gui.cpp" "CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/load_model.cpp" "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/load_texture.cpp" "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o.d"
   "/home/j/projects/playground/vulkanTriangle/src/pipeline.cpp" "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o" "gcc" "CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o.d"

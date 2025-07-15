@@ -41,6 +41,11 @@ JBuffer::~JBuffer(){
 
 }
 
+void JBuffer::stagingAction(const void* transferData){
+    vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  //staging buffer is host access on gpu
+    memcpy(mapped_, transferData, (size_t)(size_)); //transfer data is host access, copy to staging buffer
+    vkUnmapMemory(device_app.device(), bufferMemory_);  // unmap staging buffer and will be destroyed
+}
 
 
 JBuffer::externalCreateBufferResult JBuffer::createBuffer(JDevice& device_app,  VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties){

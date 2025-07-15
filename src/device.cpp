@@ -6,6 +6,7 @@ JDevice::JDevice(JWindow& window):window_app(window){
     setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
+    checkDriverProperties();
     createLogicalDevice();
     createCommandPool();
 }
@@ -100,7 +101,7 @@ void JDevice::createInstance(){
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); //you make this number
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.apiVersion = VK_API_VERSION_1_2;
 
     //create vulkan instance
     VkInstanceCreateInfo createInfo{};
@@ -333,7 +334,17 @@ bool JDevice::checkDeviceExtensionSupport(VkPhysicalDevice device){
     return requiredExtensions.empty();
 }
 
+void JDevice::checkDriverProperties(){
+    if(checkDeviceExtensionSupport(physicalDevice_) == true ){
+        VkPhysicalDeviceProperties2 deviceProperties2 = {};
+        deviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+        deviceProperties2.pNext = &driverProperties_;
+        driverProperties_.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
+        vkGetPhysicalDeviceProperties2(physicalDevice_, &deviceProperties2);
 
+    }
+    // else{ std::cout << "this is worng"<< std::endl;}
+}
 
 
 // Queue family
@@ -472,7 +483,7 @@ VkResult JDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo,
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device_, image, &memRequirements);
-
+    
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
@@ -500,71 +511,6 @@ void JDevice::createCommandPool(){
 
 
 
-void JDevice::transitionImageLayout(VkImage image, VkFormat format, 
-    VkImageLayout oldLayout, VkImageLayout newLayout,
-    uint32_t mipLevels){
-    VkCommandBuffer commandBuffer = util::beginSingleTimeCommands(device_, commandPool_);
-
-    VkImageMemoryBarrier barrier{};  //barrier是要求在之前的操作全部结束后才能用心的layout去操作图片
-    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.oldLayout = oldLayout;
-    barrier.newLayout = newLayout;
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = image;
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = mipLevels;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-    barrier.srcAccessMask = 0;
-    barrier.dstAccessMask = 0;
-
-    VkPipelineStageFlags sourceStage;
-    VkPipelineStageFlags destinationStage;
-
-    if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout==VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL){
-    barrier.srcAccessMask = 0;
-    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;}
-
-    else if(oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL){
-    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-    sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;}
-
-    else if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
-    barrier.srcAccessMask = 0;
-    barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;  // the earliest stage of the pipeline (the enrty of the pipeline)
-    destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;} // 指在片元（像素）着色前，GPU 会做深度、模板测试等早期操作。等到 GPU 进入早期片元测试前，一定要保证 barrier 已经生效（比如 image layout 已经完成转换）
-
-    else{
-    throw std::invalid_argument("unsupported layout transition!");}
-
-    if(newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-
-    if(hasStencilComponent(format)){
-    barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;}  // first OR then assign the value. this way, if aspectMask already have value, add one more stencil
-    }else{
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;  }
-
-
-    vkCmdPipelineBarrier(
-    commandBuffer,
-    sourceStage, destinationStage,
-    0,
-    0, nullptr,
-    0, nullptr,
-    1, &barrier
-    );
-    util::endSingleTimeCommands(device_, commandBuffer, commandPool_, graphicsQueue_ );
-}
-
-
 
 //tell if chosen depth format contains a stencil component
 bool JDevice::hasStencilComponent(VkFormat format){
@@ -586,4 +532,168 @@ VkFormat JDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, V
     }
 
     throw std::runtime_error("failed to find supported format!");
+}
+
+
+
+
+
+
+
+
+
+void JDevice::transitionImageLayout( VkCommandBuffer commandBuffer, VkImage image,  
+    VkImageLayout oldLayout, VkImageLayout newLayout,
+    VkPipelineStageFlags srcStage, VkPipelineStageFlags dstStage, 
+    VkImageAspectFlags aspectMask,  uint32_t mipLevels){
+
+    // VkCommandBuffer commandBuffer = util::beginSingleTimeCommands(device_, commandPool_);
+    
+    VkImageMemoryBarrier barrier{};  //barrier是要求在之前的操作全部结束后才能用心的layout去操作图片
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = aspectMask;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = mipLevels;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+    barrier.srcAccessMask = 0;
+    barrier.dstAccessMask = 0;
+
+    switch(oldLayout)
+    {
+        case VK_IMAGE_LAYOUT_UNDEFINED:
+        // Image layout is undefined (or does not matter)
+        // Only valid as initial layout
+        // No flags required, listed only for completeness
+        barrier.srcAccessMask = 0;
+        break;
+
+    case VK_IMAGE_LAYOUT_PREINITIALIZED:
+        // Image is preinitialized
+        // Only valid as initial layout for linear images, preserves memory contents
+        // Make sure host writes have been finished
+        barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        // Image is a color attachment
+        // Make sure any writes to the color buffer have been finished
+        barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+        // Image is a depth/stencil attachment
+        // Make sure any writes to the depth/stencil buffer have been finished
+        barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        // Image is a transfer source
+        // Make sure any reads from the image have been finished
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+        // Image is a transfer destination
+        // Make sure any writes to the image have been finished
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+        // Image is read by a shader
+        // Make sure any shader reads from the image have been finished
+        barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        break;
+    default:
+        // Other source layouts aren't handled (yet)
+        break;
+    }
+
+    // Target layouts (new)
+    // Destination access mask controls the dependency for the new image layout
+    switch (newLayout)
+    {
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+        // Image will be used as a transfer destination
+        // Make sure any writes to the image have been finished
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        // Image will be used as a transfer source
+        // Make sure any reads from the image have been finished
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        // Image will be used as a color attachment
+        // Make sure any writes to the color buffer have been finished
+        barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+        // Image layout will be used as a depth/stencil attachment
+        // Make sure any writes to depth/stencil buffer have been finished
+        barrier.dstAccessMask = barrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+        // Image will be read in a shader (sampler, input attachment)
+        // Make sure any writes to the image have been finished
+        if (barrier.srcAccessMask == 0)
+        {
+            barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+        }
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        break;
+    default:
+        // Other source layouts aren't handled (yet)
+        break;
+    }
+
+    
+    // if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout==VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL){
+    // barrier.srcAccessMask = 0;
+    // barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    // srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    // dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;}
+
+    // else if(oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL){
+    // barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    // barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    // srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    // dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;}
+
+    // else if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
+    // barrier.srcAccessMask = 0;
+    // barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    // srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;  // the earliest stage of the pipeline (the enrty of the pipeline)
+    // dstStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;} // 指在片元（像素）着色前，GPU 会做深度、模板测试等早期操作。等到 GPU 进入早期片元测试前，一定要保证 barrier 已经生效（比如 image layout 已经完成转换）
+
+    // else{
+    // throw std::invalid_argument("unsupported layout transition!");}
+
+    // if(newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
+    // barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+    // if(hasStencilComponent(format)){
+    // barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;}  // first OR then assign the value. this way, if aspectMask already have value, add one more stencil
+    // }else{
+    // barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;  }
+
+
+    vkCmdPipelineBarrier(
+    commandBuffer,
+    srcStage, dstStage,
+    0,
+    0, nullptr,
+    0, nullptr,
+    1, &barrier
+    );
+    // util::endSingleTimeCommands(device_, commandBuffer, commandPool_, graphicsQueue_ );
 }

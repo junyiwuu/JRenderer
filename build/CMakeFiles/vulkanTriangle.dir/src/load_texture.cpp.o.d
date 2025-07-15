@@ -166,8 +166,10 @@ CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o: \
  /usr/include/c++/11/bits/codecvt.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/cstring \
- /usr/include/string.h /usr/include/strings.h \
+ /usr/include/c++/11/bits/fstream.tcc \
+ /home/j/projects/playground/vulkanTriangle/src/global.hpp \
+ /usr/include/c++/11/cassert /usr/include/assert.h \
+ /usr/include/c++/11/cstring /usr/include/string.h /usr/include/strings.h \
  /usr/include/c++/11/optional \
  /usr/include/c++/11/bits/enable_special_members.h \
  /usr/include/c++/11/set /usr/include/c++/11/bits/stl_set.h \
@@ -197,8 +199,7 @@ CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o: \
  /usr/include/c++/11/tr1/poly_hermite.tcc \
  /usr/include/c++/11/tr1/poly_laguerre.tcc \
  /usr/include/c++/11/tr1/riemann_zeta.tcc \
- /usr/include/glm/detail/setup.hpp /usr/include/c++/11/cassert \
- /usr/include/assert.h /usr/include/c++/11/cstddef \
+ /usr/include/glm/detail/setup.hpp /usr/include/c++/11/cstddef \
  /usr/include/glm/simd/platform.h /usr/include/c++/11/climits \
  /usr/lib/gcc/x86_64-redhat-linux/11/include/limits.h \
  /usr/lib/gcc/x86_64-redhat-linux/11/include/syslimits.h \
@@ -373,8 +374,24 @@ CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o: \
  /usr/include/glm/detail/setup.hpp /usr/include/glm/gtc/epsilon.inl \
  /usr/include/glm/gtx/dual_quaternion.hpp \
  /usr/include/glm/gtx/dual_quaternion.inl /usr/include/glm/gtx/hash.inl \
- /usr/include/stb_image.h /usr/include/c++/11/stdlib.h \
- /usr/include/c++/11/math.h \
+ /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/swapchain.hpp \
+ /usr/include/c++/11/algorithm \
+ /usr/include/c++/11/pstl/glue_algorithm_defs.h \
+ /usr/include/c++/11/pstl/execution_defs.h /usr/include/c++/11/memory \
+ /usr/include/c++/11/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/11/bits/align.h /usr/include/c++/11/bit \
+ /usr/include/c++/11/bits/unique_ptr.h \
+ /usr/include/c++/11/bits/shared_ptr.h \
+ /usr/include/c++/11/bits/shared_ptr_base.h \
+ /usr/include/c++/11/bits/allocated_ptr.h \
+ /usr/include/c++/11/ext/concurrence.h \
+ /usr/include/c++/11/bits/shared_ptr_atomic.h \
+ /usr/include/c++/11/bits/atomic_base.h \
+ /usr/include/c++/11/bits/atomic_lockfree_defines.h \
+ /usr/include/c++/11/backward/auto_ptr.h \
+ /usr/include/c++/11/pstl/glue_memory_defs.h /usr/include/stb_image.h \
+ /usr/include/c++/11/stdlib.h /usr/include/c++/11/math.h \
  /usr/lib/gcc/x86_64-redhat-linux/11/include/emmintrin.h \
  /usr/lib/gcc/x86_64-redhat-linux/11/include/xmmintrin.h \
  /usr/lib/gcc/x86_64-redhat-linux/11/include/mmintrin.h \

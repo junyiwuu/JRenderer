@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/j/projects/playground/vulkanTriangle/third_party/tinyobjloader
+CXX_INCLUDES = -I/home/j/projects/playground/vulkanTriangle/third_party/tinyobjloader -I/home/j/projects/playground/vulkanTriangle/third_party/imgui -I/home/j/projects/playground/vulkanTriangle/third_party/imgui/backends
 
 CXX_FLAGS = -g -std=gnu++17
 

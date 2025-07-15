@@ -15,11 +15,24 @@ find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/*.hpp")
+file(GLOB IMGUI_SRC
+        third_party/imgui/imgui*.cpp
+        third_party/imgui/backends/imgui_impl_glfw.cpp
+        third_party/imgui/backends/imgui_impl_vulkan.cpp)
+add_library(imgui ${IMGUI_SRC})
+target_include_directories(imgui PUBLIC
+                                ${CMAKE_SOURCE_DIR}/third_party/imgui
+                                ${CMAKE_SOURCE_DIR}/third_party/imgui/backends)
+target_link_libraries(imgui PUBLIC 
+                                glfw
+                                Vulkan::Vulkan )
+
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 #link the required libraries
 #第一个参数是链接库的目标
-target_link_libraries(vulkanTriangle Vulkan::Vulkan glfw)
+target_link_libraries(vulkanTriangle Vulkan::Vulkan glfw imgui)
 
 
 # auto compile glsl -> spirv
@@ -35,3 +48,5 @@ add_dependencies(vulkanTriangle compile_shaders)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/third_party/tinyobjloader)
+
+
