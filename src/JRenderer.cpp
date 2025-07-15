@@ -88,11 +88,11 @@ public:
             imageInfo.imageView = vikingTexture_obj->textureImageView();
             imageInfo.sampler = vikingTexture_obj->textureSampler();
 
-            if( !writer.writeBuffer(0, &bufferInfo)
+            if( !writer
+                        .writeBuffer(0, &bufferInfo)
                         .writeImage(1, &imageInfo)
                         .build(descriptorSets[i])){
-                throw std::runtime_error("failed to allocate descriptor set!");    }
-            
+                throw std::runtime_error("failed to allocate descriptor set!");    }  
         }
 
         PipelineConfigInfo pipelineConfig{};
@@ -101,10 +101,15 @@ public:
         pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
         pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
         pipelineConfig.multisampleInfo.rasterizationSamples = device_app->msaaSamples();
-        pipeline_app = std::make_unique<JPipeline>(device, 
-                        "../shaders/shader.vert.spv",
-                        "../shaders/shader.frag.spv",
-                        pipelineConfig , descriptorSetLayout_obj->descriptorSetLayout());
+
+        VkDescriptorSetLayout setLayouts[] = {descriptorSetLayout_obj->descriptorSetLayout()};
+        pipelinelayout_app = JPipelineLayout::Builder{*device_app}
+                            .setDescriptorSetLayout(1, setLayouts)
+                            .build();
+
+        pipeline_app = std::make_unique<JPipeline>(*device_app, 
+                        "../shaders/shader.vert.spv", "../shaders/shader.frag.spv",
+                        pipelinelayout_app->getPipelineLayout(), pipelineConfig);
         graphicPipeline = pipeline_app->getGraphicPipeline();
 
 
@@ -147,6 +152,7 @@ private:
 
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
+    std::unique_ptr<JPipelineLayout> pipelinelayout_app;
     VkPipeline graphicPipeline;
 
     //commandbuffers
@@ -270,7 +276,7 @@ private:
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getPipelineLayout(),0,1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinelayout_app->getPipelineLayout(),0,1,
                         &descriptorSets[currentFrame], 0, nullptr );
 
             vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vikingModel_obj->indices().size()), 1, 0, 0, 0);

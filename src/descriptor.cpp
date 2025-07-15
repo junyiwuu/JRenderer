@@ -55,7 +55,14 @@ bool JDescriptorPool::allocateDescriptorSet(const VkDescriptorSetLayout descript
     if (vkAllocateDescriptorSets(device_app.device(), &descriptorSetAllocInfo, &descriptorSet) != VK_SUCCESS){
         return false;}
     return true;
-
+    // VkResult r = vkAllocateDescriptorSets(device_app.device(), &descriptorSetAllocInfo, &descriptorSet);
+    // if (r != VK_SUCCESS) {
+    //     std::cerr << "vkAllocateDescriptorSets failed: "
+    //               << tools::errorString(r)
+    //               << " (" << r << ")\n";
+    //     return false;
+    // }
+    // return true;
 }
 
 

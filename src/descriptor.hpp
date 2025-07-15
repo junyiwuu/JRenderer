@@ -26,8 +26,6 @@ public:
             uint32_t b_maxDescriptorSets = 1000;
     };
 
-
-
     JDescriptorPool(JDevice& device_app, uint32_t maxDescriptorSets, VkDescriptorPoolCreateFlags poolCreateFlags,
         const std::vector<VkDescriptorPoolSize> &poolSize);
     ~JDescriptorPool();
@@ -62,24 +60,19 @@ public:
             Builder(JDevice& device): device_app(device) {}
 
             Builder& addBinding(uint32_t binding, VkDescriptorType descriptorType,
-                VkShaderStageFlags stageFlags, uint32_t descriptorCount);
+                VkShaderStageFlags stageFlags, uint32_t descriptorCount = 1);
             std::unique_ptr<JDescriptorSetLayout> build() const;
 
         private:
             JDevice& device_app;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
         };
-
-
     JDescriptorSetLayout(JDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
-    ~JDescriptorSetLayout();
-          
+    ~JDescriptorSetLayout();        
     JDescriptorSetLayout(const JDescriptorSetLayout &) = delete;
     JDescriptorSetLayout &operator=(const JDescriptorSetLayout &) = delete;
   
-
     VkDescriptorSetLayout descriptorSetLayout() const {return descriptorSetLayout_;}
-
 
 private:
     JDevice& device_app;

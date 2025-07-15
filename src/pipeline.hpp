@@ -1,9 +1,16 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <memory>
+
 #include "utility.hpp"
 #include "shaderModule.hpp"
 #include "load_model.hpp"
+#include "device.hpp"
+#include "descriptor.hpp"
+
+
+
 
 struct PipelineConfigInfo
 {
@@ -29,34 +36,51 @@ struct PipelineConfigInfo
 
 
 class JPipeline{
-
-
 public:
-    JPipeline(VkDevice& device ,const std::string& vertFilepath, const std::string& fragFilepath, 
-                const PipelineConfigInfo& configInfo, const VkDescriptorSetLayout& descriptorSetLayout);
+    JPipeline(JDevice& device ,const std::string& vertFilepath, const std::string& fragFilepath, 
+        const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo);
     ~JPipeline();
 
     static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
     VkPipeline getGraphicPipeline() {return graphicsPipeline_;}
-    VkPipelineLayout getPipelineLayout(){ return pipelineLayout_;}
-
-        // graphic pipeline并非固定一个pipelinelayout，layout其实应该和descriptor set相关，之后要整理
-
-
-
-
 private:
-    VkDevice& device;
+    JDevice& device_app;
     // VkDescriptorSetLayout& descriptorSetLayout;
 
-
-    VkPipelineLayout pipelineLayout_;
     VkPipeline graphicsPipeline_;
 
     void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, 
-            const PipelineConfigInfo& configInfo, const VkDescriptorSetLayout& descriptorSetLayout);
+        const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo );
+};
 
+/////////////////////////////////////////////////////////////////
 
+class JPipelineLayout{
+public:
+    class Builder{
+        public:
+        Builder(JDevice& device): device_app(device) {}
+        Builder& setDescriptorSetLayout(uint32_t setLayoutCount, const VkDescriptorSetLayout* pSetLayouts);
+        Builder& setPushConstRanges(uint32_t pushConstantRangeCount, const VkPushConstantRange* pPushConstantRanges);
+        std::unique_ptr<JPipelineLayout> build() const;
+
+        private:
+        JDevice& device_app;
+        uint32_t m_setLayoutCount = 0;
+        const VkDescriptorSetLayout* m_pSetLayouts = nullptr;
+        uint32_t m_pushConstantRangeCount = 0;
+        const VkPushConstantRange* m_pPushConstantRanges = nullptr;
+    };
+
+    JPipelineLayout(JDevice& device, 
+        uint32_t setLayoutCount, const VkDescriptorSetLayout* pSetLayouts,
+        uint32_t pushConstantRangeCount, const VkPushConstantRange* pPushConstantRanges);
+    ~JPipelineLayout();
+    VkPipelineLayout getPipelineLayout() const {return pipelineLayout_;}
+
+private:
+    JDevice& device_app;
+    VkPipelineLayout pipelineLayout_;
 
 };

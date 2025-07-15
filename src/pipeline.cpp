@@ -6,12 +6,13 @@
 
 
 JPipeline::JPipeline(
-        VkDevice& device ,
-        const std::string& vertFilepath, const std::string& fragFilepath, 
-        const PipelineConfigInfo& configInfo, const VkDescriptorSetLayout& descriptorSetLayout
-    ): device{device}
+    JDevice& device ,
+    const std::string& vertFilepath, const std::string& fragFilepath, 
+    const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo ) : 
+    
+        device_app(device)
 {
-    createGraphicsPipeline(vertFilepath, fragFilepath, configInfo, descriptorSetLayout);
+    createGraphicsPipeline(vertFilepath, fragFilepath,  pipelineLayout ,configInfo);
 
 }
 
@@ -19,31 +20,30 @@ JPipeline::JPipeline(
 JPipeline::~JPipeline(){
     
 
-    vkDestroyPipeline(device, graphicsPipeline_, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout_, nullptr);
+    vkDestroyPipeline(device_app.device(), graphicsPipeline_, nullptr);
+
 }
 
 
 
 
-void JPipeline::createGraphicsPipeline(
-        const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo,
-        const VkDescriptorSetLayout& descriptorSetLayout ) 
+void JPipeline:: createGraphicsPipeline(
+        const std::string& vertFilepath, const std::string& fragFilepath, 
+        const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo ) 
         
 {
     auto vertShaderCode = util::readFile(vertFilepath);
     auto fragShaderCode = util::readFile(fragFilepath);
 
-    // auto vertShaderModule_obj = std::make_unique<JShaderModule>(device, vertShaderCode);
+    // auto vertShaderModule_obj = std::make_unique<JShaderModule>(device_app.device(), vertShaderCode);
     // VkShaderModule vertShaderModule = vertShaderModule_obj->getShaderModule();
-    // auto fragShaderModule_obj = std::make_unique<JShaderModule>(device, fragShaderCode);
+    // auto fragShaderModule_obj = std::make_unique<JShaderModule>(device_app.device(), fragShaderCode);
     // VkShaderModule fragShaderModule = fragShaderModule_obj->getShaderModule();
 
-    JShaderModule vertShaderModule_obj{device, vertShaderCode};
+    JShaderModule vertShaderModule_obj{device_app.device(), vertShaderCode};
     VkShaderModule vertShaderModule = vertShaderModule_obj.getShaderModule();
-    JShaderModule fragShaderModule_obj{device, fragShaderCode};
+    JShaderModule fragShaderModule_obj{device_app.device(), fragShaderCode};
     VkShaderModule fragShaderModule = fragShaderModule_obj.getShaderModule();
-
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -69,19 +69,6 @@ void JPipeline::createGraphicsPipeline(
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
     
-
-   
-
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create pipeline layout!");
-    }
-
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
@@ -95,12 +82,12 @@ void JPipeline::createGraphicsPipeline(
     pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
     pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
     pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
-    pipelineInfo.layout = pipelineLayout_;
+    pipelineInfo.layout = pipelineLayout;
     pipelineInfo.renderPass = configInfo.renderPass;
     pipelineInfo.subpass = configInfo.subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(device_app.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
@@ -166,14 +153,52 @@ void JPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo){
 
 
 
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+JPipelineLayout::JPipelineLayout(JDevice& device, 
+    uint32_t setLayoutCount, const VkDescriptorSetLayout* pSetLayouts,
+    uint32_t pushConstantRangeCount, const VkPushConstantRange* pPushConstantRanges):
+        device_app(device)
+{
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = setLayoutCount;
+    pipelineLayoutInfo.pSetLayouts = pSetLayouts;
+    pipelineLayoutInfo.flags = 0;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = pPushConstantRanges;
+
+    if (vkCreatePipelineLayout(device_app.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
+
+}
 
 
 
+JPipelineLayout::~JPipelineLayout(){
+    vkDestroyPipelineLayout(device_app.device(), pipelineLayout_, nullptr);
 
+}
 
+JPipelineLayout::Builder& JPipelineLayout::Builder::setDescriptorSetLayout(uint32_t setLayoutCount, const VkDescriptorSetLayout* pSetLayouts){
+    m_setLayoutCount = setLayoutCount;
+    m_pSetLayouts = pSetLayouts;
+    return *this;
+}
 
+JPipelineLayout::Builder& JPipelineLayout::Builder::setPushConstRanges(uint32_t pushConstantRangeCount, const VkPushConstantRange* pPushConstantRanges){
+    m_pushConstantRangeCount = pushConstantRangeCount;
+    m_pPushConstantRanges = pPushConstantRanges;
+    return *this;
+}
 
-
+std::unique_ptr<JPipelineLayout> JPipelineLayout::Builder::build() const{
+    return std::make_unique<JPipelineLayout>(device_app, 
+        m_setLayoutCount, m_pSetLayouts, 
+        m_pushConstantRangeCount, m_pPushConstantRanges);
+}
 
 
 

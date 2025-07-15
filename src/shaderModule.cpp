@@ -5,7 +5,7 @@
 
 
 
-JShaderModule::JShaderModule(VkDevice& device, const std::vector<char>& code):
+JShaderModule::JShaderModule(VkDevice device, const std::vector<char>& code):
     device(device), code(code)
 {
     createShaderModule(code);

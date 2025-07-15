@@ -389,7 +389,7 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: \
  /usr/include/glm/detail/setup.hpp /usr/include/glm/gtc/epsilon.inl \
  /usr/include/glm/gtx/dual_quaternion.hpp \
  /usr/include/glm/gtx/dual_quaternion.inl /usr/include/glm/gtx/hash.inl \
- /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
- /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
  /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
  /home/j/projects/playground/vulkanTriangle/src/load_texture.hpp

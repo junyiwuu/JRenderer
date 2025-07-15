@@ -510,9 +510,9 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: /home/j/projects/playground/v
   /usr/include/glm/gtx/dual_quaternion.hpp \
   /usr/include/glm/gtx/dual_quaternion.inl \
   /usr/include/glm/gtx/hash.inl \
-  /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
-  /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
   /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
   /home/j/projects/playground/vulkanTriangle/src/load_texture.hpp
 
 CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o: /home/j/projects/playground/vulkanTriangle/src/buffer.cpp \
@@ -2767,7 +2767,11 @@ CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o: /home/j/projects/playground/vulkanT
   /usr/include/c++/11/bits/atomic_base.h \
   /usr/include/c++/11/bits/atomic_lockfree_defines.h \
   /usr/include/c++/11/backward/auto_ptr.h \
-  /usr/include/c++/11/pstl/glue_memory_defs.h
+  /usr/include/c++/11/pstl/glue_memory_defs.h \
+  /home/j/projects/playground/vulkanTriangle/src/load_texture.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/pipeline.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/shaderModule.hpp
 
 CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o: /home/j/projects/playground/vulkanTriangle/src/load_model.cpp \
   /usr/include/stdc-predef.h \
@@ -3842,10 +3846,23 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/c++/11/bits/hash_bytes.h \
   /usr/include/c++/11/bits/range_access.h \
   /usr/include/c++/11/bits/vector.tcc \
-  /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
-  /usr/include/c++/11/string \
+  /usr/include/c++/11/memory \
+  /usr/include/c++/11/bits/stl_tempbuf.h \
+  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/11/bits/align.h \
+  /usr/include/c++/11/bit \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/unique_ptr.h \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/stl_function.h \
+  /usr/include/c++/11/backward/binders.h \
+  /usr/include/c++/11/bits/shared_ptr.h \
+  /usr/include/c++/11/iosfwd \
   /usr/include/c++/11/bits/stringfwd.h \
-  /usr/include/c++/11/bits/char_traits.h \
   /usr/include/c++/11/bits/postypes.h \
   /usr/include/c++/11/cwchar \
   /usr/include/wchar.h \
@@ -3859,22 +3876,11 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/bits/types/FILE.h \
   /usr/include/bits/types/locale_t.h \
   /usr/include/bits/types/__locale_t.h \
-  /usr/include/c++/11/cstdint \
-  /usr/include/c++/11/bits/localefwd.h \
-  /usr/include/c++/11/x86_64-redhat-linux/bits/c++locale.h \
-  /usr/include/c++/11/clocale \
-  /usr/include/locale.h \
-  /usr/include/bits/locale.h \
-  /usr/include/c++/11/iosfwd \
-  /usr/include/c++/11/cctype \
-  /usr/include/ctype.h \
-  /usr/include/bits/endian.h \
-  /usr/include/bits/endianness.h \
-  /usr/include/c++/11/bits/ostream_insert.h \
-  /usr/include/c++/11/bits/cxxabi_forced.h \
-  /usr/include/c++/11/bits/stl_function.h \
-  /usr/include/c++/11/backward/binders.h \
-  /usr/include/c++/11/bits/basic_string.h \
+  /usr/include/c++/11/bits/shared_ptr_base.h \
+  /usr/include/c++/11/typeinfo \
+  /usr/include/c++/11/bits/allocated_ptr.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/ext/aligned_buffer.h \
   /usr/include/c++/11/ext/atomicity.h \
   /usr/include/c++/11/x86_64-redhat-linux/bits/gthr.h \
   /usr/include/c++/11/x86_64-redhat-linux/bits/gthr-default.h \
@@ -3882,6 +3888,8 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/sched.h \
   /usr/include/bits/types/time_t.h \
   /usr/include/bits/types/struct_timespec.h \
+  /usr/include/bits/endian.h \
+  /usr/include/bits/endianness.h \
   /usr/include/bits/sched.h \
   /usr/include/linux/sched/types.h \
   /usr/include/linux/types.h \
@@ -3917,6 +3925,31 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/bits/pthread_stack_min-dynamic.h \
   /usr/include/c++/11/x86_64-redhat-linux/bits/atomic_word.h \
   /usr/include/sys/single_threaded.h \
+  /usr/include/c++/11/ext/concurrence.h \
+  /usr/include/c++/11/exception \
+  /usr/include/c++/11/bits/exception_ptr.h \
+  /usr/include/c++/11/bits/cxxabi_init_exception.h \
+  /usr/include/c++/11/bits/nested_exception.h \
+  /usr/include/c++/11/bits/shared_ptr_atomic.h \
+  /usr/include/c++/11/bits/atomic_base.h \
+  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
+  /usr/include/c++/11/backward/auto_ptr.h \
+  /usr/include/c++/11/pstl/glue_memory_defs.h \
+  /usr/include/c++/11/pstl/execution_defs.h \
+  /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
+  /usr/include/c++/11/string \
+  /usr/include/c++/11/bits/char_traits.h \
+  /usr/include/c++/11/cstdint \
+  /usr/include/c++/11/bits/localefwd.h \
+  /usr/include/c++/11/x86_64-redhat-linux/bits/c++locale.h \
+  /usr/include/c++/11/clocale \
+  /usr/include/locale.h \
+  /usr/include/bits/locale.h \
+  /usr/include/c++/11/cctype \
+  /usr/include/ctype.h \
+  /usr/include/c++/11/bits/ostream_insert.h \
+  /usr/include/c++/11/bits/cxxabi_forced.h \
+  /usr/include/c++/11/bits/basic_string.h \
   /usr/include/c++/11/string_view \
   /usr/include/c++/11/bits/string_view.tcc \
   /usr/include/c++/11/ext/string_conversions.h \
@@ -3954,11 +3987,6 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/c++/11/iostream \
   /usr/include/c++/11/ostream \
   /usr/include/c++/11/ios \
-  /usr/include/c++/11/exception \
-  /usr/include/c++/11/bits/exception_ptr.h \
-  /usr/include/c++/11/bits/cxxabi_init_exception.h \
-  /usr/include/c++/11/typeinfo \
-  /usr/include/c++/11/bits/nested_exception.h \
   /usr/include/c++/11/bits/ios_base.h \
   /usr/include/c++/11/bits/locale_classes.h \
   /usr/include/c++/11/bits/locale_classes.tcc \
@@ -4163,28 +4191,19 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/glm/detail/type_half.inl \
   /usr/include/glm/integer.hpp \
   /usr/include/glm/detail/func_integer.inl \
-  /usr/include/c++/11/array \
-  /usr/include/c++/11/utility \
-  /usr/include/c++/11/bits/stl_relops.h \
   /usr/include/c++/11/unordered_map \
-  /usr/include/c++/11/ext/aligned_buffer.h \
   /usr/include/c++/11/bits/hashtable.h \
   /usr/include/c++/11/bits/hashtable_policy.h \
-  /usr/include/c++/11/tuple \
-  /usr/include/c++/11/bits/uses_allocator.h \
-  /usr/include/c++/11/bits/invoke.h \
   /usr/include/c++/11/bits/enable_special_members.h \
   /usr/include/c++/11/bits/node_handle.h \
   /usr/include/c++/11/bits/unordered_map.h \
   /usr/include/c++/11/bits/erase_if.h \
   /usr/include/glm/gtx/hash.hpp \
   /usr/include/c++/11/functional \
-  /usr/include/c++/11/bits/refwrap.h \
   /usr/include/c++/11/bits/std_function.h \
   /usr/include/c++/11/bits/stl_algo.h \
   /usr/include/c++/11/bits/algorithmfwd.h \
   /usr/include/c++/11/bits/stl_heap.h \
-  /usr/include/c++/11/bits/stl_tempbuf.h \
   /usr/include/c++/11/bits/uniform_int_dist.h \
   /usr/include/glm/gtc/vec1.hpp \
   /usr/include/glm/ext/vector_bool1.hpp \
@@ -4235,7 +4254,30 @@ CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o: /home/j/projects/playground/vu
   /usr/include/glm/gtc/epsilon.inl \
   /usr/include/glm/gtx/dual_quaternion.hpp \
   /usr/include/glm/gtx/dual_quaternion.inl \
-  /usr/include/glm/gtx/hash.inl
+  /usr/include/glm/gtx/hash.inl \
+  /home/j/projects/playground/vulkanTriangle/src/device.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/window.hpp \
+  /usr/include/GLFW/glfw3.h \
+  /usr/include/GL/gl.h \
+  /usr/include/GL/glext.h \
+  /usr/include/KHR/khrplatform.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
+  /usr/include/c++/11/cstring \
+  /usr/include/string.h \
+  /usr/include/strings.h \
+  /usr/include/c++/11/optional \
+  /usr/include/c++/11/set \
+  /usr/include/c++/11/bits/stl_set.h \
+  /usr/include/c++/11/bits/stl_multiset.h \
+  /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp \
+  /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
+  /usr/include/c++/11/chrono \
+  /usr/include/c++/11/ratio \
+  /usr/include/c++/11/ctime \
+  /usr/include/c++/11/bits/parse_numbers.h
 
 CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o: /home/j/projects/playground/vulkanTriangle/src/shaderModule.cpp \
   /usr/include/stdc-predef.h \
