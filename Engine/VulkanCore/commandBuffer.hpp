@@ -12,25 +12,28 @@ class JCommandBuffer{
 public:
 
 
-    JCommandBuffer(
-           JDevice& device,  VkCommandBufferLevel level);
+    JCommandBuffer(  JDevice& device,  vk::CommandBufferLevel level);
     ~JCommandBuffer();
 
     VkCommandBuffer& getCommandBuffer() {return commandBuffer_;}
 
     void beginSingleTimeCommands();
     void endSingleTimeCommands(VkQueue queue);
-    
+
+    void beginRecording();
+    void endRecording();
 
 
 private:
     JDevice& device_app;
+
     VkCommandBuffer commandBuffer_;
+    vk::CommandBuffer commandBuffer_v;
 
-    void createCommandBuffer(JDevice& device,  VkCommandBufferLevel level);
+    void createCommandBuffer(JDevice& device,  vk::CommandBufferLevel level);
 
 
-
+    bool cmdBuf_renderingNow;
 
 
 };

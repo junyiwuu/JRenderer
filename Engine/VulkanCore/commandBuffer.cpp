@@ -3,15 +3,24 @@
 
 
 
-JCommandBuffer::JCommandBuffer(
-    JDevice& device,  VkCommandBufferLevel level):
+JCommandBuffer::JCommandBuffer( JDevice& device,  vk::CommandBufferLevel level):
     device_app(device)
-        
-        //    commandPool(commandPool), device(device), renderPass(renderPass), graphicPipeline(graphicPipeline)
     
 {
-    createCommandBuffer(device_app, level);
+    createCommandBuffer(device_app, level); 
+}
 
+
+void JCommandBuffer::createCommandBuffer(JDevice& device, vk::CommandBufferLevel level) 
+{
+    // commandBuffers_.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.commandPool = device_app.getCommandPool();
+    allocInfo.level = level;
+    allocInfo.commandBufferCount = 1;
+
+    commandBuffer_v = device_app.getDevice_v().allocateCommandBuffers(allocInfo)[0];
+    cmdBuf_renderingNow = false;
 }
 
 
@@ -19,33 +28,29 @@ JCommandBuffer::JCommandBuffer(
 
 JCommandBuffer::~JCommandBuffer(){
 
-        vkFreeCommandBuffers(device_app.device(), device_app.getCommandPool(), 1, &commandBuffer_);
+        // vkFreeCommandBuffers(device_app.getDevice(), device_app.getCommandPool(), 1, &commandBuffer_);
 
 
 }
 
 
 
+void JCommandBuffer::beginRecording(){
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+    // beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-
-
-
-
-
-void JCommandBuffer::createCommandBuffer(JDevice& device, VkCommandBufferLevel level) 
-{
-    // commandBuffers_.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
-
-    VkCommandBufferAllocateInfo allocInfo{}; // 告诉x个command buffer进入command pool
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = device_app.getCommandPool();
-    allocInfo.level = level;
-    allocInfo.commandBufferCount = 1;
-
-    //正式把command buffer放入command pool
-    VK_CHECK_RESULT (vkAllocateCommandBuffers(device_app.device(), &allocInfo, &commandBuffer_));
-        
+    cmdBuf_renderingNow = true;
+    commandBuffer_v.begin(beginInfo);
 }
+
+void JCommandBuffer::endRendering(){
+    assert(cmdBuf_renderingNow==true);
+    cmdBuf_renderingNow = false;
+    commandBuffer_v.end();
+
+}
+
 
 
 

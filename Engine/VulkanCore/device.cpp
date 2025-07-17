@@ -101,7 +101,7 @@ void JDevice::createInstance(){
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); //you make this number
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_2;
+    appInfo.apiVersion = VK_API_VERSION_1_4;
 
     //create vulkan instance
     VkInstanceCreateInfo createInfo{};
@@ -536,7 +536,13 @@ VkFormat JDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, V
 
 
 
-
+VkFormat JDevice::findDepthFormat() {
+    return findSupportedFormat(
+    {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+    );
+}
 
 
 

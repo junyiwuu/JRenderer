@@ -111,12 +111,12 @@ CMakeFiles/vulkanTriangle.dir/all: CMakeFiles/imgui.dir/all
 CMakeFiles/vulkanTriangle.dir/all: CMakeFiles/compile_shaders.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 "Built target vulkanTriangle"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28 "Built target vulkanTriangle"
 .PHONY : CMakeFiles/vulkanTriangle.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/vulkanTriangle.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/j/projects/playground/vulkanTriangle/build/CMakeFiles 24
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/j/projects/playground/vulkanTriangle/build/CMakeFiles 28
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/vulkanTriangle.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/j/projects/playground/vulkanTriangle/build/CMakeFiles 0
 .PHONY : CMakeFiles/vulkanTriangle.dir/rule

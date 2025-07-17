@@ -5,16 +5,15 @@ cmake_minimum_required(VERSION 3.10)
 project(vulkanTriangle VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_BUILD_TYPE Debug)
 #specify the c++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 #inlcude directories for GLFW and vulkan
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
-
 find_package(glm REQUIRED)
 
-file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/*.hpp")
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/Engine/*.cpp" "${CMAKE_SOURCE_DIR}/Engine/*.hpp")
 file(GLOB IMGUI_SRC
         third_party/imgui/imgui*.cpp
         third_party/imgui/backends/imgui_impl_glfw.cpp
@@ -23,6 +22,8 @@ add_library(imgui ${IMGUI_SRC})
 target_include_directories(imgui PUBLIC
                                 ${CMAKE_SOURCE_DIR}/third_party/imgui
                                 ${CMAKE_SOURCE_DIR}/third_party/imgui/backends)
+
+
 target_link_libraries(imgui PUBLIC 
                                 glfw
                                 Vulkan::Vulkan )

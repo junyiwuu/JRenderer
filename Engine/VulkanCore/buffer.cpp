@@ -12,21 +12,21 @@ JBuffer::JBuffer(JDevice& device,  VkDeviceSize size,
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if(vkCreateBuffer(device_app.device(), &bufferInfo, nullptr, &buffer_) != VK_SUCCESS){
+        if(vkCreateBuffer(device_app.getDevice(), &bufferInfo, nullptr, &buffer_) != VK_SUCCESS){
             throw std::runtime_error("failed to create buffer!"); }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(device_app.device(), buffer_, &memRequirements);
+        vkGetBufferMemoryRequirements(device_app.getDevice(), buffer_, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, device_app.physicalDevice() );
+        allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, device_app.getPhysicalDevice() );
 
-        if(vkAllocateMemory(device_app.device(), &allocInfo, nullptr, &bufferMemory_) != VK_SUCCESS){
+        if(vkAllocateMemory(device_app.getDevice(), &allocInfo, nullptr, &bufferMemory_) != VK_SUCCESS){
             throw std::runtime_error("failed to allocate buffer memory!"); }
 
-        vkBindBufferMemory(device_app.device(), buffer_,  bufferMemory_, 0);
+        vkBindBufferMemory(device_app.getDevice(), buffer_,  bufferMemory_, 0);
 
 }
 
@@ -34,19 +34,19 @@ JBuffer::JBuffer(JDevice& device,  VkDeviceSize size,
 
 JBuffer::~JBuffer(){
     if(buffer_ != VK_NULL_HANDLE){
-        vkDestroyBuffer(device_app.device(), buffer_, nullptr); }
+        vkDestroyBuffer(device_app.getDevice(), buffer_, nullptr); }
 
     if(bufferMemory_ != VK_NULL_HANDLE){
-        vkFreeMemory(device_app.device(), bufferMemory_, nullptr); }
+        vkFreeMemory(device_app.getDevice(), bufferMemory_, nullptr); }
 
 }
 
 void JBuffer::stagingAction(const void* transferData){
-    vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  //staging buffer is host access on gpu
+    vkMapMemory(device_app.getDevice(), bufferMemory_, 0, size_, 0, &mapped_);  //staging buffer is host access on gpu
     assert(mapped_!=nullptr);
     assert(transferData != nullptr);
     memcpy(mapped_, transferData, (size_t)(size_)); //transfer data is host access, copy to staging buffer
-    vkUnmapMemory(device_app.device(), bufferMemory_);  // unmap staging buffer and will be destroyed
+    vkUnmapMemory(device_app.getDevice(), bufferMemory_);  // unmap staging buffer and will be destroyed
 }
 
 
@@ -61,22 +61,22 @@ JBuffer::externalCreateBufferResult JBuffer::createBuffer(JDevice& device_app,  
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if(vkCreateBuffer(device_app.device(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS){
+    if(vkCreateBuffer(device_app.getDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS){
         throw std::runtime_error("failed to create buffer!"); }
 
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device_app.device(), buffer, &memRequirements);
+    vkGetBufferMemoryRequirements(device_app.getDevice(), buffer, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, device_app.physicalDevice() );
+    allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, device_app.getPhysicalDevice() );
 
     VkDeviceMemory bufferMemory;
-    if(vkAllocateMemory(device_app.device(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS){
+    if(vkAllocateMemory(device_app.getDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS){
         throw std::runtime_error("failed to allocate buffer memory!"); }
 
-    vkBindBufferMemory(device_app.device(), buffer,  bufferMemory, 0);
+    vkBindBufferMemory(device_app.getDevice(), buffer,  bufferMemory, 0);
 
     result.r_buffer_ = buffer;
     result.r_bufferMemory_ = bufferMemory;
@@ -88,10 +88,10 @@ JBuffer::externalCreateBufferResult JBuffer::createBuffer(JDevice& device_app,  
 
 void JBuffer::destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory bufferMemory){
     if(buffer != VK_NULL_HANDLE){
-        vkDestroyBuffer(device_app.device(), buffer, nullptr); }
+        vkDestroyBuffer(device_app.getDevice(), buffer, nullptr); }
 
     if(bufferMemory != VK_NULL_HANDLE){
-        vkFreeMemory(device_app.device(), bufferMemory, nullptr); }
+        vkFreeMemory(device_app.getDevice(), bufferMemory, nullptr); }
 
 }
 
@@ -121,15 +121,15 @@ JUniformBuffer::JUniformBuffer(JDevice& device):
     uniformBuffer_ = result.r_buffer_ ;
     uniformBufferMemory_ = result.r_bufferMemory_;
 
-    vkMapMemory(device.device(), uniformBufferMemory_, 0, bufferSize, 0, &uniformBufferMapped_);
+    vkMapMemory(device.getDevice(), uniformBufferMemory_, 0, bufferSize, 0, &uniformBufferMapped_);
 }
 
 
 
 JUniformBuffer::~JUniformBuffer(){
 
-    vkDestroyBuffer(device_app.device(), uniformBuffer_, nullptr);
-    vkFreeMemory(device_app.device(), uniformBufferMemory_, nullptr);
+    vkDestroyBuffer(device_app.getDevice(), uniformBuffer_, nullptr);
+    vkFreeMemory(device_app.getDevice(), uniformBufferMemory_, nullptr);
     
 }
 

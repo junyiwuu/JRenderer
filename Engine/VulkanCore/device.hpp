@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <vector>
 #include <iostream>
 #include <cstring>
@@ -37,13 +37,21 @@ public:
 
     JDevice(const JDevice&) = delete;
     JDevice &operator=(const JDevice&) = delete;
+    VkDevice            getDevice() const { return device_; }
+    vk::Device          getDevice_v() const {return device_v; }
 
-    VkInstance instance() const {return instance_; }
-    VkDevice device() const { return device_; }
-    VkSurfaceKHR surface() const { return surface_; }
+    VkInstance          getInstance() const {return instance_; }
+    VkPhysicalDevice    getPhysicalDevice() const {return physicalDevice_;}
+    VkSurfaceKHR        getSurface() const { return surface_; }
+    vk::Instance        getInstance_v() const {return instance_v;}
+    vk::PhysicalDevice  getPhysicalDevice_v() const {return physicalDevice_v;}
+    vk::SurfaceKHR      getSurface_v() const { return surface_v; }
+
+
+
     VkQueue graphicsQueue() const { return graphicsQueue_; }
     VkQueue presentQueue() const { return presentQueue_; }
-    VkPhysicalDevice physicalDevice() const {return physicalDevice_;}
+
     VkCommandPool getCommandPool() const {return commandPool_;}
     VkPhysicalDeviceDriverProperties getDriverProperties() const {return driverProperties_;}
     VkPhysicalDeviceProperties getPhysicalDeviceProperties() const {return physicalDeviceProperties_;}
@@ -72,17 +80,27 @@ public:
     /////// for others
     VkResult createBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, 
         tools::Buffer *buffer, VkDeviceSize size, void *data = nullptr);
-            
-
+        
+    VkFormat findDepthFormat();
+    
 private:    
     JWindow& window_app;
-    VkInstance instance_;
+    VkInstance          instance_;
+    VkPhysicalDevice    physicalDevice_ = VK_NULL_HANDLE;
+    VkSurfaceKHR        surface_;
+    VkDevice            device_; //logical device
+
+    vk::PhysicalDevice  physicalDevice_v{physicalDevice_};
+    vk::Instance        instance_v {instance_};
+    vk::SurfaceKHR      surface_v {surface_};
+    vk::Device          device_v { device_};
+
     VkDebugUtilsMessengerEXT debugMessenger;
-    VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
+    
     VkPhysicalDeviceProperties physicalDeviceProperties_;
-    VkDevice device_; //logical device
+    
     VkQueue graphicsQueue_;
-    VkSurfaceKHR surface_;
+    
     VkQueue presentQueue_;
     VkCommandPool commandPool_;
     VkSampleCountFlagBits msaaSamples_ = VK_SAMPLE_COUNT_1_BIT;
