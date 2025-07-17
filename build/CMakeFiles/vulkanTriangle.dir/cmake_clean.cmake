@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/vulkanTriangle.dir/src/Interface/gui.cpp.o"
+  "CMakeFiles/vulkanTriangle.dir/src/Interface/gui.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o"
@@ -11,8 +13,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/vulkanTriangle.dir/src/device.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/global.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/global.cpp.o.d"
-  "CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o"
-  "CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o"
   "CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o.d"
   "CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o"

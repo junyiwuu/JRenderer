@@ -162,7 +162,7 @@ CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o: \
  /usr/include/c++/11/chrono /usr/include/c++/11/ratio \
  /usr/include/c++/11/limits /usr/include/c++/11/ctime \
  /usr/include/c++/11/bits/parse_numbers.h \
- /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/device.hpp \
  /usr/include/c++/11/iostream /usr/include/c++/11/ostream \
  /usr/include/c++/11/ios /usr/include/c++/11/bits/ios_base.h \
  /usr/include/c++/11/bits/locale_classes.h \
@@ -179,8 +179,17 @@ CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o: \
  /usr/include/c++/11/bits/locale_facets.tcc \
  /usr/include/c++/11/bits/basic_ios.tcc \
  /usr/include/c++/11/bits/ostream.tcc /usr/include/c++/11/istream \
- /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/fstream \
- /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/optional \
+ /usr/include/c++/11/set /usr/include/c++/11/bits/stl_tree.h \
+ /usr/include/c++/11/bits/stl_set.h \
+ /usr/include/c++/11/bits/stl_multiset.h \
+ /home/j/projects/playground/vulkanTriangle/src/window.hpp \
+ /usr/include/GLFW/glfw3.h /usr/include/GL/gl.h /usr/include/GL/glext.h \
+ /usr/include/KHR/khrplatform.h /usr/include/c++/11/map \
+ /usr/include/c++/11/bits/stl_map.h \
+ /usr/include/c++/11/bits/stl_multimap.h \
+ /home/j/projects/playground/vulkanTriangle/src/utility.hpp \
+ /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/11/x86_64-redhat-linux/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc \
@@ -376,12 +385,4 @@ CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o: \
  /usr/include/glm/gtc/quaternion.inl /usr/include/glm/gtc/epsilon.hpp \
  /usr/include/glm/detail/setup.hpp /usr/include/glm/gtc/epsilon.inl \
  /usr/include/glm/gtx/dual_quaternion.hpp \
- /usr/include/glm/gtx/dual_quaternion.inl /usr/include/glm/gtx/hash.inl \
- /home/j/projects/playground/vulkanTriangle/src/device.hpp \
- /home/j/projects/playground/vulkanTriangle/src/window.hpp \
- /usr/include/GLFW/glfw3.h /usr/include/GL/gl.h /usr/include/GL/glext.h \
- /usr/include/KHR/khrplatform.h /usr/include/c++/11/map \
- /usr/include/c++/11/bits/stl_tree.h /usr/include/c++/11/bits/stl_map.h \
- /usr/include/c++/11/bits/stl_multimap.h /usr/include/c++/11/optional \
- /usr/include/c++/11/set /usr/include/c++/11/bits/stl_set.h \
- /usr/include/c++/11/bits/stl_multiset.h
+ /usr/include/glm/gtx/dual_quaternion.inl /usr/include/glm/gtx/hash.inl

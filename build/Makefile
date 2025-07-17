@@ -155,6 +155,30 @@ compile_shaders/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/build
 .PHONY : compile_shaders/fast
 
+src/Interface/gui.o: src/Interface/gui.cpp.o
+.PHONY : src/Interface/gui.o
+
+# target to build an object file
+src/Interface/gui.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/Interface/gui.cpp.o
+.PHONY : src/Interface/gui.cpp.o
+
+src/Interface/gui.i: src/Interface/gui.cpp.i
+.PHONY : src/Interface/gui.i
+
+# target to preprocess a source file
+src/Interface/gui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/Interface/gui.cpp.i
+.PHONY : src/Interface/gui.cpp.i
+
+src/Interface/gui.s: src/Interface/gui.cpp.s
+.PHONY : src/Interface/gui.s
+
+# target to generate assembly for a file
+src/Interface/gui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/Interface/gui.cpp.s
+.PHONY : src/Interface/gui.cpp.s
+
 src/JRenderer.o: src/JRenderer.cpp.o
 .PHONY : src/JRenderer.o
 
@@ -298,30 +322,6 @@ src/global.s: src/global.cpp.s
 src/global.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/global.cpp.s
 .PHONY : src/global.cpp.s
-
-src/gui.o: src/gui.cpp.o
-.PHONY : src/gui.o
-
-# target to build an object file
-src/gui.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o
-.PHONY : src/gui.cpp.o
-
-src/gui.i: src/gui.cpp.i
-.PHONY : src/gui.i
-
-# target to preprocess a source file
-src/gui.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/gui.cpp.i
-.PHONY : src/gui.cpp.i
-
-src/gui.s: src/gui.cpp.s
-.PHONY : src/gui.s
-
-# target to generate assembly for a file
-src/gui.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/gui.cpp.s
-.PHONY : src/gui.cpp.s
 
 src/load_model.o: src/load_model.cpp.o
 .PHONY : src/load_model.o
@@ -670,6 +670,9 @@ help:
 	@echo "... compile_shaders"
 	@echo "... imgui"
 	@echo "... vulkanTriangle"
+	@echo "... src/Interface/gui.o"
+	@echo "... src/Interface/gui.i"
+	@echo "... src/Interface/gui.s"
 	@echo "... src/JRenderer.o"
 	@echo "... src/JRenderer.i"
 	@echo "... src/JRenderer.s"
@@ -688,9 +691,6 @@ help:
 	@echo "... src/global.o"
 	@echo "... src/global.i"
 	@echo "... src/global.s"
-	@echo "... src/gui.o"
-	@echo "... src/gui.i"
-	@echo "... src/gui.s"
 	@echo "... src/load_model.o"
 	@echo "... src/load_model.i"
 	@echo "... src/load_model.s"

@@ -392,4 +392,11 @@ CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o: \
  /home/j/projects/playground/vulkanTriangle/src/descriptor.hpp \
  /home/j/projects/playground/vulkanTriangle/src/buffer.hpp \
  /home/j/projects/playground/vulkanTriangle/src/commandBuffer.hpp \
- /home/j/projects/playground/vulkanTriangle/src/load_texture.hpp
+ /home/j/projects/playground/vulkanTriangle/src/load_texture.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/Interface/gui.hpp \
+ /home/j/projects/playground/vulkanTriangle/third_party/imgui/imgui.h \
+ /home/j/projects/playground/vulkanTriangle/third_party/imgui/imconfig.h \
+ /home/j/projects/playground/vulkanTriangle/third_party/imgui/backends/imgui_impl_glfw.h \
+ /home/j/projects/playground/vulkanTriangle/third_party/imgui/backends/imgui_impl_vulkan.h \
+ /home/j/projects/playground/vulkanTriangle/src/Interface/../AppContext.hpp \
+ /home/j/projects/playground/vulkanTriangle/src/Interface/../Interface/UIOverlay.hpp
