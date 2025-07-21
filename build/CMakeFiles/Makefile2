@@ -107,8 +107,8 @@ CMakeFiles/imgui.dir/clean:
 # Target rules for target CMakeFiles/vulkanTriangle.dir
 
 # All Build rule for target.
-CMakeFiles/vulkanTriangle.dir/all: CMakeFiles/imgui.dir/all
 CMakeFiles/vulkanTriangle.dir/all: CMakeFiles/compile_shaders.dir/all
+CMakeFiles/vulkanTriangle.dir/all: CMakeFiles/imgui.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/j/projects/playground/vulkanTriangle/build/CMakeFiles --progress-num=10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 "Built target vulkanTriangle"

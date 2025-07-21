@@ -26,15 +26,22 @@ public:
     VkSwapchainKHR swapChain() {return swapChain_;}
     VkExtent2D getSwapChainExtent() {return swapChainExtent_;}
     VkFramebuffer getFrameBuffer(int index) {return swapChainFramebuffers_[index];}
-    VkFormat getSwapChainImageFormat() {return swapChainImageFormat_;}
-    VkRenderPass renderPass() {return renderPass_;}
+    VkFormat getSwapChainImageFormat() const {return swapChainImageFormat_;}
+
+    VkImage getColorImage()                                 {return colorImage_;}
+    VkImageView getColorImageView() const                   {return colorImageView_;}
+    VkImage getDepthImage()                                 {return depthImage_;}
+    VkImageView getDepthImageView() const                   {return depthImageView_;}
+    std::vector<VkImageView> getSwapChainImageView() const  {return swapChainImageViews_;}
+    std::vector<VkImage> getSwapChainImage()                {return swapChainImages_;}
 
 
     VkSemaphore getCurrentImageAvailableSemaphore(int index) {return imageAvailableSemaphores_[index];}
     VkSemaphore getCurrentRenderFinishedSemaphore(int index) {return renderFinishedSemaphores_[index];}
     VkFence& getCurrentInFlightFence(int index){ return inFlightFences_[index];}
     
-
+    
+    VkFormat findDepthFormat() const;
 
 
 
@@ -44,12 +51,14 @@ private:
 
     VkSwapchainKHR swapChain_;
     std::shared_ptr<JSwapchain> oldSwapChain_;
-    std::vector<VkImage> swapChainImages_;
+    
     VkFormat swapChainImageFormat_;
     VkExtent2D swapChainExtent_;
+
+    std::vector<VkImage> swapChainImages_;
     std::vector<VkImageView> swapChainImageViews_;
     std::vector<VkFramebuffer> swapChainFramebuffers_;
-    VkRenderPass renderPass_;
+
     std::vector<VkSemaphore> imageAvailableSemaphores_;
     std::vector<VkSemaphore> renderFinishedSemaphores_;
     std::vector<VkFence> inFlightFences_;
@@ -64,10 +73,10 @@ private:
     void init();
     void createSwapChain();
     void createImageViews();
-    void createFramebuffers();
+
 
     void cleanupSwapChain();
-    void createRenderPass();
+
     void createSyncObjects();
 
     void createDepthResources() ;
@@ -77,5 +86,5 @@ private:
 
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) ;
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-    VkFormat findDepthFormat();
+
 };

@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <vector>
 #include <iostream>
 #include <cstring>
@@ -85,6 +85,7 @@ private:
     const std::vector<const char*> deviceExtensions={
                     VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
                     VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,
+                    // "VK_KHR_dynamic_rendering"
                     };  // -> content is VK_KHR_swapchain
 
     #ifdef NDEBUG

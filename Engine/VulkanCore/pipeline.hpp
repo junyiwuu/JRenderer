@@ -1,10 +1,11 @@
 #pragma once
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <vector>
 #include <memory>
 
 #include "utility.hpp"
 class JDevice;
+class JSwapchain;
 
 
 
@@ -34,7 +35,8 @@ struct PipelineConfigInfo
 
 class JPipeline{
 public:
-    JPipeline(JDevice& device ,const std::string& vertFilepath, const std::string& fragFilepath, 
+    JPipeline(JDevice& device , const JSwapchain& swapchain,
+        const std::string& vertFilepath, const std::string& fragFilepath, 
         const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo);
     ~JPipeline();
 
@@ -44,6 +46,7 @@ public:
 private:
     JDevice& device_app;
     // VkDescriptorSetLayout& descriptorSetLayout;
+    const JSwapchain& swapchain_app;
 
     VkPipeline graphicsPipeline_;
 

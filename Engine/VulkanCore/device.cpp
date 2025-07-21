@@ -100,7 +100,7 @@ void JDevice::createInstance(){
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); //you make this number
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_2;
+    appInfo.apiVersion = VK_API_VERSION_1_4;
 
     //create vulkan instance
     VkInstanceCreateInfo createInfo{};
@@ -261,19 +261,32 @@ void JDevice::createLogicalDevice(){
     }
  
 
+
     //what device features will be use for logical device, then driver can turn on these features
     VkPhysicalDeviceFeatures deviceFeatures{}; // for now, all false (default)
     deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+    // turn on dynamic rendering
+    VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderFeatures{};
+    dynamicRenderFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+    dynamicRenderFeatures.dynamicRendering = VK_TRUE;
+
+    //combo
+    VkPhysicalDeviceFeatures2 features2{};
+    features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features2.features = deviceFeatures;           // 复制普通特性
+    features2.pNext    = &dynamicRenderFeatures;   // 链上 dynamic 特性
+
     //logical device
     VkDeviceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pQueueCreateInfos = queueCreateInfos.data();
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.sType                    = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext                    = &features2;   
+    createInfo.pQueueCreateInfos        = queueCreateInfos.data();
+    createInfo.queueCreateInfoCount     = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pEnabledFeatures         = nullptr;
         // enable swapchain extension here
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount    = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames  = deviceExtensions.data();
 
     if(vkCreateDevice(physicalDevice_, &createInfo, nullptr, &device_) != VK_SUCCESS){
         throw std::runtime_error("failed to create logical device!");

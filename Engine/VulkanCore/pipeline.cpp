@@ -5,17 +5,17 @@
 #include "device.hpp"
 #include "descriptor.hpp"
 #include "pipeline.hpp"
-
+#include "swapchain.hpp"
 
 
 
 
 JPipeline::JPipeline(
-    JDevice& device ,
+    JDevice& device , const JSwapchain& swapchain,
     const std::string& vertFilepath, const std::string& fragFilepath, 
     const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo ) : 
     
-        device_app(device)
+        device_app(device), swapchain_app(swapchain)
 {
     createGraphicsPipeline(vertFilepath, fragFilepath,  pipelineLayout ,configInfo);
 
@@ -73,9 +73,21 @@ void JPipeline:: createGraphicsPipeline(
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size()); 
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
+
+
+    VkPipelineRenderingCreateInfo renderingCreateInfo{};
+    VkFormat colorFormat = swapchain_app.getSwapChainImageFormat();
+    renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    renderingCreateInfo.colorAttachmentCount = 1;
+    renderingCreateInfo.pColorAttachmentFormats = &colorFormat; 
+    renderingCreateInfo.depthAttachmentFormat = swapchain_app.findDepthFormat();
+    renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
+    
     
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.pNext = &renderingCreateInfo;
+
     pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -88,7 +100,7 @@ void JPipeline:: createGraphicsPipeline(
     pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
     pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = configInfo.renderPass;
+    pipelineInfo.renderPass = VK_NULL_HANDLE;
     pipelineInfo.subpass = configInfo.subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
