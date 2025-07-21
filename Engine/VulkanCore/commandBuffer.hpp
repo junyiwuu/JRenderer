@@ -1,10 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "swapchain.hpp"
+
 #include "global.hpp"
-
-
+class JDevice;
 
 class JCommandBuffer{
 

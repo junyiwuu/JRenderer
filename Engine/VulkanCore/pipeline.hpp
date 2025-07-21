@@ -4,16 +4,13 @@
 #include <memory>
 
 #include "utility.hpp"
-#include "shaderModule.hpp"
-#include "load_model.hpp"
-#include "device.hpp"
-#include "descriptor.hpp"
-
+class JDevice;
 
 
 
 struct PipelineConfigInfo
 {
+    PipelineConfigInfo() = default;   
     PipelineConfigInfo(const PipelineConfigInfo& ) = delete;
     PipelineConfigInfo& operator=(const PipelineConfigInfo) = delete;
 

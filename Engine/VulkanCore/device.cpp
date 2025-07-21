@@ -1,4 +1,5 @@
 #include "device.hpp"
+#include "window.hpp"
 
 
 JDevice::JDevice(JWindow& window):window_app(window){
@@ -23,8 +24,6 @@ JDevice::~JDevice(){
     vkDestroyInstance(instance_, nullptr);
     
 }
-
-
 
 
 

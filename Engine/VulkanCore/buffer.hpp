@@ -4,8 +4,8 @@
 #include <cstring>
 #include <chrono>
 
-#include "utility.hpp"
 #include "load_model.hpp"
+#include "utility.hpp"
 #include "device.hpp"
 
 

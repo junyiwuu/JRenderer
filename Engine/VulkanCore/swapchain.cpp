@@ -1,4 +1,6 @@
 #include "swapchain.hpp"
+#include "window.hpp"
+#include "device.hpp"
 
 JSwapchain::JSwapchain(JDevice& device, JWindow& window):
         device_app(device), window_app(window)  {

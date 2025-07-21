@@ -155,341 +155,341 @@ compile_shaders/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/build
 .PHONY : compile_shaders/fast
 
-src/JRenderer.o: src/JRenderer.cpp.o
-.PHONY : src/JRenderer.o
+Engine/JRenderer.o: Engine/JRenderer.cpp.o
+.PHONY : Engine/JRenderer.o
 
 # target to build an object file
-src/JRenderer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.o
-.PHONY : src/JRenderer.cpp.o
+Engine/JRenderer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/JRenderer.cpp.o
+.PHONY : Engine/JRenderer.cpp.o
 
-src/JRenderer.i: src/JRenderer.cpp.i
-.PHONY : src/JRenderer.i
+Engine/JRenderer.i: Engine/JRenderer.cpp.i
+.PHONY : Engine/JRenderer.i
 
 # target to preprocess a source file
-src/JRenderer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.i
-.PHONY : src/JRenderer.cpp.i
+Engine/JRenderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/JRenderer.cpp.i
+.PHONY : Engine/JRenderer.cpp.i
 
-src/JRenderer.s: src/JRenderer.cpp.s
-.PHONY : src/JRenderer.s
+Engine/JRenderer.s: Engine/JRenderer.cpp.s
+.PHONY : Engine/JRenderer.s
 
 # target to generate assembly for a file
-src/JRenderer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/JRenderer.cpp.s
-.PHONY : src/JRenderer.cpp.s
+Engine/JRenderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/JRenderer.cpp.s
+.PHONY : Engine/JRenderer.cpp.s
 
-src/buffer.o: src/buffer.cpp.o
-.PHONY : src/buffer.o
+Engine/VulkanCore/buffer.o: Engine/VulkanCore/buffer.cpp.o
+.PHONY : Engine/VulkanCore/buffer.o
 
 # target to build an object file
-src/buffer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.o
-.PHONY : src/buffer.cpp.o
+Engine/VulkanCore/buffer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/buffer.cpp.o
+.PHONY : Engine/VulkanCore/buffer.cpp.o
 
-src/buffer.i: src/buffer.cpp.i
-.PHONY : src/buffer.i
+Engine/VulkanCore/buffer.i: Engine/VulkanCore/buffer.cpp.i
+.PHONY : Engine/VulkanCore/buffer.i
 
 # target to preprocess a source file
-src/buffer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.i
-.PHONY : src/buffer.cpp.i
+Engine/VulkanCore/buffer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/buffer.cpp.i
+.PHONY : Engine/VulkanCore/buffer.cpp.i
 
-src/buffer.s: src/buffer.cpp.s
-.PHONY : src/buffer.s
+Engine/VulkanCore/buffer.s: Engine/VulkanCore/buffer.cpp.s
+.PHONY : Engine/VulkanCore/buffer.s
 
 # target to generate assembly for a file
-src/buffer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/buffer.cpp.s
-.PHONY : src/buffer.cpp.s
+Engine/VulkanCore/buffer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/buffer.cpp.s
+.PHONY : Engine/VulkanCore/buffer.cpp.s
 
-src/commandBuffer.o: src/commandBuffer.cpp.o
-.PHONY : src/commandBuffer.o
+Engine/VulkanCore/commandBuffer.o: Engine/VulkanCore/commandBuffer.cpp.o
+.PHONY : Engine/VulkanCore/commandBuffer.o
 
 # target to build an object file
-src/commandBuffer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffer.cpp.o
-.PHONY : src/commandBuffer.cpp.o
+Engine/VulkanCore/commandBuffer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/commandBuffer.cpp.o
+.PHONY : Engine/VulkanCore/commandBuffer.cpp.o
 
-src/commandBuffer.i: src/commandBuffer.cpp.i
-.PHONY : src/commandBuffer.i
+Engine/VulkanCore/commandBuffer.i: Engine/VulkanCore/commandBuffer.cpp.i
+.PHONY : Engine/VulkanCore/commandBuffer.i
 
 # target to preprocess a source file
-src/commandBuffer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffer.cpp.i
-.PHONY : src/commandBuffer.cpp.i
+Engine/VulkanCore/commandBuffer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/commandBuffer.cpp.i
+.PHONY : Engine/VulkanCore/commandBuffer.cpp.i
 
-src/commandBuffer.s: src/commandBuffer.cpp.s
-.PHONY : src/commandBuffer.s
+Engine/VulkanCore/commandBuffer.s: Engine/VulkanCore/commandBuffer.cpp.s
+.PHONY : Engine/VulkanCore/commandBuffer.s
 
 # target to generate assembly for a file
-src/commandBuffer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/commandBuffer.cpp.s
-.PHONY : src/commandBuffer.cpp.s
+Engine/VulkanCore/commandBuffer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/commandBuffer.cpp.s
+.PHONY : Engine/VulkanCore/commandBuffer.cpp.s
 
-src/descriptor.o: src/descriptor.cpp.o
-.PHONY : src/descriptor.o
+Engine/VulkanCore/descriptor.o: Engine/VulkanCore/descriptor.cpp.o
+.PHONY : Engine/VulkanCore/descriptor.o
 
 # target to build an object file
-src/descriptor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.o
-.PHONY : src/descriptor.cpp.o
+Engine/VulkanCore/descriptor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/descriptor.cpp.o
+.PHONY : Engine/VulkanCore/descriptor.cpp.o
 
-src/descriptor.i: src/descriptor.cpp.i
-.PHONY : src/descriptor.i
+Engine/VulkanCore/descriptor.i: Engine/VulkanCore/descriptor.cpp.i
+.PHONY : Engine/VulkanCore/descriptor.i
 
 # target to preprocess a source file
-src/descriptor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.i
-.PHONY : src/descriptor.cpp.i
+Engine/VulkanCore/descriptor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/descriptor.cpp.i
+.PHONY : Engine/VulkanCore/descriptor.cpp.i
 
-src/descriptor.s: src/descriptor.cpp.s
-.PHONY : src/descriptor.s
+Engine/VulkanCore/descriptor.s: Engine/VulkanCore/descriptor.cpp.s
+.PHONY : Engine/VulkanCore/descriptor.s
 
 # target to generate assembly for a file
-src/descriptor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/descriptor.cpp.s
-.PHONY : src/descriptor.cpp.s
+Engine/VulkanCore/descriptor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/descriptor.cpp.s
+.PHONY : Engine/VulkanCore/descriptor.cpp.s
 
-src/device.o: src/device.cpp.o
-.PHONY : src/device.o
+Engine/VulkanCore/device.o: Engine/VulkanCore/device.cpp.o
+.PHONY : Engine/VulkanCore/device.o
 
 # target to build an object file
-src/device.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.o
-.PHONY : src/device.cpp.o
+Engine/VulkanCore/device.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/device.cpp.o
+.PHONY : Engine/VulkanCore/device.cpp.o
 
-src/device.i: src/device.cpp.i
-.PHONY : src/device.i
+Engine/VulkanCore/device.i: Engine/VulkanCore/device.cpp.i
+.PHONY : Engine/VulkanCore/device.i
 
 # target to preprocess a source file
-src/device.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.i
-.PHONY : src/device.cpp.i
+Engine/VulkanCore/device.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/device.cpp.i
+.PHONY : Engine/VulkanCore/device.cpp.i
 
-src/device.s: src/device.cpp.s
-.PHONY : src/device.s
+Engine/VulkanCore/device.s: Engine/VulkanCore/device.cpp.s
+.PHONY : Engine/VulkanCore/device.s
 
 # target to generate assembly for a file
-src/device.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/device.cpp.s
-.PHONY : src/device.cpp.s
+Engine/VulkanCore/device.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/device.cpp.s
+.PHONY : Engine/VulkanCore/device.cpp.s
 
-src/global.o: src/global.cpp.o
-.PHONY : src/global.o
+Engine/VulkanCore/global.o: Engine/VulkanCore/global.cpp.o
+.PHONY : Engine/VulkanCore/global.o
 
 # target to build an object file
-src/global.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/global.cpp.o
-.PHONY : src/global.cpp.o
+Engine/VulkanCore/global.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/global.cpp.o
+.PHONY : Engine/VulkanCore/global.cpp.o
 
-src/global.i: src/global.cpp.i
-.PHONY : src/global.i
+Engine/VulkanCore/global.i: Engine/VulkanCore/global.cpp.i
+.PHONY : Engine/VulkanCore/global.i
 
 # target to preprocess a source file
-src/global.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/global.cpp.i
-.PHONY : src/global.cpp.i
+Engine/VulkanCore/global.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/global.cpp.i
+.PHONY : Engine/VulkanCore/global.cpp.i
 
-src/global.s: src/global.cpp.s
-.PHONY : src/global.s
+Engine/VulkanCore/global.s: Engine/VulkanCore/global.cpp.s
+.PHONY : Engine/VulkanCore/global.s
 
 # target to generate assembly for a file
-src/global.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/global.cpp.s
-.PHONY : src/global.cpp.s
+Engine/VulkanCore/global.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/global.cpp.s
+.PHONY : Engine/VulkanCore/global.cpp.s
 
-src/gui.o: src/gui.cpp.o
-.PHONY : src/gui.o
+Engine/VulkanCore/gui.o: Engine/VulkanCore/gui.cpp.o
+.PHONY : Engine/VulkanCore/gui.o
 
 # target to build an object file
-src/gui.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/gui.cpp.o
-.PHONY : src/gui.cpp.o
+Engine/VulkanCore/gui.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/gui.cpp.o
+.PHONY : Engine/VulkanCore/gui.cpp.o
 
-src/gui.i: src/gui.cpp.i
-.PHONY : src/gui.i
+Engine/VulkanCore/gui.i: Engine/VulkanCore/gui.cpp.i
+.PHONY : Engine/VulkanCore/gui.i
 
 # target to preprocess a source file
-src/gui.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/gui.cpp.i
-.PHONY : src/gui.cpp.i
+Engine/VulkanCore/gui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/gui.cpp.i
+.PHONY : Engine/VulkanCore/gui.cpp.i
 
-src/gui.s: src/gui.cpp.s
-.PHONY : src/gui.s
+Engine/VulkanCore/gui.s: Engine/VulkanCore/gui.cpp.s
+.PHONY : Engine/VulkanCore/gui.s
 
 # target to generate assembly for a file
-src/gui.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/gui.cpp.s
-.PHONY : src/gui.cpp.s
+Engine/VulkanCore/gui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/gui.cpp.s
+.PHONY : Engine/VulkanCore/gui.cpp.s
 
-src/load_model.o: src/load_model.cpp.o
-.PHONY : src/load_model.o
+Engine/VulkanCore/load_model.o: Engine/VulkanCore/load_model.cpp.o
+.PHONY : Engine/VulkanCore/load_model.o
 
 # target to build an object file
-src/load_model.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.o
-.PHONY : src/load_model.cpp.o
+Engine/VulkanCore/load_model.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/load_model.cpp.o
+.PHONY : Engine/VulkanCore/load_model.cpp.o
 
-src/load_model.i: src/load_model.cpp.i
-.PHONY : src/load_model.i
+Engine/VulkanCore/load_model.i: Engine/VulkanCore/load_model.cpp.i
+.PHONY : Engine/VulkanCore/load_model.i
 
 # target to preprocess a source file
-src/load_model.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.i
-.PHONY : src/load_model.cpp.i
+Engine/VulkanCore/load_model.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/load_model.cpp.i
+.PHONY : Engine/VulkanCore/load_model.cpp.i
 
-src/load_model.s: src/load_model.cpp.s
-.PHONY : src/load_model.s
+Engine/VulkanCore/load_model.s: Engine/VulkanCore/load_model.cpp.s
+.PHONY : Engine/VulkanCore/load_model.s
 
 # target to generate assembly for a file
-src/load_model.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_model.cpp.s
-.PHONY : src/load_model.cpp.s
+Engine/VulkanCore/load_model.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/load_model.cpp.s
+.PHONY : Engine/VulkanCore/load_model.cpp.s
 
-src/load_texture.o: src/load_texture.cpp.o
-.PHONY : src/load_texture.o
+Engine/VulkanCore/load_texture.o: Engine/VulkanCore/load_texture.cpp.o
+.PHONY : Engine/VulkanCore/load_texture.o
 
 # target to build an object file
-src/load_texture.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.o
-.PHONY : src/load_texture.cpp.o
+Engine/VulkanCore/load_texture.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/load_texture.cpp.o
+.PHONY : Engine/VulkanCore/load_texture.cpp.o
 
-src/load_texture.i: src/load_texture.cpp.i
-.PHONY : src/load_texture.i
+Engine/VulkanCore/load_texture.i: Engine/VulkanCore/load_texture.cpp.i
+.PHONY : Engine/VulkanCore/load_texture.i
 
 # target to preprocess a source file
-src/load_texture.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.i
-.PHONY : src/load_texture.cpp.i
+Engine/VulkanCore/load_texture.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/load_texture.cpp.i
+.PHONY : Engine/VulkanCore/load_texture.cpp.i
 
-src/load_texture.s: src/load_texture.cpp.s
-.PHONY : src/load_texture.s
+Engine/VulkanCore/load_texture.s: Engine/VulkanCore/load_texture.cpp.s
+.PHONY : Engine/VulkanCore/load_texture.s
 
 # target to generate assembly for a file
-src/load_texture.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/load_texture.cpp.s
-.PHONY : src/load_texture.cpp.s
+Engine/VulkanCore/load_texture.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/load_texture.cpp.s
+.PHONY : Engine/VulkanCore/load_texture.cpp.s
 
-src/pipeline.o: src/pipeline.cpp.o
-.PHONY : src/pipeline.o
+Engine/VulkanCore/pipeline.o: Engine/VulkanCore/pipeline.cpp.o
+.PHONY : Engine/VulkanCore/pipeline.o
 
 # target to build an object file
-src/pipeline.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.o
-.PHONY : src/pipeline.cpp.o
+Engine/VulkanCore/pipeline.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/pipeline.cpp.o
+.PHONY : Engine/VulkanCore/pipeline.cpp.o
 
-src/pipeline.i: src/pipeline.cpp.i
-.PHONY : src/pipeline.i
+Engine/VulkanCore/pipeline.i: Engine/VulkanCore/pipeline.cpp.i
+.PHONY : Engine/VulkanCore/pipeline.i
 
 # target to preprocess a source file
-src/pipeline.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.i
-.PHONY : src/pipeline.cpp.i
+Engine/VulkanCore/pipeline.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/pipeline.cpp.i
+.PHONY : Engine/VulkanCore/pipeline.cpp.i
 
-src/pipeline.s: src/pipeline.cpp.s
-.PHONY : src/pipeline.s
+Engine/VulkanCore/pipeline.s: Engine/VulkanCore/pipeline.cpp.s
+.PHONY : Engine/VulkanCore/pipeline.s
 
 # target to generate assembly for a file
-src/pipeline.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/pipeline.cpp.s
-.PHONY : src/pipeline.cpp.s
+Engine/VulkanCore/pipeline.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/pipeline.cpp.s
+.PHONY : Engine/VulkanCore/pipeline.cpp.s
 
-src/shaderModule.o: src/shaderModule.cpp.o
-.PHONY : src/shaderModule.o
+Engine/VulkanCore/shaderModule.o: Engine/VulkanCore/shaderModule.cpp.o
+.PHONY : Engine/VulkanCore/shaderModule.o
 
 # target to build an object file
-src/shaderModule.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.o
-.PHONY : src/shaderModule.cpp.o
+Engine/VulkanCore/shaderModule.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/shaderModule.cpp.o
+.PHONY : Engine/VulkanCore/shaderModule.cpp.o
 
-src/shaderModule.i: src/shaderModule.cpp.i
-.PHONY : src/shaderModule.i
+Engine/VulkanCore/shaderModule.i: Engine/VulkanCore/shaderModule.cpp.i
+.PHONY : Engine/VulkanCore/shaderModule.i
 
 # target to preprocess a source file
-src/shaderModule.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.i
-.PHONY : src/shaderModule.cpp.i
+Engine/VulkanCore/shaderModule.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/shaderModule.cpp.i
+.PHONY : Engine/VulkanCore/shaderModule.cpp.i
 
-src/shaderModule.s: src/shaderModule.cpp.s
-.PHONY : src/shaderModule.s
+Engine/VulkanCore/shaderModule.s: Engine/VulkanCore/shaderModule.cpp.s
+.PHONY : Engine/VulkanCore/shaderModule.s
 
 # target to generate assembly for a file
-src/shaderModule.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/shaderModule.cpp.s
-.PHONY : src/shaderModule.cpp.s
+Engine/VulkanCore/shaderModule.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/shaderModule.cpp.s
+.PHONY : Engine/VulkanCore/shaderModule.cpp.s
 
-src/swapchain.o: src/swapchain.cpp.o
-.PHONY : src/swapchain.o
+Engine/VulkanCore/swapchain.o: Engine/VulkanCore/swapchain.cpp.o
+.PHONY : Engine/VulkanCore/swapchain.o
 
 # target to build an object file
-src/swapchain.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.o
-.PHONY : src/swapchain.cpp.o
+Engine/VulkanCore/swapchain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/swapchain.cpp.o
+.PHONY : Engine/VulkanCore/swapchain.cpp.o
 
-src/swapchain.i: src/swapchain.cpp.i
-.PHONY : src/swapchain.i
+Engine/VulkanCore/swapchain.i: Engine/VulkanCore/swapchain.cpp.i
+.PHONY : Engine/VulkanCore/swapchain.i
 
 # target to preprocess a source file
-src/swapchain.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.i
-.PHONY : src/swapchain.cpp.i
+Engine/VulkanCore/swapchain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/swapchain.cpp.i
+.PHONY : Engine/VulkanCore/swapchain.cpp.i
 
-src/swapchain.s: src/swapchain.cpp.s
-.PHONY : src/swapchain.s
+Engine/VulkanCore/swapchain.s: Engine/VulkanCore/swapchain.cpp.s
+.PHONY : Engine/VulkanCore/swapchain.s
 
 # target to generate assembly for a file
-src/swapchain.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/swapchain.cpp.s
-.PHONY : src/swapchain.cpp.s
+Engine/VulkanCore/swapchain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/swapchain.cpp.s
+.PHONY : Engine/VulkanCore/swapchain.cpp.s
 
-src/utility.o: src/utility.cpp.o
-.PHONY : src/utility.o
+Engine/VulkanCore/utility.o: Engine/VulkanCore/utility.cpp.o
+.PHONY : Engine/VulkanCore/utility.o
 
 # target to build an object file
-src/utility.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/utility.cpp.o
-.PHONY : src/utility.cpp.o
+Engine/VulkanCore/utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/utility.cpp.o
+.PHONY : Engine/VulkanCore/utility.cpp.o
 
-src/utility.i: src/utility.cpp.i
-.PHONY : src/utility.i
+Engine/VulkanCore/utility.i: Engine/VulkanCore/utility.cpp.i
+.PHONY : Engine/VulkanCore/utility.i
 
 # target to preprocess a source file
-src/utility.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/utility.cpp.i
-.PHONY : src/utility.cpp.i
+Engine/VulkanCore/utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/utility.cpp.i
+.PHONY : Engine/VulkanCore/utility.cpp.i
 
-src/utility.s: src/utility.cpp.s
-.PHONY : src/utility.s
+Engine/VulkanCore/utility.s: Engine/VulkanCore/utility.cpp.s
+.PHONY : Engine/VulkanCore/utility.s
 
 # target to generate assembly for a file
-src/utility.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/utility.cpp.s
-.PHONY : src/utility.cpp.s
+Engine/VulkanCore/utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/utility.cpp.s
+.PHONY : Engine/VulkanCore/utility.cpp.s
 
-src/window.o: src/window.cpp.o
-.PHONY : src/window.o
+Engine/VulkanCore/window.o: Engine/VulkanCore/window.cpp.o
+.PHONY : Engine/VulkanCore/window.o
 
 # target to build an object file
-src/window.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/window.cpp.o
-.PHONY : src/window.cpp.o
+Engine/VulkanCore/window.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/window.cpp.o
+.PHONY : Engine/VulkanCore/window.cpp.o
 
-src/window.i: src/window.cpp.i
-.PHONY : src/window.i
+Engine/VulkanCore/window.i: Engine/VulkanCore/window.cpp.i
+.PHONY : Engine/VulkanCore/window.i
 
 # target to preprocess a source file
-src/window.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/window.cpp.i
-.PHONY : src/window.cpp.i
+Engine/VulkanCore/window.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/window.cpp.i
+.PHONY : Engine/VulkanCore/window.cpp.i
 
-src/window.s: src/window.cpp.s
-.PHONY : src/window.s
+Engine/VulkanCore/window.s: Engine/VulkanCore/window.cpp.s
+.PHONY : Engine/VulkanCore/window.s
 
 # target to generate assembly for a file
-src/window.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/src/window.cpp.s
-.PHONY : src/window.cpp.s
+Engine/VulkanCore/window.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vulkanTriangle.dir/build.make CMakeFiles/vulkanTriangle.dir/Engine/VulkanCore/window.cpp.s
+.PHONY : Engine/VulkanCore/window.cpp.s
 
 third_party/imgui/backends/imgui_impl_glfw.o: third_party/imgui/backends/imgui_impl_glfw.cpp.o
 .PHONY : third_party/imgui/backends/imgui_impl_glfw.o
@@ -670,48 +670,48 @@ help:
 	@echo "... compile_shaders"
 	@echo "... imgui"
 	@echo "... vulkanTriangle"
-	@echo "... src/JRenderer.o"
-	@echo "... src/JRenderer.i"
-	@echo "... src/JRenderer.s"
-	@echo "... src/buffer.o"
-	@echo "... src/buffer.i"
-	@echo "... src/buffer.s"
-	@echo "... src/commandBuffer.o"
-	@echo "... src/commandBuffer.i"
-	@echo "... src/commandBuffer.s"
-	@echo "... src/descriptor.o"
-	@echo "... src/descriptor.i"
-	@echo "... src/descriptor.s"
-	@echo "... src/device.o"
-	@echo "... src/device.i"
-	@echo "... src/device.s"
-	@echo "... src/global.o"
-	@echo "... src/global.i"
-	@echo "... src/global.s"
-	@echo "... src/gui.o"
-	@echo "... src/gui.i"
-	@echo "... src/gui.s"
-	@echo "... src/load_model.o"
-	@echo "... src/load_model.i"
-	@echo "... src/load_model.s"
-	@echo "... src/load_texture.o"
-	@echo "... src/load_texture.i"
-	@echo "... src/load_texture.s"
-	@echo "... src/pipeline.o"
-	@echo "... src/pipeline.i"
-	@echo "... src/pipeline.s"
-	@echo "... src/shaderModule.o"
-	@echo "... src/shaderModule.i"
-	@echo "... src/shaderModule.s"
-	@echo "... src/swapchain.o"
-	@echo "... src/swapchain.i"
-	@echo "... src/swapchain.s"
-	@echo "... src/utility.o"
-	@echo "... src/utility.i"
-	@echo "... src/utility.s"
-	@echo "... src/window.o"
-	@echo "... src/window.i"
-	@echo "... src/window.s"
+	@echo "... Engine/JRenderer.o"
+	@echo "... Engine/JRenderer.i"
+	@echo "... Engine/JRenderer.s"
+	@echo "... Engine/VulkanCore/buffer.o"
+	@echo "... Engine/VulkanCore/buffer.i"
+	@echo "... Engine/VulkanCore/buffer.s"
+	@echo "... Engine/VulkanCore/commandBuffer.o"
+	@echo "... Engine/VulkanCore/commandBuffer.i"
+	@echo "... Engine/VulkanCore/commandBuffer.s"
+	@echo "... Engine/VulkanCore/descriptor.o"
+	@echo "... Engine/VulkanCore/descriptor.i"
+	@echo "... Engine/VulkanCore/descriptor.s"
+	@echo "... Engine/VulkanCore/device.o"
+	@echo "... Engine/VulkanCore/device.i"
+	@echo "... Engine/VulkanCore/device.s"
+	@echo "... Engine/VulkanCore/global.o"
+	@echo "... Engine/VulkanCore/global.i"
+	@echo "... Engine/VulkanCore/global.s"
+	@echo "... Engine/VulkanCore/gui.o"
+	@echo "... Engine/VulkanCore/gui.i"
+	@echo "... Engine/VulkanCore/gui.s"
+	@echo "... Engine/VulkanCore/load_model.o"
+	@echo "... Engine/VulkanCore/load_model.i"
+	@echo "... Engine/VulkanCore/load_model.s"
+	@echo "... Engine/VulkanCore/load_texture.o"
+	@echo "... Engine/VulkanCore/load_texture.i"
+	@echo "... Engine/VulkanCore/load_texture.s"
+	@echo "... Engine/VulkanCore/pipeline.o"
+	@echo "... Engine/VulkanCore/pipeline.i"
+	@echo "... Engine/VulkanCore/pipeline.s"
+	@echo "... Engine/VulkanCore/shaderModule.o"
+	@echo "... Engine/VulkanCore/shaderModule.i"
+	@echo "... Engine/VulkanCore/shaderModule.s"
+	@echo "... Engine/VulkanCore/swapchain.o"
+	@echo "... Engine/VulkanCore/swapchain.i"
+	@echo "... Engine/VulkanCore/swapchain.s"
+	@echo "... Engine/VulkanCore/utility.o"
+	@echo "... Engine/VulkanCore/utility.i"
+	@echo "... Engine/VulkanCore/utility.s"
+	@echo "... Engine/VulkanCore/window.o"
+	@echo "... Engine/VulkanCore/window.i"
+	@echo "... Engine/VulkanCore/window.s"
 	@echo "... third_party/imgui/backends/imgui_impl_glfw.o"
 	@echo "... third_party/imgui/backends/imgui_impl_glfw.i"
 	@echo "... third_party/imgui/backends/imgui_impl_glfw.s"

@@ -1,14 +1,14 @@
 #pragma once
 #include <vulkan/vulkan.h>
-#include "window.hpp"
-#include "device.hpp"
+
 #include <vector>
 #include <iostream>
 #include <limits>
 #include <algorithm>
 #include <memory>
 #include <cassert>
-
+class JDevice;
+class JWindow;
 
 
 class JSwapchain{
@@ -29,7 +29,6 @@ public:
     VkFormat getSwapChainImageFormat() {return swapChainImageFormat_;}
     VkRenderPass renderPass() {return renderPass_;}
 
-    VkResult acquireNextImage(uint32_t* imageIndex);
 
     VkSemaphore getCurrentImageAvailableSemaphore(int index) {return imageAvailableSemaphores_[index];}
     VkSemaphore getCurrentRenderFinishedSemaphore(int index) {return renderFinishedSemaphores_[index];}

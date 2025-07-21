@@ -1,7 +1,5 @@
 #pragma once
 #include <vulkan/vulkan.h>
-#include "window.hpp"
-#include "utility.hpp"
 #include <vector>
 #include <iostream>
 #include <cstring>
@@ -9,7 +7,8 @@
 #include <set>
 
 
-
+#include "utility.hpp"
+class JWindow;
 
 
 struct QueueFamilyIndices{

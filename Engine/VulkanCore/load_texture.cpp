@@ -1,8 +1,9 @@
 #include "load_texture.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
-
+#include "buffer.hpp"
+#include "device.hpp"
+#include "commandBuffer.hpp"
 
 JTexture::JTexture(const std::string& path, JDevice& device):
     device_app(device)    

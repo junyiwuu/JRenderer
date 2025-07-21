@@ -1,12 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-#include "device.hpp"
-#include "buffer.hpp"
+
+
 #include "utility.hpp"
-#include "commandBuffer.hpp"
 
 
+class JDevice;
 
 
 

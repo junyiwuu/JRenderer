@@ -1,6 +1,6 @@
 #include "commandBuffer.hpp"
-
-
+#include "swapchain.hpp"
+#include "device.hpp"
 
 
 JCommandBuffer::JCommandBuffer(

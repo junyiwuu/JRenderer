@@ -1,6 +1,11 @@
 #include "buffer.hpp"
 
 
+
+#include "device.hpp"
+
+
+
 JBuffer::JBuffer(JDevice& device,  VkDeviceSize size, 
     VkBufferUsageFlags usage, VkMemoryPropertyFlags properties):
         device_app(device), size_(size)

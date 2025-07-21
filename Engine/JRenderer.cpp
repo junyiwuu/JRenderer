@@ -17,17 +17,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-#include "window.hpp"
-#include "device.hpp"
-#include "swapchain.hpp"
-#include "utility.hpp"
-#include "shaderModule.hpp"
-#include "pipeline.hpp"
-#include "commandBuffer.hpp"
-#include "buffer.hpp"
-#include "descriptor.hpp"
-#include "load_texture.hpp"
-#include "load_model.hpp"
+
+
+#include "./VulkanCore/window.hpp"
+#include "./VulkanCore/device.hpp"
+#include "./VulkanCore/swapchain.hpp"
+#include "./VulkanCore/utility.hpp"
+#include "./VulkanCore/shaderModule.hpp"
+#include "./VulkanCore/pipeline.hpp"
+#include "./VulkanCore/commandBuffer.hpp"
+#include "./VulkanCore/buffer.hpp"
+#include "./VulkanCore/descriptor.hpp"
+#include "./VulkanCore/load_texture.hpp"
+#include "./VulkanCore/load_model.hpp"
 
 
 

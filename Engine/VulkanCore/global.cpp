@@ -1,5 +1,5 @@
 #include "global.hpp"
-
+#include "window.hpp"
 
 namespace tools
 {
