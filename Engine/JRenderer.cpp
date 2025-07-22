@@ -39,8 +39,13 @@ void JRenderer::init() {
     uniformBuffer_objs.reserve(Global::MAX_FRAMES_IN_FLIGHT);
     descriptorSets.resize(Global::MAX_FRAMES_IN_FLIGHT);
     for(size_t i =0; i< Global::MAX_FRAMES_IN_FLIGHT; ++i){
-        
-        uniformBuffer_objs.emplace_back( std::make_unique<JUniformBuffer>(*device_app) );
+        auto buffer = std::make_unique<JBuffer>(
+            *device_app,
+            sizeof(UniformBufferObject),
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        buffer->map();
+        uniformBuffer_objs.emplace_back( std::move(buffer) );
         auto& ubo = *uniformBuffer_objs.back();
         JDescriptorWriter writer{*descriptorSetLayout_obj, *descriptorPool_obj };
 
@@ -61,6 +66,8 @@ void JRenderer::init() {
             throw std::runtime_error("failed to allocate descriptor set!");    }  
     }
 
+
+    
     PipelineConfigInfo pipelineConfig{};
     JPipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
@@ -258,8 +265,6 @@ void JRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
         vikingModel_obj->draw(commandBuffer);
         }
        
-       
-
         imgui_obj->render(commandBuffer);
 
     vkCmdEndRendering(commandBuffer);
@@ -315,7 +320,7 @@ bool JRenderer::drawFrame() {
     ubo.proj = glm::perspective(glm::radians(45.0f), swapchain_app->getSwapChainExtent().width / (float)swapchain_app->getSwapChainExtent().height, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 
-    memcpy(uniformBuffer_objs[currentFrame]->bufferMapped(), &ubo, sizeof(ubo) );
+    memcpy(uniformBuffer_objs[currentFrame]->getufferMapped(), &ubo, sizeof(ubo) );
     commandBuffers_app[currentFrame]->reset();
     recordCommandBuffer(commandBuffers_app[currentFrame]->getCommandBuffer(), imageIndex);
     //---------------------------------------

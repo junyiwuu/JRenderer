@@ -71,7 +71,7 @@ private:
 
     uint32_t currentFrame = 0;
 
-    std::vector<std::unique_ptr<JUniformBuffer>> uniformBuffer_objs;
+    std::vector<std::unique_ptr<JBuffer>> uniformBuffer_objs;
 
     //descriptor
     std::unique_ptr<JDescriptorPool> descriptorPool_obj;

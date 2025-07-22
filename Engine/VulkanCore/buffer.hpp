@@ -20,9 +20,11 @@ public:
         VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     ~JBuffer();
 
-    VkBuffer buffer() {return buffer_;}
-    VkDeviceMemory bufferMemory() {return bufferMemory_;}
-    VkDeviceSize getSize() {return size_;}
+    //getter
+    VkBuffer buffer()                   {return buffer_;}
+    VkDeviceMemory bufferMemory()       {return bufferMemory_;}
+    VkDeviceSize getSize()              {return size_;}
+    void* getufferMapped()              {return mapped_;}
 
     struct externalCreateBufferResult {
         VkBuffer r_buffer_; 
@@ -30,7 +32,12 @@ public:
     static externalCreateBufferResult createBuffer(JDevice& device_app,  VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     void destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory bufferMemory);
 
+    // VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+
+    void map();
     void stagingAction(const void* transferData);
+
+    
 
 private:
     JDevice& device_app;
@@ -43,6 +50,31 @@ private:
 
 };
 
+
+// class JUniformBuffer{
+
+// public:
+
+//     JUniformBuffer(JDevice& device);
+//     ~JUniformBuffer();
+
+//     JUniformBuffer(const JUniformBuffer&) = delete;
+//     JUniformBuffer& operator=(const JUniformBuffer&) = delete;
+
+
+//     const VkBuffer& buffer() {return uniformBuffer_;}
+//     const VkDeviceMemory& bufferMemory(){ return uniformBufferMemory_;}
+//     void* bufferMapped() {return uniformBufferMapped_;}
+
+
+// private:
+//     JDevice& device_app;
+
+//     VkBuffer uniformBuffer_;
+//     VkDeviceMemory uniformBufferMemory_;
+//     void* uniformBufferMapped_;  
+    
+// };
 
 // for vertex buffer
 
@@ -92,34 +124,6 @@ private:
 
 
 
-class JUniformBuffer{
-
-public:
-
-    JUniformBuffer(JDevice& device);
-    ~JUniformBuffer();
-
-    JUniformBuffer(const JUniformBuffer&) = delete;
-    JUniformBuffer& operator=(const JUniformBuffer&) = delete;
-
-
-    const VkBuffer& buffer() {return uniformBuffer_;}
-    const VkDeviceMemory& bufferMemory(){ return uniformBufferMemory_;}
-    void* bufferMapped() {return uniformBufferMapped_;}
-
-
-private:
-    JDevice& device_app;
-
-
-    VkBuffer uniformBuffer_;
-    VkDeviceMemory uniformBufferMemory_;
-    void* uniformBufferMapped_;
-
-
-
-
-};
 
 
 

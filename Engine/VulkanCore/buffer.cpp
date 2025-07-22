@@ -47,6 +47,10 @@ JBuffer::~JBuffer(){
 
 }
 
+void JBuffer::map(){
+    vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  
+}
+
 void JBuffer::stagingAction(const void* transferData){
     vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  //staging buffer is host access on gpu
     memcpy(mapped_, transferData, (size_t)(size_)); //transfer data is host access, copy to staging buffer
@@ -107,35 +111,36 @@ void JBuffer::destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory
 
 
 
-JUniformBuffer::JUniformBuffer(JDevice& device):
-    device_app(device)
+// JUniformBuffer::JUniformBuffer(JDevice& device):
+//     device_app(device)
 
-{
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+// {
+//     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    // uniformBuffers_.resize(frames);
-    // uniformBuffersMemory_.resize(frames);
-    // uniformBuffersMapped_.resize(frames);
-
-
-
-    auto result = JBuffer::createBuffer(device, bufferSize, 
-        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    uniformBuffer_ = result.r_buffer_ ;
-    uniformBufferMemory_ = result.r_bufferMemory_;
-
-    vkMapMemory(device.device(), uniformBufferMemory_, 0, bufferSize, 0, &uniformBufferMapped_);
-}
+//     // uniformBuffers_.resize(frames);
+//     // uniformBuffersMemory_.resize(frames);
+//     // uniformBuffersMapped_.resize(frames);
 
 
 
-JUniformBuffer::~JUniformBuffer(){
+//     auto result = JBuffer::createBuffer(device, bufferSize, 
+//         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+//         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    vkDestroyBuffer(device_app.device(), uniformBuffer_, nullptr);
-    vkFreeMemory(device_app.device(), uniformBufferMemory_, nullptr);
+//     uniformBuffer_ = result.r_buffer_ ;
+//     uniformBufferMemory_ = result.r_bufferMemory_;
+
+//     vkMapMemory(device.device(), uniformBufferMemory_, 0, bufferSize, 0, &uniformBufferMapped_);
+// }
+
+
+
+// JUniformBuffer::~JUniformBuffer(){
+
+//     vkDestroyBuffer(device_app.device(), uniformBuffer_, nullptr);
+//     vkFreeMemory(device_app.device(), uniformBufferMemory_, nullptr);
     
-}
+// }
 
 
 
