@@ -4,6 +4,16 @@
 #include <iostream>
 
 
+namespace Global{
+	inline constexpr int MAX_FRAMES_IN_FLIGHT = 3;
+	
+	
+	
+	
+	}
+
+	
+
 
 #define VK_CHECK_RESULT(f)																				\
 do {																										\
@@ -25,6 +35,11 @@ namespace tools
 }
 
 
+
+
+#define NO_COPY(TypeName) 					\
+	TypeName(const TypeName&) = delete;			\
+	TypeName &operator=(const TypeName&) = delete; 		
 
 
 

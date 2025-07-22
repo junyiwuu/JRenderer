@@ -18,22 +18,15 @@ JSwapchain::JSwapchain(JDevice& device, JWindow& window, std::shared_ptr<JSwapch
 JSwapchain::~JSwapchain(){
     cleanupSwapChain();
 
-    for (size_t i = 0; i < JSwapchain::MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroySemaphore(device_app.device(), renderFinishedSemaphores_[i], nullptr);
-        vkDestroySemaphore(device_app.device(), imageAvailableSemaphores_[i], nullptr);
-        vkDestroyFence(device_app.device(), inFlightFences_[i], nullptr);
-    }
 }
 
 
 void JSwapchain::init() {
     createSwapChain();
     createImageViews();
-
     createColorResources();
     createDepthResources();
 
-    createSyncObjects();
 }
 
 void JSwapchain::cleanupSwapChain() {
@@ -44,9 +37,6 @@ void JSwapchain::cleanupSwapChain() {
     vkDestroyImage(device_app.device(), depthImage_, nullptr);
     vkFreeMemory(device_app.device(), depthImageMemory_, nullptr);
 
-    for (auto framebuffer : swapChainFramebuffers_) {
-        vkDestroyFramebuffer(device_app.device(), framebuffer, nullptr);
-    }
 
     for (auto imageView : swapChainImageViews_) {
         vkDestroyImageView(device_app.device(), imageView, nullptr);
@@ -82,6 +72,7 @@ void JSwapchain::createSwapChain() {
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
+    minImageCount_ = imageCount;
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -221,33 +212,6 @@ VkExtent2D JSwapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabili
         return actualExtent;
     }
 }
-
-
-void JSwapchain::createSyncObjects() {
-    imageAvailableSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
-
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fenceInfo{};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(device_app.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(device_app.device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
-            vkCreateFence(device_app.device(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
-        }
-    }
-}
-
-
-
-
-
 
 
 

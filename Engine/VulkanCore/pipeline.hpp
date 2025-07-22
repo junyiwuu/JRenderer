@@ -42,7 +42,7 @@ public:
 
     static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
-    VkPipeline getGraphicPipeline() {return graphicsPipeline_;}
+    VkPipeline getGraphicPipeline() const {return graphicsPipeline_;}
 private:
     JDevice& device_app;
     // VkDescriptorSetLayout& descriptorSetLayout;

@@ -34,7 +34,7 @@ JCommandBuffer::~JCommandBuffer(){
 
 void JCommandBuffer::createCommandBuffer(JDevice& device, VkCommandBufferLevel level) 
 {
-    // commandBuffers_.resize(JSwapchain::MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
+    // commandBuffers_.resize(Global::MAX_FRAMES_IN_FLIGHT); // x 个commandbuffer在里面
 
     VkCommandBufferAllocateInfo allocInfo{}; // 告诉x个command buffer进入command pool
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -80,7 +80,10 @@ void JCommandBuffer::endSingleTimeCommands(VkQueue queue){
 
 
 
+void JCommandBuffer::reset(){
+    vkResetCommandBuffer(commandBuffer_, 0);
 
+}
 
 
 

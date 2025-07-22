@@ -8,6 +8,7 @@
 
 
 #include "utility.hpp"
+#include "global.hpp"
 class JWindow;
 
 
@@ -32,16 +33,16 @@ public:
     JDevice(JWindow& widnow);
     ~JDevice();
 
-    JDevice(const JDevice&) = delete;
-    JDevice &operator=(const JDevice&) = delete;
+    NO_COPY(JDevice);
 
-    VkDevice device() const { return device_; }
-    VkSurfaceKHR surface() const { return surface_; }
-    VkQueue graphicsQueue() const { return graphicsQueue_; }
-    VkQueue presentQueue() const { return presentQueue_; }
-    VkPhysicalDevice physicalDevice() const {return physicalDevice_;}
-    VkCommandPool getCommandPool() const {return commandPool_;}
-    VkPhysicalDeviceDriverProperties getDriverProperties() const {return driverProperties_;}
+    VkDevice device()                                       const { return device_; }
+    VkInstance getInstance()                                const {return instance_;}
+    VkSurfaceKHR surface()                                  const { return surface_; }
+    VkQueue graphicsQueue()                                 const { return graphicsQueue_; }
+    VkQueue presentQueue()                                  const { return presentQueue_; }
+    VkPhysicalDevice physicalDevice()                       const {return physicalDevice_;}
+    VkCommandPool getCommandPool()                          const {return commandPool_;}
+    VkPhysicalDeviceDriverProperties getDriverProperties()  const {return driverProperties_;}
 
     QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice_); }
     SwapChainSupportDetails getSwapChainSupport() {return querySwapChainSupport(physicalDevice_);}

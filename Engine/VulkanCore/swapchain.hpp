@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 #include <vector>
 #include <iostream>
@@ -15,7 +15,6 @@ class JSwapchain{
 
 public:
      
-    static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
     JSwapchain(JDevice& device, JWindow& window);
     JSwapchain(JDevice& device, JWindow& window, std::shared_ptr<JSwapchain> previous);
     ~JSwapchain();
@@ -23,10 +22,9 @@ public:
     JSwapchain(const JSwapchain&) = delete;
     JSwapchain &operator=(const JSwapchain&) = delete;
 
-    VkSwapchainKHR swapChain() {return swapChain_;}
-    VkExtent2D getSwapChainExtent() {return swapChainExtent_;}
-    VkFramebuffer getFrameBuffer(int index) {return swapChainFramebuffers_[index];}
-    VkFormat getSwapChainImageFormat() const {return swapChainImageFormat_;}
+    VkSwapchainKHR swapChain()                      {return swapChain_;}
+    VkExtent2D getSwapChainExtent()                 {return swapChainExtent_;}
+    VkFormat getSwapChainImageFormat()        const {return swapChainImageFormat_;}
 
     VkImage getColorImage()                                 {return colorImage_;}
     VkImageView getColorImageView() const                   {return colorImageView_;}
@@ -35,14 +33,9 @@ public:
     std::vector<VkImageView> getSwapChainImageView() const  {return swapChainImageViews_;}
     std::vector<VkImage> getSwapChainImage()                {return swapChainImages_;}
 
-
-    VkSemaphore getCurrentImageAvailableSemaphore(int index) {return imageAvailableSemaphores_[index];}
-    VkSemaphore getCurrentRenderFinishedSemaphore(int index) {return renderFinishedSemaphores_[index];}
-    VkFence& getCurrentInFlightFence(int index){ return inFlightFences_[index];}
-    
     
     VkFormat findDepthFormat() const;
-
+    uint32_t minImageCount_;
 
 
 private:    
@@ -57,11 +50,6 @@ private:
 
     std::vector<VkImage> swapChainImages_;
     std::vector<VkImageView> swapChainImageViews_;
-    std::vector<VkFramebuffer> swapChainFramebuffers_;
-
-    std::vector<VkSemaphore> imageAvailableSemaphores_;
-    std::vector<VkSemaphore> renderFinishedSemaphores_;
-    std::vector<VkFence> inFlightFences_;
     
     VkImage depthImage_;
     VkDeviceMemory depthImageMemory_;
@@ -73,14 +61,13 @@ private:
     void init();
     void createSwapChain();
     void createImageViews();
-
-
     void cleanupSwapChain();
-
-    void createSyncObjects();
-
+    
     void createDepthResources() ;
     void createColorResources();
+
+
+    void createSyncObjects();
     
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 

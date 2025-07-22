@@ -20,7 +20,7 @@ public:
     void beginSingleTimeCommands();
     void endSingleTimeCommands(VkQueue queue);
     
-
+    void reset();
 
 private:
     JDevice& device_app;
