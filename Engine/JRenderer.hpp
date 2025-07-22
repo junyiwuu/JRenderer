@@ -71,12 +71,6 @@ private:
 
     uint32_t currentFrame = 0;
 
-
-    // const std::vector<Vertex> vertices ;
-    // const std::vector<uint32_t> indices ;
-    //vertex, index, uniformBuffer
-    std::unique_ptr<JVertexBuffer> vertexBuffer_obj;
-    std::unique_ptr<JIndexBuffer> indexBuffer_obj;
     std::vector<std::unique_ptr<JUniformBuffer>> uniformBuffer_objs;
 
     //descriptor

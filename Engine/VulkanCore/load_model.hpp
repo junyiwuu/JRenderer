@@ -2,11 +2,18 @@
 #include <vulkan/vulkan.hpp>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 #include <vector>
+#include <memory>
 #include <array>
 #include <unordered_map>
-#include <glm/gtx/hash.hpp>
+
 #include <string>
+#include "./global.hpp"
+class JDevice;
+class JBuffer;
+struct JVertexBuffer;
+struct JIndexBuffer;
 
 
 
@@ -68,23 +75,40 @@ class JModel{
 
 
 public:
+    struct Builder{
+        std::vector<Vertex> vertices_{}; //ensure initilaization
+        std::vector<uint32_t> indices_{};
+
+        void loadModel(const std::string& filepath);
+
+    };
 
 
-
-    JModel(const std::string& model_path);
+    JModel(JDevice& device, const JModel::Builder& builder);
     ~JModel();
 
-    JModel(const JModel &) = delete;
-    JModel &operator=(const JModel &) = delete;
+    NO_COPY(JModel);
 
-    std::vector<Vertex> vertices() {return vertices_;}
-    std::vector<uint32_t> indices() {return indices_;}
+    static std::unique_ptr<JModel> loadModelFromFile(JDevice& device, const std::string& filepath);
+
+    void bind(VkCommandBuffer commandBuffer);
+    void draw(VkCommandBuffer commandBuffer);
 
 
 private:
+    void createVertexBuffer(const std::vector<Vertex>&vertices);
+    void createIndexBuffer(const std::vector<uint32_t>&indices);
 
-    std::vector<Vertex> vertices_;
-    std::vector<uint32_t> indices_;
+
+    JDevice& device_app;
+    std::unique_ptr<JBuffer> vertexBuffer;
+    uint32_t vertexCount;
+    std::unique_ptr<JBuffer> indexBuffer;
+    bool hasIndexBuffer = false;
+    uint32_t indexCount;
+
+    // std::vector<Vertex> vertices_;
+    // std::vector<uint32_t> indices_;
 
 };
 

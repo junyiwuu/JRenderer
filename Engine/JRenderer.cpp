@@ -20,11 +20,9 @@ void JRenderer::init() {
         sync_objs.push_back(std::make_unique<JSync>(*device_app));
     }
 
-    vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", *device_app);
-    vikingModel_obj = std::make_unique<JModel>("../assets/viking_room.obj");
 
-    vertexBuffer_obj = std::make_unique<JVertexBuffer>(*device_app, vikingModel_obj->vertices(), device_app->getCommandPool(), device_app->graphicsQueue());
-    indexBuffer_obj = std::make_unique<JIndexBuffer>(*device_app, vikingModel_obj->indices(), device_app->getCommandPool(), device_app->graphicsQueue());
+    vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", *device_app);
+    vikingModel_obj = JModel::loadModelFromFile(*device_app, "../assets/viking_room.obj");
 
     descriptorSetLayout_obj = JDescriptorSetLayout::Builder{*device_app}
         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
@@ -239,13 +237,12 @@ void JRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
-        VkBuffer vertexBuffers[] = {vertexBuffer_obj->baseBuffer.buffer()};
-        VkDeviceSize offsets[] = {0};
-        //binding
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer,indexBuffer_obj->baseBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
+  
+        vikingModel_obj->bind(commandBuffer); //bind vertex buffer and index buffer
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinelayout_app->getPipelineLayout(),0,1,
+        vkCmdBindDescriptorSets(commandBuffer, 
+                    VK_PIPELINE_BIND_POINT_GRAPHICS, 
+                    pipelinelayout_app->getPipelineLayout(),0,1,
                     &descriptorSets[currentFrame], 0, nullptr );
 
         for (int j = 0; j<2; j++ )
@@ -258,7 +255,7 @@ void JRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
                 VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
                 sizeof(pushConstantStruct), &pushData );
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vikingModel_obj->indices().size()), 1, 0, 0, 0);
+        vikingModel_obj->draw(commandBuffer);
         }
        
        
@@ -266,27 +263,6 @@ void JRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
         imgui_obj->render(commandBuffer);
 
     vkCmdEndRendering(commandBuffer);
- //  ----- setup ui
-    // VkRenderingAttachmentInfo UIcolorAttachment{};
-    // UIcolorAttachment.sType         = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    // UIcolorAttachment.imageView     = swapchain_app->getSwapChainImageView()[imageIndex];
-    // UIcolorAttachment.imageLayout   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    // UIcolorAttachment.loadOp        = VK_ATTACHMENT_LOAD_OP_LOAD;
-    // UIcolorAttachment.storeOp       = VK_ATTACHMENT_STORE_OP_STORE;
-    
-
-    // VkRenderingInfo UIrenderingInfo{};
-    // UIrenderingInfo.sType                   = VK_STRUCTURE_TYPE_RENDERING_INFO;
-    // UIrenderingInfo.renderArea             = { {0,0}, swapchain_app->getSwapChainExtent() };
-    // UIrenderingInfo.layerCount             = 1;
-    // UIrenderingInfo.colorAttachmentCount   = 1;
-    // UIrenderingInfo.pColorAttachments      = &UIcolorAttachment;
-    // UIrenderingInfo.pDepthAttachment       = nullptr;   
-    //start ui pass
-    // vkCmdBeginRendering(commandBuffer, &UIrenderingInfo);
-    // imgui_obj->render(commandBuffer);
-    // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-    // vkCmdEndRendering(commandBuffer);
 
 
     device_app->transitionImageLayout(commandBuffer, swapchain_app->getSwapChainImage()[imageIndex], 

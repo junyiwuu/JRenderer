@@ -13,6 +13,14 @@ class JDevice;
 class JSwapchain;
 class JDescriptorPool;
 
+
+struct UIsettings{
+    bool cullBackFace = false;
+
+};
+// extern UIsettings uiSettings;
+
+
 class JImGui {
 public:
     JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window);
@@ -39,4 +47,6 @@ private:
     void createDescriptorPool();
 
     static void checkVkResult(VkResult err);
+
+    UIsettings uiSettings;
 };

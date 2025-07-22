@@ -46,6 +46,7 @@ JImGui::JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window )
     init_info.CheckVkResultFn = checkVkResult;
     
     ImGui_ImplVulkan_Init(&init_info);
+    uiSettings = UIsettings();
 }
 
 JImGui::~JImGui() {
@@ -101,6 +102,11 @@ void JImGui::newFrame() {
     if (show_demo_window) {
         ImGui::ShowDemoWindow(&show_demo_window);
     }
+
+    //checkbox
+    ImGui::Begin("Render Settings");
+    ImGui::Checkbox("Cull backface",  &uiSettings.cullBackFace);
+    ImGui::End();
 
     // Create a simple debug window
     ImGui::Begin("Debug Info");
