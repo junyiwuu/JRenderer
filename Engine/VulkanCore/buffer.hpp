@@ -10,11 +10,7 @@
 
 
 
-struct UniformBufferObject {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-};
+
 
 class JBuffer{
 
@@ -115,7 +111,6 @@ public:
     const VkDeviceMemory& bufferMemory(){ return uniformBufferMemory_;}
     void* bufferMapped() {return uniformBufferMapped_;}
 
-    // void update(uint32_t currentImage, const UniformBufferObject& UniformBufferObject);
 
 private:
     JDevice& device_app;

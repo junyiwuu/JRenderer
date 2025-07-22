@@ -1,4 +1,5 @@
 #include "buffer.hpp"
+#include "./structs/uniforms.hpp"
 
 
 
@@ -138,12 +139,6 @@ JUniformBuffer::~JUniformBuffer(){
 
 
 
-
-
-// void JUniformBuffer::update(uint32_t currentImage, const UniformBufferObject& targetUbo){
-
-//     memcpy(uniformBufferMapped_[currentImage], &targetUbo, sizeof(targetUbo));
-// }
 
 
 

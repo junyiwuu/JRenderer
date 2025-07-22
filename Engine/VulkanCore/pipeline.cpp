@@ -183,7 +183,7 @@ JPipelineLayout::JPipelineLayout(JDevice& device,
     pipelineLayoutInfo.setLayoutCount = setLayoutCount;
     pipelineLayoutInfo.pSetLayouts = pSetLayouts;
     pipelineLayoutInfo.flags = 0;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRangeCount;
     pipelineLayoutInfo.pPushConstantRanges = pPushConstantRanges;
 
     if (vkCreatePipelineLayout(device_app.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {

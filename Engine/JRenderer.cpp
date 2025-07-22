@@ -2,6 +2,8 @@
 #include <GLFW/glfw3.h>
 
 #include "JRenderer.hpp"
+#include "./VulkanCore/structs/uniforms.hpp"
+#include "./VulkanCore/structs/pushConstants.hpp"
 
 
 
@@ -67,9 +69,16 @@ void JRenderer::init() {
     pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
     pipelineConfig.multisampleInfo.rasterizationSamples = device_app->msaaSamples();
 
+    //for set up push constant
+    VkPushConstantRange pushConstanRange{};
+    pushConstanRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    pushConstanRange.offset = 0;
+    pushConstanRange.size = sizeof(pushConstantStruct);
+
     VkDescriptorSetLayout setLayouts[] = {descriptorSetLayout_obj->descriptorSetLayout()};
     pipelinelayout_app = JPipelineLayout::Builder{*device_app}
                         .setDescriptorSetLayout(1, setLayouts)
+                        .setPushConstRanges(1, &pushConstanRange)
                         .build();
 
     pipeline_app = std::make_unique<JPipeline>(*device_app, *swapchain_app,
@@ -239,8 +248,20 @@ void JRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinelayout_app->getPipelineLayout(),0,1,
                     &descriptorSets[currentFrame], 0, nullptr );
 
+        for (int j = 0; j<2; j++ )
+        {
+            pushConstantStruct pushData{};
+            pushData.offset = {0.0f, -1.0f + j*1.2, 0.0f};
+            pushData.color = {0.0f, 0.0f, 0.2f * j};
+
+            vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
+                VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
+                sizeof(pushConstantStruct), &pushData );
+
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vikingModel_obj->indices().size()), 1, 0, 0, 0);
-        // vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+        }
+       
+       
 
         imgui_obj->render(commandBuffer);
 
@@ -301,7 +322,7 @@ bool JRenderer::drawFrame() {
     }
 
 
-    //把fence从signal变成unsignal
+    //把fence从signal变成unsignal  // the order is important
     vkResetFences(device_app->device(), 1,  &sync_objs[currentFrame]->inFlightFence);
 
     
@@ -310,6 +331,7 @@ bool JRenderer::drawFrame() {
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float updateUniformBuffer_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    // float updateUniformBuffer_time = 1;
 
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f), updateUniformBuffer_time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
