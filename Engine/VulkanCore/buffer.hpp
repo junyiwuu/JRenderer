@@ -24,7 +24,7 @@ public:
     VkBuffer buffer()                   {return buffer_;}
     VkDeviceMemory bufferMemory()       {return bufferMemory_;}
     VkDeviceSize getSize()              {return size_;}
-    void* getufferMapped()              {return mapped_;}
+    void* getBufferMapped()              {return mapped_;}
 
     // struct externalCreateBufferResult {
     //     VkBuffer r_buffer_; 

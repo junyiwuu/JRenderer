@@ -49,6 +49,7 @@ public:
     const JSwapchain& getSwapchainApp() const       {return *swapchain_app;}
     JImGui& getImguiApp()                           {return *imgui_obj;}
     const uint32_t& getCurrentFrame() const         {return currentFrame;}
+    float getSwapchainImageAspectRatio() const      {return swapchain_app->getAspectRatio();}
 
 
 

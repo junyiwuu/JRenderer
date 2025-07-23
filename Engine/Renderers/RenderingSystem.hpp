@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.hpp>
 #include <memory>
 #include "../VulkanCore/global.hpp"
+#include "../Scene/info.hpp"
 
 class JPipeline;
 class JPipelineLayout;
@@ -13,7 +14,7 @@ class JTexture;
 class JModel;
 class JSwapchain;
 class JBuffer;
-
+struct SceneInfo;
 
 class RenderingSystem{
 
@@ -28,7 +29,9 @@ public:
     NO_COPY(RenderingSystem);
 
     //commands
-    void render(VkCommandBuffer commandBuffer, uint32_t currentFrame);
+    void render(VkCommandBuffer commandBuffer, 
+                uint32_t currentFrame, 
+                SceneInfo& sceneInfo);
 
     //getter
     std::vector<std::unique_ptr<JBuffer>>& getUniformBufferObjs() {return uniformBuffer_objs;}

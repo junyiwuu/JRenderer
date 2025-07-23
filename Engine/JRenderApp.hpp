@@ -32,9 +32,16 @@
 #include "./VulkanCore/global.hpp"
 #include "./Renderers/Renderer.hpp"
 #include "./Interface/JImGui.hpp"
+#include "./Scene/asset.hpp"
 
 struct UniformBufferObject;
 class Renderer;
+
+
+
+
+
+
 
 
 class JRenderApp {
@@ -57,7 +64,7 @@ private:
   JDevice device_app{window_app};
   Renderer renderer_app{window_app, device_app};
 
-  
+  void loadAssets();
 
   bool framebufferResized = false;
 
@@ -65,6 +72,8 @@ private:
   void init();
 
   bool isFrameStarted{false};
+
+  Scene::JAsset::Map sceneAssets;
 
 
 

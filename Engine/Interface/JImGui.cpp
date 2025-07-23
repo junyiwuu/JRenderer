@@ -15,6 +15,7 @@ JImGui::JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window )
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     setupStyle();
     createDescriptorPool();

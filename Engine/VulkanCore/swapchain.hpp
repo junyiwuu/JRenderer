@@ -32,7 +32,7 @@ public:
     VkImageView getDepthImageView() const                   {return depthImageView_;}
     std::vector<VkImageView> getSwapChainImageView() const  {return swapChainImageViews_;}
     std::vector<VkImage> getSwapChainImage()                {return swapChainImages_;}
-
+    float getAspectRatio()                                  {return static_cast<float>(swapChainExtent_.width) / static_cast<float>(swapChainExtent_.height) ;}
     
 
     uint32_t minImageCount_;

@@ -1,10 +1,17 @@
 #version 450
 
-layout(set = 0, binding = 0) uniform UniformBufferObject{
+// layout(set = 0, binding = 0) uniform UniformBufferObject{
 
-    mat4 model;
-    mat4 view;
-    mat4 proj;
+//     mat4 model;
+//     mat4 view;
+//     mat4 proj;
+// } ubo;
+
+layout(set = 0, binding = 0) uniform GlobalUbo {
+  mat4 projection;
+  mat4 view;
+  mat4 invView;
+
 } ubo;
 
 
@@ -17,12 +24,16 @@ layout(location = 1) out vec2 fragTexCoord;
 
 
 layout(push_constant) uniform Push{
-    vec3 offset;
-    vec3 color;
+    mat4 modelMatrix;
+
 }push;
 
+
+
+
 void main() {
-    gl_Position =ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0) + vec4(push.offset, 0.0);
+    vec4 world_position = push.modelMatrix * vec4(inPosition, 1.0);
+    gl_Position =ubo.projection * ubo.view * world_position;
     fragColor = inColor;
     fragTexCoord =  inTexCoord;
 }

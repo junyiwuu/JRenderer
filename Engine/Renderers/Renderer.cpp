@@ -106,15 +106,15 @@ void Renderer::beginRender(VkCommandBuffer commandBuffer){
 
     //attachment info 
     VkRenderingAttachmentInfo colorAttachment{};
-    colorAttachment.sType         = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    colorAttachment.imageView     = swapchain_app->getColorImageView();
-    colorAttachment.imageLayout   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    colorAttachment.resolveImageView = swapchain_app->getSwapChainImageView()[imageIndex];
-    colorAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    colorAttachment.resolveMode   =  VK_RESOLVE_MODE_AVERAGE_BIT;
-    colorAttachment.loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp       = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.clearValue    = { {0.1f,0.1f,0.1f,1.0f} };
+    colorAttachment.sType               = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    colorAttachment.imageView           = swapchain_app->getColorImageView();
+    colorAttachment.imageLayout         = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    colorAttachment.resolveImageView    = swapchain_app->getSwapChainImageView()[imageIndex];
+    colorAttachment.resolveImageLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    colorAttachment.resolveMode         =  VK_RESOLVE_MODE_AVERAGE_BIT;
+    colorAttachment.loadOp              = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp             = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.clearValue          = { {0.1f,0.1f,0.1f,1.0f} };
 
     VkRenderingAttachmentInfo depthAttachment{};
     depthAttachment.sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;

@@ -13,7 +13,7 @@ RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
 
 
     vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", device_app);
-    vikingModel_obj = JModel::loadModelFromFile(device_app, "../assets/viking_room.obj");
+
     createDescriptorResources();
     createPipelineResources();
 
@@ -98,7 +98,7 @@ void RenderingSystem::createPipelineResources(){
     VkPushConstantRange pushConstanRange{};
     pushConstanRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstanRange.offset = 0;
-    pushConstanRange.size = sizeof(pushConstantStruct);
+    pushConstanRange.size = sizeof(pushTransformation);
 
     VkDescriptorSetLayout setLayouts[] = {
                 descriptorSetLayout_glob->descriptorSetLayout(), 
@@ -117,11 +117,13 @@ void RenderingSystem::createPipelineResources(){
 
 
 //including binding descriptor sets, vertex, and pipeline
-void RenderingSystem::render(VkCommandBuffer commandBuffer, uint32_t currentFrame){
+void RenderingSystem::render(VkCommandBuffer commandBuffer, 
+                                uint32_t currentFrame,
+                                SceneInfo& sceneInfo){
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
   
-    vikingModel_obj->bind(commandBuffer); //bind vertex buffer and index buffer
+    
 
     // for (int i = 0; i < numAssets; ++i) {
     //     // 先把本帧的全局 UBO 和 第 i 个 asset 的贴图 绑定到 set 0/1
@@ -145,17 +147,21 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer, uint32_t currentFram
                 0, 
                 nullptr );
 
-    for (int j = 0; j<2; j++ )
-    {
-        pushConstantStruct pushData{};
-        pushData.offset = {0.0f, -1.0f + j*1.2, 0.0f};
-        pushData.color = {0.0f, 0.0f, 0.2f * j};
+    // loop all collected assets, and all bind, also aplied push constant
+    for (auto& asset : sceneInfo.assets )
+    {   
+        auto& obj = asset.second;
+        if (obj.model == nullptr) { continue;}
+
+        pushTransformation transformPushData{};
+        transformPushData.modelMatrix = obj.transform.mat4();
 
         vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
             VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
-            sizeof(pushConstantStruct), &pushData );
-
-    vikingModel_obj->draw(commandBuffer);
+            sizeof(pushTransformation), &transformPushData );
+            
+        obj.model->bind(commandBuffer); //bind vertex buffer and index buffer
+        obj.model->draw(commandBuffer);
 
 }
 

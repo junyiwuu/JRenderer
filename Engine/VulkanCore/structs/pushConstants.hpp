@@ -10,3 +10,7 @@ struct pushConstantStruct{
 };
 
 
+struct pushTransformation{
+    glm::mat4 modelMatrix{1.f};
+};
+

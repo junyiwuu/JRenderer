@@ -3,10 +3,16 @@
 
 #include "./Renderers/RenderingSystem.hpp"
 #include "./VulkanCore/structs/uniforms.hpp"
+#include "./Scene/camera.hpp"
+
+#include "./Interface/keyboardController.hpp"
+#include "./Scene/info.hpp"
 
 
 
-JRenderApp::JRenderApp(){  }
+JRenderApp::JRenderApp(){ 
+    loadAssets();
+ }
 
 
 JRenderApp::~JRenderApp(){  }
@@ -18,16 +24,45 @@ JRenderApp::~JRenderApp(){  }
 
 void JRenderApp::run(){
 
+    //initiate resources
     RenderingSystem renderingSystem{device_app, renderer_app.getSwapchainApp()};
+    //initiate camera
+    Scene::JCamera camera{};
+    
+    //starting viewpoint set up 
+    auto viewPoint = Scene::JAsset::createAsset();
+    viewPoint.transform.translation.z = -2.5f;
+
+    //initiate keyboard controller
+    KeyboardController cameraController{};
 
 
+
+
+    //set up time
+    auto currentTime = std::chrono::high_resolution_clock::now();
 
 
     while (!glfwWindowShouldClose(window_app.getGLFWwindow())) {
         glfwPollEvents();
         
+        auto newTime = std::chrono::high_resolution_clock::now();
+        float frameTime =  // per frame time
+            std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+        currentTime = newTime;
 
+        cameraController.moveInPlaneXZ(window_app.getGLFWwindow(), frameTime, viewPoint);
+        camera.setViewYXZ(viewPoint.transform.translation, viewPoint.transform.rotation);
         
+        // Update projection matrix with current aspect ratio
+        camera.setPerspProjection(glm::radians(50.f), renderer_app.getSwapchainImageAspectRatio(), 0.1f, 100.f);
+
+
+
+
+
+
+
         // Start ImGui frame
         renderer_app.getImguiApp().newFrame();
         
@@ -36,30 +71,33 @@ void JRenderApp::run(){
         //if command buffer has something/working.. otherwise if it is return nullptr, will go else branch
         if(VkCommandBuffer commandBuffer = renderer_app.beginFrame()){
 
+            // get the scene info, which including all assets
+            SceneInfo sceneInfo{
+                sceneAssets,
+            };
+
+
             auto currentFrame = renderer_app.getCurrentFrame();
 
             //--------- update uniform buffer------------
-            static auto startTime = std::chrono::high_resolution_clock::now();
 
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            float updateUniformBuffer_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-            // float updateUniformBuffer_time = 1;
-        
-            UniformBufferObject ubo{};
-            ubo.model = glm::rotate(glm::mat4(1.0f), updateUniformBuffer_time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            ubo.proj = glm::perspective(glm::radians(45.0f), renderer_app.getSwapchainApp().getSwapChainExtent().width / (float)renderer_app.getSwapchainApp().getSwapChainExtent().height, 0.1f, 10.0f);
-            ubo.proj[1][1] *= -1;
-        
-            memcpy(renderingSystem.getUniformBufferObjs()[currentFrame]->getufferMapped(), 
+
+            GlobalUbo ubo{};
+            ubo.projection = camera.getProjection();
+            ubo.view = camera.getView();
+            ubo.inverseView = camera.getInverseView();
+            ubo.projection[1][1] *= -1;
+
+
+            memcpy(renderingSystem.getUniformBufferObjs()[currentFrame]->getBufferMapped(), 
                     &ubo, 
                     sizeof(ubo) );
             // ------------------------------------------------
-        
-        
+            
+
 
             renderer_app.beginRender(commandBuffer);
-            renderingSystem.render(commandBuffer, renderer_app.getCurrentFrame());
+            renderingSystem.render(commandBuffer, renderer_app.getCurrentFrame(), sceneInfo);
 
             renderer_app.getImguiApp().render(commandBuffer);
 
@@ -87,3 +125,21 @@ void JRenderApp::run(){
 
 
 
+void JRenderApp::loadAssets(){
+
+    std::shared_ptr<JModel> model = JModel::loadModelFromFile(device_app, "../assets/viking_room.obj");
+    auto vikingHouse = Scene::JAsset::createAsset();
+    vikingHouse.model = model;
+    vikingHouse.transform.translation = {0.f, 0.f, 0.f};
+    vikingHouse.transform.scale = {1.f, 1.f, 1.f};
+    vikingHouse.transform.rotation = {0.f, 0.f, 0.f};
+    sceneAssets.emplace(vikingHouse.getId(), std::move(vikingHouse));
+
+
+
+
+
+
+
+
+}
