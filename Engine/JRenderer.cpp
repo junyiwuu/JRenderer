@@ -24,21 +24,32 @@ void JRenderer::init() {
     vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", *device_app);
     vikingModel_obj = JModel::loadModelFromFile(*device_app, "../assets/viking_room.obj");
 
-    descriptorSetLayout_obj = JDescriptorSetLayout::Builder{*device_app}
+
+
+
+    descriptorSetLayout_glob = JDescriptorSetLayout::Builder{*device_app}
         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
-        .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
         .build();
+
+    descriptorSetLayout_asset = JDescriptorSetLayout::Builder{*device_app}
+    .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+    .build();
+
+
     descriptorPool_obj  = JDescriptorPool::Builder{*device_app}
         .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3)
-        .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6)
-        .setMaxSets(6)
+        .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+        .setMaxSets(4)
         .build();
 
-    
 
+    descriptorSets_glob.reserve(Global::MAX_FRAMES_IN_FLIGHT);
+    //assign ubo descriptor set
     uniformBuffer_objs.reserve(Global::MAX_FRAMES_IN_FLIGHT);
-    descriptorSets.resize(Global::MAX_FRAMES_IN_FLIGHT);
-    for(size_t i =0; i< Global::MAX_FRAMES_IN_FLIGHT; ++i){
+    JDescriptorWriter writer_glob{*descriptorSetLayout_glob, *descriptorPool_obj };  
+    for(size_t i =0; i< Global::MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        //create uniform buffer
         auto buffer = std::make_unique<JBuffer>(
             *device_app,
             sizeof(UniformBufferObject),
@@ -46,28 +57,29 @@ void JRenderer::init() {
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         buffer->map();
         uniformBuffer_objs.emplace_back( std::move(buffer) );
+
         auto& ubo = *uniformBuffer_objs.back();
-        JDescriptorWriter writer{*descriptorSetLayout_obj, *descriptorPool_obj };
-
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = ubo.buffer();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
-
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = vikingTexture_obj->textureImageView();
-        imageInfo.sampler = vikingTexture_obj->textureSampler();
-
-        if( !writer
+        auto bufferInfo = ubo.descriptorInfo();
+        VkDescriptorSet desSet;
+        if( !writer_glob
                     .writeBuffer(0, &bufferInfo)
-                    .writeImage(1, &imageInfo)
-                    .build(descriptorSets[i])){
-            throw std::runtime_error("failed to allocate descriptor set!");    }  
+                    .build(desSet)){ throw std::runtime_error("failed to allocate descriptor set!");    }  
+
+        descriptorSets_glob.push_back(desSet);
     }
 
+    descriptorSets_asset.reserve(1);
+    // assign asset descriptor set
+    JDescriptorWriter writer_asset{*descriptorSetLayout_asset, *descriptorPool_obj };
+    auto imageInfo = vikingTexture_obj->descriptorInfo();
+    VkDescriptorSet desSet;
+    if(!writer_asset.writeImage(1, &imageInfo).build(desSet)){
+        throw std::runtime_error("failed to allocate descriptor set for asset "); }
+    descriptorSets_asset.push_back(desSet);
 
-    
+
+
+
     PipelineConfigInfo pipelineConfig{};
     JPipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
@@ -80,9 +92,11 @@ void JRenderer::init() {
     pushConstanRange.offset = 0;
     pushConstanRange.size = sizeof(pushConstantStruct);
 
-    VkDescriptorSetLayout setLayouts[] = {descriptorSetLayout_obj->descriptorSetLayout()};
+    VkDescriptorSetLayout setLayouts[] = {
+                descriptorSetLayout_glob->descriptorSetLayout(), 
+                descriptorSetLayout_asset->descriptorSetLayout()};
     pipelinelayout_app = JPipelineLayout::Builder{*device_app}
-                        .setDescriptorSetLayout(1, setLayouts)
+                        .setDescriptorSetLayout(2, setLayouts)
                         .setPushConstRanges(1, &pushConstanRange)
                         .build();
 
@@ -247,10 +261,19 @@ void JRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
   
         vikingModel_obj->bind(commandBuffer); //bind vertex buffer and index buffer
 
+        VkDescriptorSet setToBind[2] = {
+            descriptorSets_glob[currentFrame],
+            descriptorSets_asset[0],
+        };
+
         vkCmdBindDescriptorSets(commandBuffer, 
                     VK_PIPELINE_BIND_POINT_GRAPHICS, 
-                    pipelinelayout_app->getPipelineLayout(),0,1,
-                    &descriptorSets[currentFrame], 0, nullptr );
+                    pipelinelayout_app->getPipelineLayout(),
+                    0,
+                    2,
+                    setToBind, 
+                    0, 
+                    nullptr );
 
         for (int j = 0; j<2; j++ )
         {

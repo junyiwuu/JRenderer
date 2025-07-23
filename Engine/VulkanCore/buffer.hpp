@@ -26,13 +26,13 @@ public:
     VkDeviceSize getSize()              {return size_;}
     void* getufferMapped()              {return mapped_;}
 
-    struct externalCreateBufferResult {
-        VkBuffer r_buffer_; 
-        VkDeviceMemory r_bufferMemory_; };
-    static externalCreateBufferResult createBuffer(JDevice& device_app,  VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+    // struct externalCreateBufferResult {
+    //     VkBuffer r_buffer_; 
+    //     VkDeviceMemory r_bufferMemory_; };
+    // static externalCreateBufferResult createBuffer(JDevice& device_app,  VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     void destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory bufferMemory);
 
-    // VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+    VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
     void map();
     void stagingAction(const void* transferData);
@@ -41,6 +41,7 @@ public:
 
 private:
     JDevice& device_app;
+    
     VkBuffer buffer_ = VK_NULL_HANDLE;
     VkDeviceMemory bufferMemory_ = VK_NULL_HANDLE;
     VkDeviceSize size_;

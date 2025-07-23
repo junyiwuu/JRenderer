@@ -23,7 +23,7 @@ public:
 
 
     static void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
-
+    VkDescriptorImageInfo descriptorInfo();
 
 private:
 

@@ -75,8 +75,11 @@ private:
 
     //descriptor
     std::unique_ptr<JDescriptorPool> descriptorPool_obj;
-    std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_obj;//现在只用一种layout.如果需要不同的layout就设置多个
-    std::vector<VkDescriptorSet> descriptorSets;
+    std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_glob;
+    std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_asset;
+
+    std::vector<VkDescriptorSet> descriptorSets_glob;
+    std::vector<VkDescriptorSet> descriptorSets_asset;
 
     //texture
     std::unique_ptr<JTexture> vikingTexture_obj;
@@ -100,3 +103,4 @@ private:
 
 
 };
+

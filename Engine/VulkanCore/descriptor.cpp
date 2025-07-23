@@ -164,7 +164,9 @@ JDescriptorWriter &JDescriptorWriter::writeImage(uint32_t n_binding, VkDescripto
 
 
 bool JDescriptorWriter::build(VkDescriptorSet& set){
-    bool success = descriptorPool_.allocateDescriptorSet(descriptorSetLayout_.descriptorSetLayout(), set);
+    bool success = descriptorPool_.allocateDescriptorSet(
+                        descriptorSetLayout_.descriptorSetLayout(), 
+                        set);
     if(!success) { return false;}
     overwrite(set); 
     return true;

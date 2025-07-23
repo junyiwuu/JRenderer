@@ -22,7 +22,14 @@ JTexture::~JTexture(){
 
 }
 
+VkDescriptorImageInfo JTexture::descriptorInfo(){
+    return VkDescriptorImageInfo{
+        textureSampler_,
+        textureImageView_,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+    };
 
+}
 
 void JTexture::createTextureImage(const std::string& path, JDevice& device_app) {
     // int texWidth, texHeight, texChannels;

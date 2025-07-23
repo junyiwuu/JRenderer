@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "buffer.hpp"
+#include "global.hpp"
 
 
 //descriptor ppol需要知道要用的descriptor sets的数量和descriptor有多少个。但是不涉及descriptor和descriptor set是否对的上
@@ -29,9 +30,8 @@ public:
     JDescriptorPool(JDevice& device_app, uint32_t maxDescriptorSets, VkDescriptorPoolCreateFlags poolCreateFlags,
         const std::vector<VkDescriptorPoolSize> &poolSize);
     ~JDescriptorPool();
-    JDescriptorPool(const JDescriptorPool&) = delete;
-    JDescriptorPool& operator=(const JDescriptorPool&) = delete;
-
+    NO_COPY(JDescriptorPool)
+  
     VkDescriptorPool descriptorPool() {return descriptorPool_;}
     bool allocateDescriptorSet(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptorSet);
 
@@ -69,10 +69,11 @@ public:
         };
     JDescriptorSetLayout(JDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
     ~JDescriptorSetLayout();        
-    JDescriptorSetLayout(const JDescriptorSetLayout &) = delete;
-    JDescriptorSetLayout &operator=(const JDescriptorSetLayout &) = delete;
-  
-    VkDescriptorSetLayout descriptorSetLayout() const {return descriptorSetLayout_;}
+
+    NO_COPY(JDescriptorSetLayout);
+
+    VkDescriptorSetLayout descriptorSetLayout() const   {return descriptorSetLayout_;}
+    uint32_t bindingsCount() const                      {return bindings_.size();}
 
 private:
     JDevice& device_app;
