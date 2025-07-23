@@ -7,7 +7,7 @@
 #include "../VulkanCore/structs/uniforms.hpp"
 #include "../VulkanCore/structs/pushConstants.hpp"
 
-RenderingSystem::RenderingSystem(JDevice& device, JSwapchain& swapchain):
+RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
     device_app(device), swapchain_app(swapchain)
 {
 
@@ -15,7 +15,7 @@ RenderingSystem::RenderingSystem(JDevice& device, JSwapchain& swapchain):
     vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", device_app);
     vikingModel_obj = JModel::loadModelFromFile(device_app, "../assets/viking_room.obj");
     createDescriptorResources();
-    createPipelineResources;
+    createPipelineResources();
 
 }
 
@@ -159,7 +159,7 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer, uint32_t currentFram
 
 }
 
-
+}
 
 
 

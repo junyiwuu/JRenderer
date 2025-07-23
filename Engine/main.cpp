@@ -1,10 +1,10 @@
 
 
-#include "JRenderer.hpp"
+#include "JRenderApp.hpp"
 
 
 int main() {
-    JRenderer app;
+    JRenderApp app{};
 
     try {
         app.run();

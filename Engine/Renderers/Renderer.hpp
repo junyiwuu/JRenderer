@@ -17,16 +17,14 @@
 #include <chrono>
 
 
-#include "./VulkanCore/swapchain.hpp"
-#include "./VulkanCore/utility.hpp"
-#include "./VulkanCore/shaderModule.hpp"
-
-#include "./VulkanCore/commandBuffer.hpp"
-#include "./VulkanCore/buffer.hpp"
-
-#include "./Interface/JImGui.hpp"
-#include "./VulkanCore/sync.hpp"
-#include "./VulkanCore/global.hpp"
+#include "../VulkanCore/swapchain.hpp"
+#include "../VulkanCore/utility.hpp"
+#include "../VulkanCore/shaderModule.hpp"
+#include "../VulkanCore/commandBuffer.hpp"
+#include "../VulkanCore/buffer.hpp"
+#include "../Interface/JImGui.hpp"
+#include "../VulkanCore/sync.hpp"
+#include "../VulkanCore/global.hpp"
 
 struct UniformBufferObject;
 class JWindow;
@@ -49,6 +47,8 @@ public:
 
     //getter
     const JSwapchain& getSwapchainApp() const       {return *swapchain_app;}
+    JImGui& getImguiApp()                           {return *imgui_obj;}
+    const uint32_t& getCurrentFrame() const         {return currentFrame;}
 
 
 
@@ -73,15 +73,12 @@ private:
     bool framebufferResized = false;
     bool isFrameStarted{false};
 
-    //imgui
-    std::unique_ptr<JImGui> imgui_obj;
-
 
     void init();
     void recreateSwapChain();
-    void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-    bool drawFrame() ;
 
+    //imgui
+    std::unique_ptr<JImGui> imgui_obj;
 
 
 

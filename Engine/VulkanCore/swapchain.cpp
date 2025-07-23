@@ -50,13 +50,13 @@ bool hasStencilComponent(VkFormat format) {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-VkFormat JSwapchain::findDepthFormat() const {
-    return device_app.findSupportedFormat(
-    {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-        VK_IMAGE_TILING_OPTIMAL,
-        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-    );
-}
+// VkFormat JSwapchain::findDepthFormat() const {
+//     return device_app.findSupportedFormat(
+//     {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+//         VK_IMAGE_TILING_OPTIMAL,
+//         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+//     );
+// }
 
 
 
@@ -119,7 +119,7 @@ void JSwapchain::createSwapChain() {
 
 
 void JSwapchain::createDepthResources() {
-    VkFormat depthFormat = findDepthFormat();
+    VkFormat depthFormat = device_app.findDepthFormat();
     auto imageInfo = ImageCreateInfoBuilder(swapChainExtent_.width, swapChainExtent_.height)
                     .format(depthFormat)
                     .samples(device_app.msaaSamples())

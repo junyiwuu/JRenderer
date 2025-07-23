@@ -2,8 +2,8 @@
 #include <GLFW/glfw3.h>
 
 #include "Renderer.hpp"
-#include "./VulkanCore/structs/pushConstants.hpp"
-#include "./VulkanCore/structs/uniforms.hpp"
+#include "../VulkanCore/structs/pushConstants.hpp"
+#include "../VulkanCore/structs/uniforms.hpp"
 
 
 #include "../VulkanCore/window.hpp"
@@ -49,9 +49,7 @@ void Renderer::init() {
         commandBuffers_app.push_back(std::move(commandBuffer_app));
     }
 
-    // Initialize ImGui
-    imgui_obj = std::make_unique<JImGui>(device_app, swapchain_app, window_app.getGLFWwindow());
-    
+    imgui_obj = std::make_unique<JImGui>(device_app, *swapchain_app, window_app.getGLFWwindow());
 }
 
 
@@ -75,7 +73,8 @@ VkCommandBuffer Renderer::beginFrame(){
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
-        // return false;  // Frame was skipped
+        return nullptr;
+           // Frame was skipped
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
@@ -96,52 +95,6 @@ VkCommandBuffer Renderer::beginFrame(){
     return commandBuffers_app[currentFrame]->getCommandBuffer();
 }
 
-
-
-
-void Renderer::endFrame() {
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    //wait for this semaphore signaled, then execute 
-    VkSemaphore waitSemaphores[] = {sync_objs[currentFrame]->imageAvailableSemaphore}; //通过之前的acquire next，这里期待是得到的signaled semaphore
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &(commandBuffers_app[currentFrame]->getCommandBuffer());
-    VkSemaphore signalSemaphores[] = {sync_objs[currentFrame]->renderFinishedSemaphore};//当前为unsignaled
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-
-    // 做queue submit的时候fence必须是Unsignal的状态
-    if (vkQueueSubmit(device_app.graphicsQueue(), 1, &submitInfo,  sync_objs[currentFrame]->inFlightFence) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit draw command buffer!");
-    }//GPU执行命令，完成后fence自动变成signaled.
-    //也自动把render finished sempahore变成signaled
-    //GPU消费semaphore，所以这里的wait semaphore自动从signal 消费成unsignal
-
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapChains[] = {swapchain_app->swapChain()};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
-
-    auto result = vkQueuePresentKHR(device_app.presentQueue()  , &presentInfo);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-        framebufferResized = false;
-        recreateSwapChain();
-    } else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
-    }
-
-    isFrameStarted = false;
-    currentFrame = (currentFrame + 1) % Global::MAX_FRAMES_IN_FLIGHT;
-    // return true;  // Frame was successfully rendered
-}
 
 
 
@@ -216,44 +169,7 @@ void Renderer::beginRender(VkCommandBuffer commandBuffer){
         scissor.extent = swapchain_app->getSwapChainExtent();
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
-  
-        // vikingModel_obj->bind(commandBuffer); //bind vertex buffer and index buffer
-
-        // // for (int i = 0; i < numAssets; ++i) {
-        // //     // 先把本帧的全局 UBO 和 第 i 个 asset 的贴图 绑定到 set 0/1
-        // //     VkDescriptorSet setsToBind[2] = {
-        // //         globalSet,               // layout(set=0,binding=0)
-        // //         descriptorSets_asset[i]  // layout(set=1,binding=1)
-        // //     };
-
-
-        // VkDescriptorSet setToBind[2] = {
-        //     descriptorSets_glob[currentFrame],
-        //     descriptorSets_asset[0],  // [asset id]
-        // };
-
-        // vkCmdBindDescriptorSets(commandBuffer, 
-        //             VK_PIPELINE_BIND_POINT_GRAPHICS, 
-        //             pipelinelayout_app->getPipelineLayout(),
-        //             0,
-        //             2,
-        //             setToBind, 
-        //             0, 
-        //             nullptr );
-
-        // for (int j = 0; j<2; j++ )
-        // {
-        //     pushConstantStruct pushData{};
-        //     pushData.offset = {0.0f, -1.0f + j*1.2, 0.0f};
-        //     pushData.color = {0.0f, 0.0f, 0.2f * j};
-
-        //     vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
-        //         VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
-        //         sizeof(pushConstantStruct), &pushData );
-
-        // vikingModel_obj->draw(commandBuffer);
-        }
+}
        
         
 
@@ -263,7 +179,6 @@ void Renderer::beginRender(VkCommandBuffer commandBuffer){
 void Renderer::endRender(VkCommandBuffer commandBuffer){
 
     vkCmdEndRendering(commandBuffer);
-
 
     device_app.transitionImageLayout(commandBuffer, swapchain_app->getSwapChainImage()[imageIndex], 
         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
@@ -278,36 +193,68 @@ void Renderer::endRender(VkCommandBuffer commandBuffer){
 
 
 
+void Renderer::endFrame() {
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    //wait for this semaphore signaled, then execute 
+    VkSemaphore waitSemaphores[] = {sync_objs[currentFrame]->imageAvailableSemaphore}; //通过之前的acquire next，这里期待是得到的signaled semaphore
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &(commandBuffers_app[currentFrame]->getCommandBuffer());
+    VkSemaphore signalSemaphores[] = {sync_objs[currentFrame]->renderFinishedSemaphore};//当前为unsignaled
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
 
+    // 做queue submit的时候fence必须是Unsignal的状态
+    if (vkQueueSubmit(device_app.graphicsQueue(), 1, &submitInfo,  sync_objs[currentFrame]->inFlightFence) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }//GPU执行命令，完成后fence自动变成signaled.
+    //也自动把render finished sempahore变成signaled
+    //GPU消费semaphore，所以这里的wait semaphore自动从signal 消费成unsignal
 
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+    VkSwapchainKHR swapChains[] = {swapchain_app->swapChain()};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
 
+    auto result = vkQueuePresentKHR(device_app.presentQueue()  , &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+        framebufferResized = false;
+        recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
-
-
-
-
-
-
-
+    isFrameStarted = false;
+    currentFrame = (currentFrame + 1) % Global::MAX_FRAMES_IN_FLIGHT;
+    // return true;  // Frame was successfully rendered
+}
 
 
 
 
 void Renderer::recreateSwapChain() {
     int width = 0, height = 0;
-    glfwGetFramebufferSize(window, &width, &height);
+    glfwGetFramebufferSize(window_app.getGLFWwindow(), &width, &height);
     while (width == 0 || height == 0) {
-        glfwGetFramebufferSize(window, &width, &height);
+        glfwGetFramebufferSize(window_app.getGLFWwindow(), &width, &height);
         glfwWaitEvents();
     }
 
-    vkDeviceWaitIdle(device_app->device());
+    vkDeviceWaitIdle(device_app.device());
 
     if(swapchain_app == nullptr){  //第一次初始化的时候
-        swapchain_app =std::make_unique<JSwapchain>(*device_app, *window_app);
+        swapchain_app =std::make_unique<JSwapchain>(device_app, window_app);
     }else { // 如果不是第一次创建，也就是resize的时候
         std::shared_ptr<JSwapchain> oldSwapChain = std::move(swapchain_app);
-        swapchain_app = std::make_unique<JSwapchain>(*device_app, *window_app, oldSwapChain);
+        swapchain_app = std::make_unique<JSwapchain>(device_app, window_app, oldSwapChain);
 
     }
 

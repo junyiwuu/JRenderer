@@ -31,6 +31,7 @@
 #include "./VulkanCore/sync.hpp"
 #include "./VulkanCore/global.hpp"
 #include "./Renderers/Renderer.hpp"
+#include "./Interface/JImGui.hpp"
 
 struct UniformBufferObject;
 class Renderer;
@@ -56,23 +57,14 @@ private:
   JDevice device_app{window_app};
   Renderer renderer_app{window_app, device_app};
 
-
-  uint32_t currentFrame = 0;
+  
 
   bool framebufferResized = false;
 
-  //imgui
-  std::unique_ptr<JImGui> imgui_obj;
-
 
   void init();
-  void recreateSwapChain();
-  void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-  bool drawFrame() ;
 
   bool isFrameStarted{false};
-
-
 
 
 

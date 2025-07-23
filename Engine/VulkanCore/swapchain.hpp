@@ -23,7 +23,7 @@ public:
     JSwapchain &operator=(const JSwapchain&) = delete;
 
     VkSwapchainKHR swapChain()                      {return swapChain_;}
-    VkExtent2D getSwapChainExtent()                 {return swapChainExtent_;}
+    VkExtent2D getSwapChainExtent() const           {return swapChainExtent_;}
     VkFormat getSwapChainImageFormat()        const {return swapChainImageFormat_;}
 
     VkImage getColorImage()                                 {return colorImage_;}
@@ -34,7 +34,7 @@ public:
     std::vector<VkImage> getSwapChainImage()                {return swapChainImages_;}
 
     
-    VkFormat findDepthFormat() const;
+
     uint32_t minImageCount_;
 
 

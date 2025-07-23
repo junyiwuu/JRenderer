@@ -24,7 +24,7 @@ JImGui::JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window )
     pipelineRenderingCreateInfo.colorAttachmentCount = 1;
     VkFormat colorFormats[] = {swapchain_app.getSwapChainImageFormat()};
     pipelineRenderingCreateInfo.pColorAttachmentFormats = colorFormats; 
-    pipelineRenderingCreateInfo.depthAttachmentFormat = swapchain_app.findDepthFormat();
+    pipelineRenderingCreateInfo.depthAttachmentFormat = device_app.findDepthFormat();
     pipelineRenderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
 
     // Setup Platform/Renderer backends

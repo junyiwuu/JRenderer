@@ -12,6 +12,7 @@ class JDevice;
 class JTexture;
 class JModel;
 class JSwapchain;
+class JBuffer;
 
 
 class RenderingSystem{
@@ -21,17 +22,22 @@ class RenderingSystem{
 public:
 
 
-    RenderingSystem(JDevice& device, JSwapchain& swapchain);
+    RenderingSystem(JDevice& device, const JSwapchain& swapchain);
     ~RenderingSystem();
 
     NO_COPY(RenderingSystem);
+
+    //commands
     void render(VkCommandBuffer commandBuffer, uint32_t currentFrame);
+
+    //getter
+    std::vector<std::unique_ptr<JBuffer>>& getUniformBufferObjs() {return uniformBuffer_objs;}
 
 
 
 private:
     JDevice& device_app;
-    JSwapchain& swapchain_app;
+    const JSwapchain& swapchain_app;
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
     std::unique_ptr<JPipelineLayout> pipelinelayout_app;

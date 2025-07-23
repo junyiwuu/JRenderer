@@ -80,7 +80,7 @@ void JPipeline:: createGraphicsPipeline(
     renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     renderingCreateInfo.colorAttachmentCount = 1;
     renderingCreateInfo.pColorAttachmentFormats = &colorFormat; 
-    renderingCreateInfo.depthAttachmentFormat = swapchain_app.findDepthFormat();
+    renderingCreateInfo.depthAttachmentFormat = device_app.findDepthFormat();
     renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
     
     

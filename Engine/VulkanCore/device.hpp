@@ -48,7 +48,7 @@ public:
     SwapChainSupportDetails getSwapChainSupport() {return querySwapChainSupport(physicalDevice_);}
     VkFormat findSupportFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     // memory allocation      
-
+    VkFormat findDepthFormat()  ;
 
     VkResult createImageViewWithInfo(const VkImageViewCreateInfo& imageViewInfo, VkImageView& imageView);
     VkResult createImageWithInfo(const VkImageCreateInfo &imageInfo, 
