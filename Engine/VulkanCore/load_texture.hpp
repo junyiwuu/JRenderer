@@ -18,12 +18,15 @@ public:
     JTexture(const std::string& path, JDevice& device);
     ~JTexture();
     
-    VkImageView textureImageView() const {return textureImageView_;}
-    VkSampler textureSampler() const {return textureSampler_;}
+    VkImageView textureImageView() const        {return textureImageView_;}
+    VkSampler textureSampler() const            {return textureSampler_;}
+    int getTextureWidth() const                 {return texWidth;}
+    int getTextureHeight() const                {return texHeight;}
 
 
     static void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
     VkDescriptorImageInfo descriptorInfo();
+
 
 private:
 

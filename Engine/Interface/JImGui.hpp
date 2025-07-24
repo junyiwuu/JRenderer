@@ -8,10 +8,11 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "../VulkanCore/global.hpp"
-
+#include "../VulkanCore/load_texture.hpp"
 class JDevice;
 class JSwapchain;
 class JDescriptorPool;
+
 
 
 struct UIsettings{
@@ -49,4 +50,8 @@ private:
     static void checkVkResult(VkResult err);
 
     UIsettings uiSettings;
+
+
+    JTexture texture_viewTest;
+    ImTextureID texID;
 };

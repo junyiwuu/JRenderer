@@ -3,11 +3,14 @@
 #include "../VulkanCore/descriptor.hpp"
 #include "../VulkanCore/swapchain.hpp"
 
+
 #include <stdexcept>
 #include <iostream>
 
 JImGui::JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window )
-    : device_app(device), window_ptr(window), swapchain_app(swapchain){
+    : device_app(device), window_ptr(window), swapchain_app(swapchain), 
+    texture_viewTest("../assets/cat.jpg", device)
+{
     
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -48,6 +51,12 @@ JImGui::JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window )
     
     ImGui_ImplVulkan_Init(&init_info);
     uiSettings = UIsettings();
+
+    VkDescriptorSet texture_ds = ImGui_ImplVulkan_AddTexture(
+        texture_viewTest.textureSampler(),
+        texture_viewTest.textureImageView(),
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+    texID = (ImTextureID)( (uintptr_t)texture_ds );
 }
 
 JImGui::~JImGui() {
@@ -108,6 +117,16 @@ void JImGui::newFrame() {
     ImGui::Begin("Render Settings");
     ImGui::Checkbox("Cull backface",  &uiSettings.cullBackFace);
     ImGui::End();
+
+    
+
+
+
+    ImGui::Begin("Texture Viewer");
+    ImGui::Image(texID, ImVec2(texture_viewTest.getTextureWidth(), texture_viewTest.getTextureHeight()));
+    ImGui::End();
+
+
 
     // Create a simple debug window
     ImGui::Begin("Debug Info");
