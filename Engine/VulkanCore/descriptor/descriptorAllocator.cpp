@@ -19,6 +19,11 @@ JDescriptorAllocator::JDescriptorAllocator(
 
 JDescriptorAllocator::~JDescriptorAllocator(){
     vkDestroyDescriptorPool(device_app.device(), currentPool_, nullptr);
+    if(usedPool_.size() != 0){
+        for (auto pool : usedPool_){
+            vkDestroyDescriptorPool(device_app.device(), pool, nullptr);
+        }
+    }
 
 }
 

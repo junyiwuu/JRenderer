@@ -59,10 +59,6 @@ void JRenderApp::run(){
 
 
 
-
-
-
-
         // Start ImGui frame
         renderer_app.getImguiApp().newFrame();
         
@@ -71,10 +67,6 @@ void JRenderApp::run(){
         //if command buffer has something/working.. otherwise if it is return nullptr, will go else branch
         if(VkCommandBuffer commandBuffer = renderer_app.beginFrame()){
 
-            // // get the scene info, which including all assets
-            // SceneInfo sceneInfo{
-            //     sceneAssets,
-            // };
 
 
             auto currentFrame = renderer_app.getCurrentFrame();
