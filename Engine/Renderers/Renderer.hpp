@@ -81,10 +81,5 @@ private:
     //imgui
     std::unique_ptr<JImGui> imgui_obj;
 
-
-
-
-
-
 };
 

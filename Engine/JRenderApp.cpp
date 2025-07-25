@@ -6,12 +6,12 @@
 #include "./Scene/camera.hpp"
 
 #include "./Interface/keyboardController.hpp"
-#include "./Scene/info.hpp"
+
 
 
 
 JRenderApp::JRenderApp(){ 
-    loadAssets();
+    
  }
 
 
@@ -71,10 +71,10 @@ void JRenderApp::run(){
         //if command buffer has something/working.. otherwise if it is return nullptr, will go else branch
         if(VkCommandBuffer commandBuffer = renderer_app.beginFrame()){
 
-            // get the scene info, which including all assets
-            SceneInfo sceneInfo{
-                sceneAssets,
-            };
+            // // get the scene info, which including all assets
+            // SceneInfo sceneInfo{
+            //     sceneAssets,
+            // };
 
 
             auto currentFrame = renderer_app.getCurrentFrame();
@@ -97,7 +97,7 @@ void JRenderApp::run(){
 
 
             renderer_app.beginRender(commandBuffer);
-            renderingSystem.render(commandBuffer, renderer_app.getCurrentFrame(), sceneInfo);
+            renderingSystem.render(commandBuffer, renderer_app.getCurrentFrame());
 
             renderer_app.getImguiApp().render(commandBuffer);
 
@@ -124,22 +124,3 @@ void JRenderApp::run(){
 
 
 
-
-void JRenderApp::loadAssets(){
-
-    std::shared_ptr<JModel> model = JModel::loadModelFromFile(device_app, "../assets/viking_room.obj");
-    auto vikingHouse = Scene::JAsset::createAsset();
-    vikingHouse.model = model;
-    vikingHouse.transform.translation = {0.f, 0.f, 0.f};
-    vikingHouse.transform.scale = {1.f, 1.f, 1.f};
-    vikingHouse.transform.rotation = {0.f, 0.f, 0.f};
-    sceneAssets.emplace(vikingHouse.getId(), std::move(vikingHouse));
-
-
-
-
-
-
-
-
-}

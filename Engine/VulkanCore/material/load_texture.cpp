@@ -1,9 +1,9 @@
 #include "load_texture.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "buffer.hpp"
-#include "device.hpp"
-#include "commandBuffer.hpp"
+#include "../buffer.hpp"
+#include "../device.hpp"
+#include "../commandBuffer.hpp"
 
 JTexture::JTexture(const std::string& path, JDevice& device):
     device_app(device)    
@@ -11,6 +11,7 @@ JTexture::JTexture(const std::string& path, JDevice& device):
     createTextureImage(path, device_app);
     createTextureImageView();
     createTextureSampler();
+    createDescriptorInfo();
 }
 
 
@@ -22,13 +23,13 @@ JTexture::~JTexture(){
 
 }
 
-VkDescriptorImageInfo JTexture::descriptorInfo(){
-    return VkDescriptorImageInfo{
+void JTexture::createDescriptorInfo(){
+    descriptorImageInfo_ = VkDescriptorImageInfo
+    {
         textureSampler_,
         textureImageView_,
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
     };
-
 }
 
 void JTexture::createTextureImage(const std::string& path, JDevice& device_app) {

@@ -1,22 +1,23 @@
 #include "RenderingSystem.hpp"
 #include "../VulkanCore/pipeline.hpp"
 #include "../VulkanCore/descriptor/descriptor.hpp"
+#include "../VulkanCore/descriptor/descriptorAllocator.hpp"
 #include "../VulkanCore/buffer.hpp"
-#include "../VulkanCore/load_texture.hpp"
+#include "../VulkanCore/material/load_texture.hpp"
+#include "../VulkanCore/material/PBRmaterial.hpp"
 #include "../VulkanCore/load_model.hpp"
 #include "../VulkanCore/structs/uniforms.hpp"
 #include "../VulkanCore/structs/pushConstants.hpp"
+
 
 RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
     device_app(device), swapchain_app(swapchain)
 {
 
 
-    vikingTexture_obj = std::make_unique<JTexture>("../assets/viking_room.png", device_app);
-
     createDescriptorResources();
     createPipelineResources();
-
+    loadAssets();
 }
 
 
@@ -31,27 +32,32 @@ RenderingSystem::~RenderingSystem(){
  
 void RenderingSystem::createDescriptorResources(){
 
+    //create poolsize
+    std::vector<VkDescriptorPoolSize> poolSizes = 
+    {
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,             3},
+        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,     1},
+    };
 
+    // create descriptor allocator (create descriptor pool)
+    descriptorAllocator_obj = std::make_shared<JDescriptorAllocator>(device_app, poolSizes, 10);
+
+
+    //create descriptor set layout
     descriptorSetLayout_glob = JDescriptorSetLayout::Builder{device_app}
         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
         .build();
 
     descriptorSetLayout_asset = JDescriptorSetLayout::Builder{device_app}
-        .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
         .build();
 
-
-    descriptorPool_obj  = JDescriptorPool::Builder{device_app}
-        .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3)
-        .reservePoolDescriptors(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-        .setMaxSets(4)
-        .build();
-
+    
 
     descriptorSets_glob.reserve(Global::MAX_FRAMES_IN_FLIGHT);
     //assign ubo descriptor set
     uniformBuffer_objs.reserve(Global::MAX_FRAMES_IN_FLIGHT);
-    JDescriptorWriter writer_glob{*descriptorSetLayout_glob, *descriptorPool_obj };  
+    JDescriptorWriter writer_glob{*descriptorSetLayout_glob, descriptorAllocator_obj->getDescriptorPool() };  
     for(size_t i =0; i< Global::MAX_FRAMES_IN_FLIGHT; ++i)
     {
         //create uniform buffer
@@ -71,18 +77,7 @@ void RenderingSystem::createDescriptorResources(){
                     .build(desSet)){ throw std::runtime_error("failed to allocate descriptor set!");    }  
 
         descriptorSets_glob.push_back(desSet);
-    }
-
-    descriptorSets_asset.reserve(1);
-    // assign asset descriptor set
-    JDescriptorWriter writer_asset{*descriptorSetLayout_asset, *descriptorPool_obj };
-    auto imageInfo = vikingTexture_obj->descriptorInfo();
-    VkDescriptorSet desSet;
-    if(!writer_asset.writeImage(1, &imageInfo).build(desSet)){
-        throw std::runtime_error("failed to allocate descriptor set for asset "); }
-    descriptorSets_asset.push_back(desSet);
-
-    
+    }    
 }
 
 
@@ -118,8 +113,7 @@ void RenderingSystem::createPipelineResources(){
 
 //including binding descriptor sets, vertex, and pipeline
 void RenderingSystem::render(VkCommandBuffer commandBuffer, 
-                                uint32_t currentFrame,
-                                SceneInfo& sceneInfo){
+                                uint32_t currentFrame ){
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
   
@@ -179,18 +173,21 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
             VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
             sizeof(pushTransformation), &transformPushData );
 
-        VkDescriptorSet asset_bind[1] = {
-            descriptorSets_asset[0],
-        };
+
+        // VkDescriptorSet asset_bind[1] = {
+        //     descriptorSets_asset[0],
+        // };
     
-        vkCmdBindDescriptorSets(commandBuffer, 
-                    VK_PIPELINE_BIND_POINT_GRAPHICS, 
-                    pipelinelayout_app->getPipelineLayout(),
-                    1,
-                    1,
-                    asset_bind, 
-                    0, 
-                    nullptr );
+        // vkCmdBindDescriptorSets(commandBuffer, 
+        //             VK_PIPELINE_BIND_POINT_GRAPHICS, 
+        //             pipelinelayout_app->getPipelineLayout(),
+        //             1, /* firstSet */
+        //             1, /* descriptorSetCount */
+        //             asset_bind, /* *pDescriptorSets */
+        //             0, 
+        //             nullptr );
+
+        obj.material->bind(commandBuffer, pipelinelayout_app->getPipelineLayout());
             
         obj.model->bind(commandBuffer); //bind vertex buffer and index buffer
         obj.model->draw(commandBuffer);
@@ -203,6 +200,34 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
 
 
 
+void RenderingSystem::loadAssets(){
+
+    std::shared_ptr<JModel> viking_model = JModel::loadModelFromFile(device_app, "../assets/viking_room.obj");
+    models_["viking_room"] = viking_model;
+
+    std::shared_ptr<JTexture> viking_texture = std::make_shared<JTexture>("../assets/viking_room.png", device_app);
+    textures_["viking_room"] = viking_texture;
+
+    std::shared_ptr<JPBRMaterial> pbrMat = std::make_shared<JPBRMaterial>(device_app, 
+                                                                        descriptorAllocator_obj, 
+                                                                        descriptorSetLayout_asset->descriptorSetLayout());
+    pbrMat->setAlbedoTexture(viking_texture);
+    pbrMat->build();
+    materials_["viking_room_mat"] = pbrMat;
+    
+
+    auto vikingHouse = Scene::JAsset::createAsset();
+    vikingHouse.model = models_["viking_room"];
+    vikingHouse.material = materials_["viking_room_mat"];
+    vikingHouse.transform.translation = {0.f, 0.f, 0.f};
+    vikingHouse.transform.scale = {1.f, 1.f, 1.f};
+    vikingHouse.transform.rotation = {0.f, 0.f, 0.f};
+    sceneAssets.emplace(vikingHouse.getId(), std::move(vikingHouse));
+
+
+
+
+}
 
 
 

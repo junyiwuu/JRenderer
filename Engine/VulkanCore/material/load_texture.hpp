@@ -3,7 +3,7 @@
 
 
 
-#include "utility.hpp"
+#include "../utility.hpp"
 
 
 class JDevice;
@@ -18,11 +18,11 @@ public:
     JTexture(const std::string& path, JDevice& device);
     ~JTexture();
     
-    VkImageView textureImageView() const        {return textureImageView_;}
-    VkSampler textureSampler() const            {return textureSampler_;}
-    int getTextureWidth() const                 {return texWidth;}
-    int getTextureHeight() const                {return texHeight;}
-    VkDescriptorImageInfo descriptorInfo();
+    VkImageView textureImageView() const            {return textureImageView_;}
+    VkSampler textureSampler() const                {return textureSampler_;}
+    int getTextureWidth() const                     {return texWidth;}
+    int getTextureHeight() const                    {return texHeight;}
+    const VkDescriptorImageInfo& getDescriptorImageInfo() const {return descriptorImageInfo_;}
 
     static void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
     
@@ -32,21 +32,20 @@ private:
 
     JDevice& device_app;
 
-    int             texWidth;
-    int             texHeight;
-    int             texChannels;
-    uint32_t        mipLevels_;
-    VkImage         textureImage_;
-    VkImageView     textureImageView_;
-    VkDeviceMemory  textureImageMemory_;
-    VkSampler       textureSampler_;
+    int                         texWidth;
+    int                         texHeight;
+    int                         texChannels;
+    uint32_t                    mipLevels_;
+    VkImage                     textureImage_;
+    VkImageView                 textureImageView_;
+    VkDeviceMemory              textureImageMemory_;
+    VkSampler                   textureSampler_;
+    VkDescriptorImageInfo       descriptorImageInfo_;
 
     void createTextureImage(const std::string& path, JDevice& device_app);    
-    void createTextureImageView();
-
-    
+    void createTextureImageView();    
     void createTextureSampler() ;
-  
+    void createDescriptorInfo();
 
     void generateMipmaps(VkImage image, VkFormat imageFormat, 
         int32_t texWidth, int32_t texHeight, uint32_t mipLevels);

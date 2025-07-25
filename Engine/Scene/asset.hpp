@@ -3,8 +3,8 @@
 #include <memory>
 #include <unordered_map>
 #include <glm/gtc/matrix_transform.hpp>
-
-class JModel;
+#include "../VulkanCore/load_model.hpp"
+#include "../VulkanCore/material/PBRmaterial.hpp"
 
 namespace Scene{
 
@@ -43,6 +43,7 @@ public:
 
   // Optional pointer components
   std::shared_ptr<JModel> model{};
+  std::shared_ptr<JPBRMaterial> material{};
   
 
 private:

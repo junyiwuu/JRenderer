@@ -3,6 +3,8 @@
 #include <memory>
 #include "../VulkanCore/global.hpp"
 #include "../Scene/info.hpp"
+#include "../Scene/asset.hpp"
+
 
 class JPipeline;
 class JPipelineLayout;
@@ -15,6 +17,7 @@ class JModel;
 class JSwapchain;
 class JBuffer;
 struct SceneInfo;
+class JDescriptorAllocator;
 
 class RenderingSystem{
 
@@ -30,8 +33,7 @@ public:
 
     //commands
     void render(VkCommandBuffer commandBuffer, 
-                uint32_t currentFrame, 
-                SceneInfo& sceneInfo);
+                uint32_t currentFrame );
 
     //getter
     std::vector<std::unique_ptr<JBuffer>>& getUniformBufferObjs() {return uniformBuffer_objs;}
@@ -47,18 +49,16 @@ private:
 
 
     //descriptor
-    std::unique_ptr<JDescriptorPool> descriptorPool_obj;
+
     std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_glob;
     std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_asset;
 
     std::vector<VkDescriptorSet> descriptorSets_glob;
-    std::vector<VkDescriptorSet> descriptorSets_asset;
+    
 
     std::vector<std::unique_ptr<JBuffer>> uniformBuffer_objs;
 
-    //texture
-    std::unique_ptr<JTexture> vikingTexture_obj;
-    std::unique_ptr<JModel> vikingModel_obj;
+
 
     void createDescriptorResources();
     void createPipelineResources();
@@ -66,6 +66,7 @@ private:
 
 
 
+    std::shared_ptr<JDescriptorAllocator> descriptorAllocator_obj;
 
 
 
@@ -73,13 +74,18 @@ private:
 
 
 
+    std::unordered_map<std::string, std::shared_ptr<JModel>>        models_;
+    std::unordered_map<std::string, std::shared_ptr<JTexture>>      textures_;
+    std::unordered_map<std::string, std::shared_ptr<JPBRMaterial>>  materials_;
 
+    Scene::JAsset::Map sceneAssets;
 
+    void loadAssets();
 
-
-
-
-
+    // get the scene info, which including all assets
+    SceneInfo sceneInfo{
+        sceneAssets,
+    };
 
 
 

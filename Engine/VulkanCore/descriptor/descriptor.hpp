@@ -72,7 +72,7 @@ public:
 
     NO_COPY(JDescriptorSetLayout);
 
-    VkDescriptorSetLayout descriptorSetLayout() const   {return descriptorSetLayout_;}
+    const VkDescriptorSetLayout& descriptorSetLayout() const   {return descriptorSetLayout_;}
     uint32_t bindingsCount() const                      {return bindings_.size();}
 
 private:
@@ -92,7 +92,7 @@ private:
 class JDescriptorWriter{
 public:
 
-    JDescriptorWriter(JDescriptorSetLayout& descriptorSetLayout, JDescriptorPool& descriptorPool);
+    JDescriptorWriter(JDescriptorSetLayout& descriptorSetLayout, VkDescriptorPool descriptorPool);
     JDescriptorWriter(const JDescriptorWriter&) = delete;
     JDescriptorWriter& operator=(const JDescriptorWriter&) = delete;
 
@@ -107,14 +107,14 @@ public:
 private:
 
     JDescriptorSetLayout &descriptorSetLayout_;
-    JDescriptorPool& descriptorPool_;
+    VkDescriptorPool descriptorPool_;
     std::vector<VkWriteDescriptorSet> descriptorWrites_;
 
 
-    std::vector<VkDescriptorSet> descriptorSets_;
+    // std::vector<VkDescriptorSet> descriptorSets_;
 
-    void createDescriptorSets(VkDevice& device, JDescriptorPool& descriptorPool_obj,int frames,
-        std::vector<VkBuffer> uniformBuffers);
+    // void createDescriptorSets(VkDevice& device, JDescriptorPool& descriptorPool_obj,int frames,
+    //     std::vector<VkBuffer> uniformBuffers);
 
     
     };

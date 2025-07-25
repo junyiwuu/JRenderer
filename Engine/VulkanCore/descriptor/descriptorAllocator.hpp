@@ -13,50 +13,37 @@ class JDescriptorAllocator{
 
 public:
 
-    JDescriptorAllocator(JDevice& device);
+    JDescriptorAllocator( JDevice& device, 
+                const std::vector<VkDescriptorPoolSize>& p_poolSizes,
+                uint32_t initialSetsCount = 10);
     ~JDescriptorAllocator();
 
-    VkDescriptorSet allocateDescriptorSet(VkDescriptorSetLayout layout);
+    //function
+    VkDescriptorSet allocateDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
-
-
-
-
-
-
-
-
-
-
+    //getter
+    VkDescriptorPool getDescriptorPool() const {
+        printf("DEBUG: getDescriptorPool returning: %p\n", (void*)currentPool_);
+        return currentPool_;
+    }
 
 
 
 
 private:
-    JDevice& device_app;
+    JDevice&                            device_app;
 
 
-    VkDescriptorPool currentPool_;
-    std::vector<VkDescriptorPool> usedPool_;
+    VkDescriptorPool                    currentPool_;
+    std::vector<VkDescriptorPool>       usedPool_;
 
+    uint32_t                            maxSetsCounter_;
 
-
-
-
-
-    VkDescriptorPool createPool();
+    std::vector<VkDescriptorPoolSize>   p_poolSizes_{};  // {descriptor type, count}
 
 
 
-
-
-
-
-
-
-
-
-
+    VkDescriptorPool createPool(uint32_t maxSetsCounter_);
 
 
 

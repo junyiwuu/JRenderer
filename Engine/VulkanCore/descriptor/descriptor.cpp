@@ -122,10 +122,11 @@ std::unique_ptr<JDescriptorSetLayout>  JDescriptorSetLayout::Builder::build() co
 ////////////////////////////////////////////////////////////////////////////////////////
 // JDescriptorSets(JDescriptorSetLayout& descriptorSetLayout, JDescriptorPool& descriptorPool);
 
-JDescriptorWriter::JDescriptorWriter(JDescriptorSetLayout& descriptorSetLayout, JDescriptorPool& descriptorPool):
+JDescriptorWriter::JDescriptorWriter(JDescriptorSetLayout& descriptorSetLayout, VkDescriptorPool descriptorPool):
     descriptorSetLayout_{descriptorSetLayout}, descriptorPool_{descriptorPool}
 {
-
+    printf("DEBUG: JDescriptorWriter constructor received pool: %p\n", (void*)descriptorPool);
+    printf("DEBUG: JDescriptorWriter stored pool: %p\n", (void*)descriptorPool_);
 }
 
 // JDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
@@ -164,10 +165,17 @@ JDescriptorWriter &JDescriptorWriter::writeImage(uint32_t n_binding, VkDescripto
 
 
 bool JDescriptorWriter::build(VkDescriptorSet& set){
-    bool success = descriptorPool_.allocateDescriptorSet(
-                        descriptorSetLayout_.descriptorSetLayout(), 
-                        set);
-    if(!success) { return false;}
+
+    VkDescriptorSetAllocateInfo descriptorSetAllocInfo{};
+
+    descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocInfo.descriptorPool = descriptorPool_;
+    descriptorSetAllocInfo.pSetLayouts = &descriptorSetLayout_.descriptorSetLayout();
+    descriptorSetAllocInfo.descriptorSetCount = 1;
+
+    printf("DEBUG: JDescriptorWriter::build using pool: %p\n", (void*)descriptorPool_);
+    if (vkAllocateDescriptorSets(descriptorSetLayout_.device_app.device(), &descriptorSetAllocInfo, &set) != VK_SUCCESS){
+        return false;}
     overwrite(set); 
     return true;
 }
@@ -176,16 +184,9 @@ bool JDescriptorWriter::build(VkDescriptorSet& set){
 bool JDescriptorWriter::overwrite(VkDescriptorSet& set){
     for (auto& write: descriptorWrites_){
         write.dstSet = set;  }
-    vkUpdateDescriptorSets(descriptorPool_.device_app.device(), 
+    vkUpdateDescriptorSets(descriptorSetLayout_.device_app.device(), 
             descriptorWrites_.size(), descriptorWrites_.data(), 0, nullptr);
 }
-
-
-
-
-
-
-
 
 
 
