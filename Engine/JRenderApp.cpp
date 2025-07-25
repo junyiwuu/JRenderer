@@ -1,5 +1,5 @@
 #include "JRenderApp.hpp"
-#include "./VulkanCore/descriptor.hpp"
+#include "./VulkanCore/descriptor/descriptor.hpp"
 
 #include "./Renderers/RenderingSystem.hpp"
 #include "./VulkanCore/structs/uniforms.hpp"

@@ -1,6 +1,6 @@
 #include "RenderingSystem.hpp"
 #include "../VulkanCore/pipeline.hpp"
-#include "../VulkanCore/descriptor.hpp"
+#include "../VulkanCore/descriptor/descriptor.hpp"
 #include "../VulkanCore/buffer.hpp"
 #include "../VulkanCore/load_texture.hpp"
 #include "../VulkanCore/load_model.hpp"
@@ -37,8 +37,8 @@ void RenderingSystem::createDescriptorResources(){
         .build();
 
     descriptorSetLayout_asset = JDescriptorSetLayout::Builder{device_app}
-    .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-    .build();
+        .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+        .build();
 
 
     descriptorPool_obj  = JDescriptorPool::Builder{device_app}
@@ -133,19 +133,38 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
     //     };
 
 
-    VkDescriptorSet setToBind[2] = {
-        descriptorSets_glob[currentFrame],
-        descriptorSets_asset[0],  // [asset id]
+    // VkDescriptorSet setToBind[2] = {
+    //     descriptorSets_glob[currentFrame],
+    //     descriptorSets_asset[0],  // [asset id]
+    // };
+
+    // vkCmdBindDescriptorSets(commandBuffer, 
+    //             VK_PIPELINE_BIND_POINT_GRAPHICS, 
+    //             pipelinelayout_app->getPipelineLayout(),
+    //             0,
+    //             2,
+    //             setToBind, 
+    //             0, 
+    //             nullptr );
+
+
+
+
+
+    VkDescriptorSet glob_bind[1] = {
+        descriptorSets_glob[currentFrame]
     };
 
     vkCmdBindDescriptorSets(commandBuffer, 
                 VK_PIPELINE_BIND_POINT_GRAPHICS, 
                 pipelinelayout_app->getPipelineLayout(),
                 0,
-                2,
-                setToBind, 
+                1,
+                glob_bind, 
                 0, 
                 nullptr );
+
+
 
     // loop all collected assets, and all bind, also aplied push constant
     for (auto& asset : sceneInfo.assets )
@@ -159,6 +178,19 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
         vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
             VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
             sizeof(pushTransformation), &transformPushData );
+
+        VkDescriptorSet asset_bind[1] = {
+            descriptorSets_asset[0],
+        };
+    
+        vkCmdBindDescriptorSets(commandBuffer, 
+                    VK_PIPELINE_BIND_POINT_GRAPHICS, 
+                    pipelinelayout_app->getPipelineLayout(),
+                    1,
+                    1,
+                    asset_bind, 
+                    0, 
+                    nullptr );
             
         obj.model->bind(commandBuffer); //bind vertex buffer and index buffer
         obj.model->draw(commandBuffer);

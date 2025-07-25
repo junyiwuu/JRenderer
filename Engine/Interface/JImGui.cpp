@@ -1,6 +1,6 @@
 #include "JImGui.hpp"
 #include "../VulkanCore/device.hpp"
-#include "../VulkanCore/descriptor.hpp"
+#include "../VulkanCore/descriptor/descriptor.hpp"
 #include "../VulkanCore/swapchain.hpp"
 
 

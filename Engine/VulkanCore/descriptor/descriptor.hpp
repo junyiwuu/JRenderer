@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <memory>
 
-#include "buffer.hpp"
-#include "global.hpp"
+#include "../buffer.hpp"
+#include "../global.hpp"
 
 
 //descriptor ppol需要知道要用的descriptor sets的数量和descriptor有多少个。但是不涉及descriptor和descriptor set是否对的上
