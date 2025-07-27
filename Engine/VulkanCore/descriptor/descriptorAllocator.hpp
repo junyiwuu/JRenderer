@@ -33,7 +33,6 @@ public:
 private:
     JDevice&                            device_app;
 
-
     VkDescriptorPool                    currentPool_;
     std::vector<VkDescriptorPool>       usedPool_;
 

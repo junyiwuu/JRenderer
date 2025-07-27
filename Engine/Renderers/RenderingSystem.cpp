@@ -13,8 +13,6 @@
 RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
     device_app(device), swapchain_app(swapchain)
 {
-
-
     createDescriptorResources();
     createPipelineResources();
     loadAssets();
@@ -63,7 +61,7 @@ void RenderingSystem::createDescriptorResources(){
         //create uniform buffer
         auto buffer = std::make_unique<JBuffer>(
             device_app,
-            sizeof(UniformBufferObject),
+            sizeof(GlobalUbo),
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         buffer->map();
@@ -221,7 +219,7 @@ void RenderingSystem::loadAssets(){
     vikingHouse.material = materials_["viking_room_mat"];
     vikingHouse.transform.translation = {0.f, 0.f, 0.f};
     vikingHouse.transform.scale = {1.f, 1.f, 1.f};
-    vikingHouse.transform.rotation = {0.f, 0.f, 0.f};
+    vikingHouse.transform.rotation = {-1.0f, 0.f, 0.0f};
     sceneAssets.emplace(vikingHouse.getId(), std::move(vikingHouse));
 
 

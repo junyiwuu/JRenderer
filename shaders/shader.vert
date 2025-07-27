@@ -24,8 +24,8 @@ layout(location = 1) out vec2 fragTexCoord;
 
 
 layout(push_constant) uniform Push{
-    mat4 modelMatrix;
 
+    mat4 modelMatrix;
 }push;
 
 
@@ -37,3 +37,9 @@ void main() {
     fragColor = inColor;
     fragTexCoord =  inTexCoord;
 }
+
+
+
+
+
+

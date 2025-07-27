@@ -108,13 +108,13 @@ void JImGui::newFrame() {
     ImGui::NewFrame();
 
     // Create a simple demo window
-    static bool show_demo_window = true;
-    if (show_demo_window) {
-        ImGui::ShowDemoWindow(&show_demo_window);
-    }
+    // static bool show_demo_window = true;
+    // if (show_demo_window) {
+    //     ImGui::ShowDemoWindow(&show_demo_window);
+    // }
 
     //checkbox
-    ImGui::Begin("Render Settings");
+    ImGui::Begin("Render Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Checkbox("Cull backface",  &uiSettings.cullBackFace);
     ImGui::End();
 
@@ -122,14 +122,14 @@ void JImGui::newFrame() {
 
 
 
-    ImGui::Begin("Texture Viewer");
+    ImGui::Begin("Texture Viewer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Image(texID, ImVec2(texture_viewTest.getTextureWidth(), texture_viewTest.getTextureHeight()));
     ImGui::End();
 
 
 
     // Create a simple debug window
-    ImGui::Begin("Debug Info");
+    ImGui::Begin("Debug Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
