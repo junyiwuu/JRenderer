@@ -8,15 +8,15 @@
 #include "./Interface/keyboardController.hpp"
 
 static MouseState mouseState;
-//initiate camera positioner
-const glm::vec3 initialCamPos       = glm::vec3(0.0f, 2.f, -1.f);
-const glm::vec3 initialCamTarget    = glm::vec3(0.0f, 0.0f, 0.0f);
-static Scene::JCameraPositioner_firstPerson cameraPositioner(initialCamPos, initialCamTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
 
-JRenderApp::JRenderApp(){ 
+JRenderApp::JRenderApp()
+{ 
     MouseState mouseState{};
- }
+
+
+
+}
 
 
 JRenderApp::~JRenderApp(){  }
@@ -27,86 +27,63 @@ JRenderApp::~JRenderApp(){  }
 
 
 void JRenderApp::run(){
-
     //initiate resources
     RenderingSystem renderingSystem{device_app, renderer_app.getSwapchainApp()};
 
-    
-    
-    //starting viewpoint set up 
-    // auto viewPoint = Scene::JAsset::createAsset();
-    // viewPoint.transform.translation.z = -2.5f;
-
+        //initiate camera positioner
+    const glm::vec3 initialCamPos       = glm::vec3(0.0f, 0.0f, -2.0f);
+    const glm::vec3 initialCamTarget    = glm::vec3(0.0f, 0.0f, 0.0f);
+    Scene::JCameraPositioner_firstPerson cameraPositioner(
+            window_app,
+            initialCamPos, 
+            initialCamTarget, 
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            Scene::DragMode::None);
     //initiate camera
     Scene::JCamera camera(cameraPositioner);
-    
+
+    // Store camera positioner pointer for callbacks，存进去之后在callback的lambda可以用
+    glfwSetWindowUserPointer(window_app.getGLFWwindow(), &cameraPositioner);
+
+    // Mouse button callback - prioritize ImGui
+    glfwSetMouseButtonCallback(window_app.getGLFWwindow(), 
+    [](GLFWwindow* window, int button, int action, int mods){
+        auto* camera = static_cast<Scene::JCameraPositioner_firstPerson*>(glfwGetWindowUserPointer(window));
+
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        
+        // Handle ImGui input first
+        const ImGuiMouseButton_ imguiButton = (button == GLFW_MOUSE_BUTTON_LEFT)
+                ? ImGuiMouseButton_Left
+                : (button == GLFW_MOUSE_BUTTON_RIGHT ? ImGuiMouseButton_Right : ImGuiMouseButton_Middle);
+
+        ImGuiIO& io = ImGui::GetIO();
+        // io.MousePos = ImVec2((float)xpos, (float)ypos);
+        io.MouseDown[imguiButton] = action == GLFW_PRESS;
+
+        // Only handle camera input if ImGui doesn't want the mouse
+        // if (!io.WantCaptureMouse) {
+            camera->onMouseButton(button, action, xpos, ypos);
+        // }
+    });
+
+    glfwSetCursorPosCallback(window_app.getGLFWwindow(), [](GLFWwindow* window, double x, double y) {
+        auto* camera = static_cast<Scene::JCameraPositioner_firstPerson*>(glfwGetWindowUserPointer(window));
+        
+        // Update ImGui mouse position
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos = ImVec2((float)x, (float)y);
+        
+        // Only handle camera input if ImGui doesn't want the mouse
+        if (!io.WantCaptureMouse) {
+            camera->onCursorPos(x, y);
+        }
+    });
 
 
-    //initiate keyboard controller
-    KeyboardController cameraController{};
-
-    // mouse detection
-    //      cursor detection
-    glfwSetCursorPosCallback(window_app.getGLFWwindow(),    //只有当鼠标移动，才会执行lambda注册的callback，就是mousestae那两行
-            [](GLFWwindow* window, double x, double y){
-                int width, height;
-                glfwGetFramebufferSize(window, &width, &height);
-                mouseState.pos.x = static_cast<float>(x/width);
-                mouseState.pos.y = 1.f - static_cast<float>(y/height);
-
-                // ImGuiIO& io                 = ImGui::GetIO();
-                // io.MousePos                 = ImVec2(  (float)x , (float)y   );
-            });
-    //      button detection
-    glfwSetMouseButtonCallback(window_app.getGLFWwindow(),
-            [](GLFWwindow* window, int button, int action, int mods){
-                if(button == GLFW_MOUSE_BUTTON_LEFT){
-                    mouseState.pressedLeft = action == GLFW_PRESS; }
-                double xpos, ypos;
-                glfwGetCursorPos(window, &xpos, &ypos);
-
-                // ImGuiMouseButton_ imguiButton ;
-                // if(button==GLFW_MOUSE_BUTTON_LEFT){
-                //     imguiButton = ImGuiMouseButton_Left;
-                // }else if(button==GLFW_MOUSE_BUTTON_RIGHT){
-                //     imguiButton = ImGuiMouseButton_Right;
-                // }else{
-                //     imguiButton = ImGuiMouseButton_Middle;
-                // }
-
-                const ImGuiMouseButton_ imguiButton = (button == GLFW_MOUSE_BUTTON_LEFT)
-                                                ? ImGuiMouseButton_Left
-                                                : (button == GLFW_MOUSE_BUTTON_RIGHT ? ImGuiMouseButton_Right : ImGuiMouseButton_Middle);
 
 
-
-                ImGuiIO& io                 = ImGui::GetIO();
-                io.MousePos                 = ImVec2(  (float)xpos , (float)ypos   );
-                io.MouseDown[imguiButton]   = action == GLFW_PRESS;
-            });
-
-    glfwSetKeyCallback(window_app.getGLFWwindow(), [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        const bool pressed = action != GLFW_RELEASE;
-        if (key == GLFW_KEY_ESCAPE && pressed)
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        if (key == GLFW_KEY_W)
-            cameraPositioner.movement_.forward_ = pressed;
-        if (key == GLFW_KEY_S)
-            cameraPositioner.movement_.backward_ = pressed;
-        if (key == GLFW_KEY_A)
-            cameraPositioner.movement_.left_ = pressed;
-        if (key == GLFW_KEY_D)
-            cameraPositioner.movement_.right_ = pressed;
-        if (key == GLFW_KEY_1)
-            cameraPositioner.movement_.up_ = pressed;
-        if (key == GLFW_KEY_2)
-            cameraPositioner.movement_.down_ = pressed;
-        if (mods & GLFW_MOD_SHIFT)
-            cameraPositioner.movement_.fastSpeed_ = pressed;
-        if (key == GLFW_KEY_SPACE) {
-            cameraPositioner.lookAt(initialCamPos, initialCamTarget, glm::vec3(0.0f, 1.0f, 0.0f));
-            cameraPositioner.setSpeed(glm::vec3(0)); }
-        });
 
     //set up time
     double currentTime = glfwGetTime();
@@ -114,26 +91,19 @@ void JRenderApp::run(){
 
 
     while (!glfwWindowShouldClose(window_app.getGLFWwindow())) {
-        glfwPollEvents();
-        int width, height = 0; 
-        glfwGetFramebufferSize(window_app.getGLFWwindow(), &width, &height);
-        const float ratio = width / (float)height;
+        glfwPollEvents(); // 遍历所有的callback
         
-        cameraPositioner.update(deltaTime, mouseState.pos, mouseState.pressedLeft);
-
+        const float ratio = renderer_app.getSwapchainImageAspectRatio();
+        
         // get the new delta time
         double newTime  = glfwGetTime();
         deltaTime       = static_cast<float>(newTime - currentTime);
         currentTime     = newTime;        
-        //get camera's world position
-        const glm::vec4 cameraPos = glm::vec4(camera.getPosition(), 1.0f);
-        // build projection matrix
-        const glm::mat4 perspMatrix = glm::perspective(glm::radians(60.f), ratio, 0.1f, 1000.0f);
+
+        
+        // build projection and view matrices
+        const glm::mat4 perspMatrix = camera.getProjMatrix(ratio);
         const glm::mat4 viewMatrix = camera.getViewMatrix();
-
-       //  renderer_app.getSwapchainImageAspectRatio()
-
-
 
 
         // Start ImGui frame
@@ -144,8 +114,6 @@ void JRenderApp::run(){
         //if command buffer has something/working.. otherwise if it is return nullptr, will go else branch
         if(VkCommandBuffer commandBuffer = renderer_app.beginFrame()){
 
-
-
             auto currentFrame = renderer_app.getCurrentFrame();
 
             //--------- update uniform buffer------------
@@ -153,7 +121,7 @@ void JRenderApp::run(){
 
             GlobalUbo ubo{};
             ubo.projection = perspMatrix;
-            ubo.view = camera.getViewMatrix();
+            ubo.view = viewMatrix;
             // ubo.inverseView = camera.getInverseView();
             ubo.projection[1][1] *= -1;
 

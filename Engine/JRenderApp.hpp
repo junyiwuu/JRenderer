@@ -66,8 +66,6 @@ private:
   Renderer renderer_app{window_app, device_app};
 
   bool framebufferResized = false;
-    //initiate mouse state
-  
 
   void init();
 
