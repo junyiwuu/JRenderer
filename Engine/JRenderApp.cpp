@@ -124,6 +124,13 @@ void JRenderApp::run(){
             ubo.view = viewMatrix;
             // ubo.inverseView = camera.getInverseView();
             ubo.projection[1][1] *= -1;
+            
+            // Debug camera position
+            static int frameCount = 0;
+            if (frameCount++ % 60 == 0) { // Print every 60 frames
+                glm::vec3 pos = camera.getPosition();
+                printf("Camera pos: (%.2f, %.2f, %.2f)\n", pos.x, pos.y, pos.z);
+            }
 
 
             memcpy(renderingSystem.getUniformBufferObjs()[currentFrame]->getBufferMapped(), 

@@ -10,6 +10,7 @@ class JWindow;
 #include <glm/gtx/quaternion.hpp>
 
 
+
 namespace Scene{
 
 
@@ -43,7 +44,7 @@ public:
 
     inline void lookAt(const glm::vec3& pos, const glm::vec3& target, const glm::vec3& up){
         cameraPosition_     = pos;
-        cameraOrientation_  = glm::quat_cast(glm::lookAt(pos, target, up));
+        // cameraOrientation_  = glm::quat_cast(glm::lookAt(pos, target, up));
     }
     
     //setter
@@ -59,7 +60,8 @@ public:
 private:
     JWindow& window_app;
     glm::vec3 cameraPosition_               = glm::vec3( 0.0f, 0.0f, 0.0f);
-    glm::quat cameraOrientation_            = glm::quat(glm::vec3(0));         //glm::quat(euler angles) = identityQuat (1.0f, 0.0f, 0.0f, 0.0f)
+    glm::vec3  pivot_{0.0f};  
+    glm::vec3 upVector;
     //xyzw -> (0, 0, 0, 1)  quaternion
 
     glm::mat4 viewMatrix_{1.0f};
@@ -72,10 +74,11 @@ private:
     glm::vec2 dragStartMousePos2D_;
     glm::vec3 dragStartPos_;
     glm::quat dragStartOrient_;
-    glm::vec3  pivot_{0.0f};  
+    glm::vec3 dragStartSpherePos_;
+
     float     zoomStartDist_;  
 
-    glm::vec3 privot_;
+    
     float focalDistance_ = 2.0f;
 
     glm::vec3 up_                           = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -90,10 +93,16 @@ private:
     DragMode dragMode_        = DragMode::None;
 
     // --- 核心方法 ---
-    void pan  (const glm::vec2& d);
+    // void pan  (const glm::vec2& d);
     void orbit(const glm::vec2& d);
-    void zoom (const glm::vec2& d);
-    void rebuildViewMatrix();
+    // void zoom (const glm::vec2& d);
+    void updateViewMatrix();
+    glm::vec3  getViewDirection();
+    glm::vec3 getRightVector();
+    
+    // Arcball helper methods
+    glm::vec3 projectToSphere(float x, float y) const;
+    glm::quat rotationBetweenVectors(const glm::vec3& start, const glm::vec3& dest) const;
 
     // 射线生成 + 射线-平面求交
     void    updateRayFromMouse(double x, double y, glm::vec3& outOrig, glm::vec3& outDir) const;
