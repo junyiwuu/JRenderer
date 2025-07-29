@@ -22,7 +22,7 @@
 #include "../VulkanCore/shaderModule.hpp"
 #include "../VulkanCore/commandBuffer.hpp"
 #include "../VulkanCore/buffer.hpp"
-#include "../Interface/JImGui.hpp"
+
 #include "../VulkanCore/sync.hpp"
 #include "../VulkanCore/global.hpp"
 
@@ -47,7 +47,7 @@ public:
 
     //getter
     const JSwapchain& getSwapchainApp() const       {return *swapchain_app;}
-    JImGui& getImguiApp()                           {return *imgui_obj;}
+
     const uint32_t& getCurrentFrame() const         {return currentFrame;}
     float getSwapchainImageAspectRatio() const      {return swapchain_app->getAspectRatio();}
 
@@ -78,8 +78,7 @@ private:
     void init();
     void recreateSwapChain();
 
-    //imgui
-    std::unique_ptr<JImGui> imgui_obj;
+
 
 };
 

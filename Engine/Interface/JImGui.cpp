@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <iostream>
 
-JImGui::JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window )
+JImGui::JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window )
     : device_app(device), window_ptr(window), swapchain_app(swapchain), 
     texture_viewTest("../assets/cat.jpg", device)
 {

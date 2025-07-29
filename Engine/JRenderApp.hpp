@@ -36,6 +36,7 @@
 
 struct UniformBufferObject;
 class Renderer;
+class InteractiveSystem;
 
 
 
@@ -64,6 +65,7 @@ private:
   JWindow window_app{WIDTH, HEIGHT, "vulkan"};
   JDevice device_app{window_app};
   Renderer renderer_app{window_app, device_app};
+  
 
   bool framebufferResized = false;
 

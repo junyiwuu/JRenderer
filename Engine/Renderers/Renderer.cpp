@@ -49,7 +49,7 @@ void Renderer::init() {
         commandBuffers_app.push_back(std::move(commandBuffer_app));
     }
 
-    imgui_obj = std::make_unique<JImGui>(device_app, *swapchain_app, window_app.getGLFWwindow());
+   
 }
 
 

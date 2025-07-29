@@ -34,8 +34,10 @@ JCameraPositioner_Arcball::JCameraPositioner_Arcball (
 
     x_axis = glm::normalize(  glm::cross(z_axis, y_axis));
 
-    center_translation_ = glm::inverse(glm::translate(pivot_));
+    pivot_translation_ = glm::inverse(glm::translate(pivot_));
+
     translation_ = glm::translate(  glm::vec3(0.f, 0.f, -glm::length(dir))  );
+
     rotation_    = glm::normalize(      
                         glm::quat_cast(  
                             glm::transpose(  
@@ -53,8 +55,9 @@ glm::mat4 JCameraPositioner_Arcball::getProjMatrix(const float ratio) const {
 
 
 void JCameraPositioner_Arcball::updateCamera(){
-    camera_ = translation_ * glm::mat4_cast(rotation_) * center_translation_;
-    invCamera_ = glm::inverse(camera_);
+    // move pivot to world 0 -> rotate -> move (rotated scene) along camera's new view direction, do translation
+    viewMatrix_ = translation_ * glm::mat4_cast(rotation_) * pivot_translation_;
+    invViewMatrix_ = glm::inverse(viewMatrix_);
 }
 
 
@@ -64,11 +67,13 @@ void JCameraPositioner_Arcball::pan(const glm::vec2& deltaPos) {
     // glm::mat4 inv_proj = glm::inverse(projMatrix_);
 
     glm::vec4 dxy4 = glm::inverse(projMatrix_) * glm::vec4(deltaPos.x, deltaPos.y, 0, 1);
-    const float zoom_amount = std::abs(translation_[3][2]);
-    glm::vec4 motion(deltaPos.x*zoom_amount , deltaPos.y*zoom_amount, 0.f, 0.f);
-    motion = invCamera_ * motion;
 
-    center_translation_ = glm::translate(glm::vec3(motion)) * center_translation_;
+
+    const float zoom_amount = std::abs(translation_[3][2]) * pan_speed_;
+    glm::vec4 motion(deltaPos.x*zoom_amount , deltaPos.y*zoom_amount, 0.f, 0.f);
+    motion = invViewMatrix_ * motion;
+
+    pivot_translation_ = glm::translate(glm::vec3(motion)) * pivot_translation_;
     updateCamera();
 
 }
@@ -84,14 +89,31 @@ void JCameraPositioner_Arcball::orbit(glm::vec2 prev_mouse, glm::vec2 cur_mouse)
 
     rotation_ = mouse_curr_ball * mouse_prev_ball * rotation_;
     updateCamera();
-
-
 }
+
+
+
+glm::quat JCameraPositioner_Arcball::screen_to_arcball(const glm::vec2& mousePos){
+    const float dist = glm::dot(mousePos, mousePos) * orbit_speed_;
+
+    if(dist <= 1.f){
+        return glm::quat(0.0, mousePos.x, mousePos.y, std::sqrt(1.f - dist));
+    }else{
+        const glm::vec2 proj = glm::normalize(mousePos);
+        return glm::quat(0.f, proj.x, proj.y, 0.f);
+    }
+}
+
+
+
+
+
+
 
 // 缩放
 void JCameraPositioner_Arcball::zoom(glm::vec2 prev_mouse, glm::vec2 cur_mouse) {
     glm::vec2 deltaPos = cur_mouse - prev_mouse;
-    float zoom_amount = (deltaPos.y + deltaPos.x) * 0.5f;
+    float zoom_amount = (deltaPos.y + deltaPos.x) * zoom_speed_;
      
     const glm::vec3 motion(0.f , 0.f, zoom_amount);  //think in mat4 homogeneous matrix
     translation_ = glm::translate(motion) * translation_;
@@ -144,19 +166,6 @@ void JCameraPositioner_Arcball::onCursorPos(double x, double y) {
     }
     updateCamera();
     preMousePos_ = currMousePos_;
-}
-
-
-
-glm::quat JCameraPositioner_Arcball::screen_to_arcball(const glm::vec2& mousePos){
-    const float dist = glm::dot(mousePos, mousePos);
-
-    if(dist <= 1.f){
-        return glm::quat(0.0, mousePos.x, mousePos.y, std::sqrt(1.f - dist));
-    }else{
-        const glm::vec2 proj = glm::normalize(mousePos);
-        return glm::quat(0.f, proj.x, proj.y, 0.f);
-    }
 }
 
 

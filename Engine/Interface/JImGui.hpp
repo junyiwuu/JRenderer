@@ -24,7 +24,7 @@ struct UIsettings{
 
 class JImGui {
 public:
-    JImGui(JDevice& device, JSwapchain& swapchain, GLFWwindow* window);
+    JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window);
     ~JImGui();
 
     JImGui(const JImGui&) = delete;
@@ -39,7 +39,7 @@ public:
 
 private:
     JDevice& device_app;
-    JSwapchain& swapchain_app;
+    const JSwapchain& swapchain_app;
     GLFWwindow* window_ptr;
     
     std::unique_ptr<JDescriptorPool> descriptorPool_obj;
