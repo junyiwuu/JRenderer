@@ -26,91 +26,74 @@ public:
 enum class DragMode { None, Orbit, Pan, Zoom};
 
 //--------------------------
-class JCameraPositioner_firstPerson final : public JCameraPositioner{
+//arcball camera implementation reference from: https://github.com/Twinklebear/arcball-cpp/tree/master
+
+class JCameraPositioner_Arcball final : public JCameraPositioner{
 
 public:
-    JCameraPositioner_firstPerson() = default;
-    JCameraPositioner_firstPerson (JWindow& window,const glm::vec3& pos, const glm::vec3& target, const glm::vec3& up, const DragMode dragMode);
+    JCameraPositioner_Arcball() = default;
+    JCameraPositioner_Arcball (JWindow& window,const glm::vec3& pos, const glm::vec3& target, const glm::vec3& up, const DragMode dragMode);
 
+    // --- 核心方法 ---
+    void pan  (const glm::vec2& deltaPos);
+    void orbit(glm::vec2 prev_mouse, glm::vec2 cur_mouse);
+    void zoom (glm::vec2 prev_mouse, glm::vec2 cur_mouse);
+    
+    const glm::mat4& transform() const       {return camera_;}
+    const glm::mat4& invTransform() const    {return invCamera_;}
 
+    glm::vec3 eye() const {return glm::vec3{invCamera_*glm::vec4(0, 0, 0, 1)}  ;}  //in camera world, camera always at 0
+    glm::vec3 dir() const {return glm::normalize(  glm::vec3{invCamera_*glm::vec4{0, 0, -1, 0}})  ;}
+    // {0, 0, -1, 0} is the camera's forward direction
+    glm::vec3 up() const {return glm::normalize(   glm::vec3{invCamera_*glm::vec4{0, -1, 0, 0}})   ;}
+    
     //getter
-    virtual glm::mat4 getViewMatrix() const override {return viewMatrix_;}
+    virtual glm::mat4 getViewMatrix() const override {return camera_;}
     virtual glm::mat4 getProjMatrix(const float ratio) const override;
-    virtual glm::vec3 getPosition() const override        {return cameraPosition_;}
-
+    virtual glm::vec3 getPosition() const override        {return  eye();}    
+    
     void onMouseButton(int button, int action, double x, double y);
     void onCursorPos (double x, double y);
     void recordDragStart(double x, double y);
-
-    inline void lookAt(const glm::vec3& pos, const glm::vec3& target, const glm::vec3& up){
-        cameraPosition_     = pos;
-        // cameraOrientation_  = glm::quat_cast(glm::lookAt(pos, target, up));
-    }
     
-    //setter
-    void setCameraPosition(const glm::vec3& pos)        {cameraPosition_ = pos;}
-    void setSpeed(const glm::vec3& speed)               { moveSpeed_ = speed ;}
-    void setUPvector(const glm::vec3& up);
-    void resetMousePosition(const glm::vec3& newPos)    {mousePos_ = newPos;}
+    
+    ~JCameraPositioner_Arcball(){};
     
 
+    void updateCamera();
+    glm::quat rotation_;
+    glm::mat4 camera_; //full camera transformation
+    glm::mat4 invCamera_; // inverse camera to find camera position, world space rotation exis
 
-    ~JCameraPositioner_firstPerson(){};
+    glm::mat4 center_translation_; // inverse translation that moves your chosen pivot to the world origin
+    //brings the pivot point to the origin
 
-private:
+    glm::mat4 translation_;   // how far the camera is offset from the arcball pivot
+
+
     JWindow& window_app;
-    glm::vec3 cameraPosition_               = glm::vec3( 0.0f, 0.0f, 0.0f);
+    int   winWidth_, winHeight_;
+
+    glm::vec3 eye_             ;
     glm::vec3  pivot_{0.0f};  
-    glm::vec3 upVector;
-    //xyzw -> (0, 0, 0, 1)  quaternion
 
     glm::mat4 viewMatrix_{1.0f};
     glm::mat4 projMatrix_{1.0f};
 
-    bool orbitDragging_ = false;
-    glm::vec2 mousePos_                     = glm::vec2(0);
-    glm::vec3 moveSpeed_                   = glm::vec3(0.0f);
-
+    DragMode dragMode_        = DragMode::None;
+       
+    glm::vec3 up_    ;
+    
+    bool ifFirstPos_ = true;
+    glm::vec2 preMousePos_;
+    glm::vec2 currMousePos_;
+    
     glm::vec2 dragStartMousePos2D_;
     glm::vec3 dragStartPos_;
-    glm::quat dragStartOrient_;
-    glm::vec3 dragStartSpherePos_;
 
-    float     zoomStartDist_;  
+    glm::quat screen_to_arcball(const glm::vec2& pos);
 
-    
-    float focalDistance_ = 2.0f;
 
-    glm::vec3 up_                           = glm::vec3(0.0f, 0.0f, 1.0f);
-
-    // --- 参数 ---
-    int   winWidth_, winHeight_;
-    float      panSpeed_   = 0.001f;
-    float      yawSpeed_   = 0.003f;
-    float      pitchSpeed_ = 0.003f;
-    float      zoomSpeed_  = 0.01f;
-
-    DragMode dragMode_        = DragMode::None;
-
-    // --- 核心方法 ---
-    // void pan  (const glm::vec2& d);
-    void orbit(const glm::vec2& d);
-    // void zoom (const glm::vec2& d);
-    void updateViewMatrix();
-    glm::vec3  getViewDirection();
-    glm::vec3 getRightVector();
-    
-    // Arcball helper methods
-    glm::vec3 projectToSphere(float x, float y) const;
-    glm::quat rotationBetweenVectors(const glm::vec3& start, const glm::vec3& dest) const;
-
-    // 射线生成 + 射线-平面求交
-    void    updateRayFromMouse(double x, double y, glm::vec3& outOrig, glm::vec3& outDir) const;
-    bool    intersectRayPlane(const glm::vec3& orig,
-                              const glm::vec3& dir,
-                              const glm::vec3& planePoint,
-                              const glm::vec3& planeNormal,
-                              glm::vec3& outPoint) const;
 };
 
 

@@ -33,7 +33,7 @@ void JRenderApp::run(){
         //initiate camera positioner
     const glm::vec3 initialCamPos       = glm::vec3(0.0f, 0.0f, -2.0f);
     const glm::vec3 initialCamTarget    = glm::vec3(0.0f, 0.0f, 0.0f);
-    Scene::JCameraPositioner_firstPerson cameraPositioner(
+    Scene::JCameraPositioner_Arcball cameraPositioner(
             window_app,
             initialCamPos, 
             initialCamTarget, 
@@ -48,7 +48,7 @@ void JRenderApp::run(){
     // Mouse button callback - prioritize ImGui
     glfwSetMouseButtonCallback(window_app.getGLFWwindow(), 
     [](GLFWwindow* window, int button, int action, int mods){
-        auto* camera = static_cast<Scene::JCameraPositioner_firstPerson*>(glfwGetWindowUserPointer(window));
+        auto* camera = static_cast<Scene::JCameraPositioner_Arcball*>(glfwGetWindowUserPointer(window));
 
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
@@ -69,7 +69,7 @@ void JRenderApp::run(){
     });
 
     glfwSetCursorPosCallback(window_app.getGLFWwindow(), [](GLFWwindow* window, double x, double y) {
-        auto* camera = static_cast<Scene::JCameraPositioner_firstPerson*>(glfwGetWindowUserPointer(window));
+        auto* camera = static_cast<Scene::JCameraPositioner_Arcball*>(glfwGetWindowUserPointer(window));
         
         // Update ImGui mouse position
         ImGuiIO& io = ImGui::GetIO();

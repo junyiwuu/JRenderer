@@ -219,7 +219,7 @@ void RenderingSystem::loadAssets(){
     vikingHouse.material = materials_["viking_room_mat"];
     vikingHouse.transform.translation = {0.f, 0.f, 0.f};
     vikingHouse.transform.scale = {1.f, 1.f, 1.f};
-    vikingHouse.transform.rotation = {-1.0f, 0.f, 0.0f};
+    vikingHouse.transform.rotation = {-0.0f, 0.f, 0.0f};
     sceneAssets.emplace(vikingHouse.getId(), std::move(vikingHouse));
 
 
