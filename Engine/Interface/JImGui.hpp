@@ -9,22 +9,22 @@
 #include "imgui_impl_vulkan.h"
 #include "../VulkanCore/global.hpp"
 #include "../VulkanCore/material/load_texture.hpp"
+#include "uiSettings.hpp"
+
 class JDevice;
 class JSwapchain;
 class JDescriptorPool;
 
 
 
-struct UIsettings{
-    bool cullBackFace = false;
 
-};
 // extern UIsettings uiSettings;
 
 
 class JImGui {
 public:
-    JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window);
+    JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window, 
+            UI::UISettings& uiSettings);
     ~JImGui();
 
     JImGui(const JImGui&) = delete;
@@ -41,6 +41,7 @@ private:
     JDevice& device_app;
     const JSwapchain& swapchain_app;
     GLFWwindow* window_ptr;
+    UI::UISettings& uiSettings;
     
     std::unique_ptr<JDescriptorPool> descriptorPool_obj;
 
@@ -49,7 +50,7 @@ private:
 
     static void checkVkResult(VkResult err);
 
-    UIsettings uiSettings;
+
 
 
     JTexture texture_viewTest;

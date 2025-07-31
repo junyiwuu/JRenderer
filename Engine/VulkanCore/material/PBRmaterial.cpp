@@ -66,7 +66,7 @@ void JPBRMaterial::bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipeline
     vkCmdBindDescriptorSets(commandBuffer, 
                 VK_PIPELINE_BIND_POINT_GRAPHICS, 
                 pipelineLayout,
-                1, /* firstSet */
+                2, /* set layout index */
                 1, /* descriptorSetCount */
                 asset_bind, /* *pDescriptorSets */
                 0, 

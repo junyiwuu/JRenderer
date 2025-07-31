@@ -7,11 +7,11 @@
 #include <stdexcept>
 #include <iostream>
 
-JImGui::JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window )
+JImGui::JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window , UI::UISettings& uiSettings)
     : device_app(device), window_ptr(window), swapchain_app(swapchain), 
-    texture_viewTest("../assets/cat.jpg", device)
+    texture_viewTest("../assets/cat.jpg", device), uiSettings(uiSettings)
 {
-    
+    // UIsettings::UserCam userCam
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -50,7 +50,7 @@ JImGui::JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window 
     init_info.CheckVkResultFn = checkVkResult;
     
     ImGui_ImplVulkan_Init(&init_info);
-    uiSettings = UIsettings();
+    // uiSettings = UIsettings();
 
     VkDescriptorSet texture_ds = ImGui_ImplVulkan_AddTexture(
         texture_viewTest.textureSampler(),
@@ -115,7 +115,16 @@ void JImGui::newFrame() {
 
     //checkbox
     ImGui::Begin("Render Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Checkbox("Cull backface",  &uiSettings.cullBackFace);
+    ImGui::RadioButton("Arcball Camera",  
+        reinterpret_cast<int*>(&uiSettings.userCam),
+        static_cast<int>(UI::UserCam::ArcballCamera));
+
+    ImGui::RadioButton("First Person Camera",  
+        reinterpret_cast<int*>(&uiSettings.userCam),
+        static_cast<int>(UI::UserCam::FirstPersonCamera));
+    
+    
+    
     ImGui::End();
 
     

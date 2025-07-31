@@ -40,11 +40,6 @@ void JPipeline:: createGraphicsPipeline(
     auto vertShaderCode = util::readFile(vertFilepath);
     auto fragShaderCode = util::readFile(fragFilepath);
 
-    // auto vertShaderModule_obj = std::make_unique<JShaderModule>(device_app.device(), vertShaderCode);
-    // VkShaderModule vertShaderModule = vertShaderModule_obj->getShaderModule();
-    // auto fragShaderModule_obj = std::make_unique<JShaderModule>(device_app.device(), fragShaderCode);
-    // VkShaderModule fragShaderModule = fragShaderModule_obj->getShaderModule();
-
     JShaderModule vertShaderModule_obj{device_app.device(), vertShaderCode};
     VkShaderModule vertShaderModule = vertShaderModule_obj.getShaderModule();
     JShaderModule fragShaderModule_obj{device_app.device(), fragShaderCode};
@@ -75,6 +70,7 @@ void JPipeline:: createGraphicsPipeline(
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
 
 
+//rendering info (dynamic rendering)
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
     VkFormat colorFormat = swapchain_app.getSwapChainImageFormat();
     renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -83,7 +79,7 @@ void JPipeline:: createGraphicsPipeline(
     renderingCreateInfo.depthAttachmentFormat = device_app.findDepthFormat();
     renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
     
-    
+// pipeline info --------------------------------------------------------------
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.pNext = &renderingCreateInfo;

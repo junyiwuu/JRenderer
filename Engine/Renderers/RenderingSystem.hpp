@@ -45,46 +45,41 @@ private:
     const JSwapchain& swapchain_app;
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
+    std::unique_ptr<JPipeline> pipeline_skybox_app;
     std::unique_ptr<JPipelineLayout> pipelinelayout_app;
 
 
     //descriptor
 
     std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_glob;
+    std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_glob_static;
     std::unique_ptr<JDescriptorSetLayout> descriptorSetLayout_asset;
 
     std::vector<VkDescriptorSet> descriptorSets_glob;
-    
+    std::vector<VkDescriptorSet> descriptorSets_glob_static;
 
     std::vector<std::unique_ptr<JBuffer>> uniformBuffer_objs;
-
-
 
     void createDescriptorResources();
     void createPipelineResources();
     
-
-
-
     std::shared_ptr<JDescriptorAllocator> descriptorAllocator_obj;
-
-
-
-
-
-
 
     std::unordered_map<std::string, std::shared_ptr<JModel>>        models_;
     std::unordered_map<std::string, std::shared_ptr<JTexture>>      textures_;
     std::unordered_map<std::string, std::shared_ptr<JPBRMaterial>>  materials_;
 
+
     Scene::JAsset::Map sceneAssets;
+    Scene::JEnvMap::Map sceneEnvMap;
 
     void loadAssets();
+    void loadEnvMaps();
 
     // get the scene info, which including all assets
     SceneInfo sceneInfo{
         sceneAssets,
+        sceneEnvMap,
     };
 
 

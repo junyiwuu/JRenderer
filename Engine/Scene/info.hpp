@@ -9,6 +9,7 @@ struct SceneInfo {
 
     // LveCamera &camera;
     Scene::JAsset::Map &assets;
+    Scene::JEnvMap::Map &envMaps;
   };
 
 

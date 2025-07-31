@@ -4,6 +4,8 @@
 
 
 #include "../utility.hpp"
+#include "bitmap.hpp"
+
 
 
 class JDevice;
@@ -14,9 +16,9 @@ class JDevice;
 class JTexture{
 
 public:
-
+    
     JTexture(const std::string& path, JDevice& device);
-    ~JTexture();
+    virtual ~JTexture();
     
     VkImageView textureImageView() const            {return textureImageView_;}
     VkSampler textureSampler() const                {return textureSampler_;}
@@ -26,9 +28,12 @@ public:
 
     static void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
     
-
-
 private:
+    void createTextureImage(const std::string& path, JDevice& device_app);    
+    void createTextureImageView();   
+    void createTextureSampler() ;
+
+protected:
 
     JDevice& device_app;
 
@@ -42,19 +47,68 @@ private:
     VkSampler                   textureSampler_;
     VkDescriptorImageInfo       descriptorImageInfo_;
 
-    void createTextureImage(const std::string& path, JDevice& device_app);    
-    void createTextureImageView();    
-    void createTextureSampler() ;
+ 
     void createDescriptorInfo();
-
     void generateMipmaps(VkImage image, VkFormat imageFormat, 
         int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+
+
+protected:
+    // protected constructor for child class
+    JTexture(JDevice& device)
+      : device_app(device),
+        texWidth(0), texHeight(0), texChannels(0),
+        mipLevels_(0),
+        textureImage_(VK_NULL_HANDLE),
+        textureImageView_(VK_NULL_HANDLE),
+        textureImageMemory_(VK_NULL_HANDLE),
+        textureSampler_(VK_NULL_HANDLE)
+    {}
+
+};
+
+//---------------------------------------------------------
+
+class JCubemap: public JTexture{
+public:
+    JCubemap(const std::string& path, JDevice& device);
+    ~JCubemap() override;
+
+private:
+    JBitmap cubemap_;
+
+    void createCubemapImage(const std::string& path, JDevice& device);
+    void createCubemapImageView();
+    void createCubemapSampler();
+
 
 };
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------
 struct SamplerCreateInfoBuilder{
     VkSamplerCreateInfo samplerInfo{};
     SamplerCreateInfoBuilder(){
@@ -87,6 +141,10 @@ struct SamplerCreateInfoBuilder{
         samplerInfo.borderColor = _color; return *this; }
     SamplerCreateInfoBuilder& mipmapMode(VkSamplerMipmapMode _mipmapMode){
         samplerInfo.mipmapMode = _mipmapMode; return *this; } 
+    SamplerCreateInfoBuilder& maxLod(float _maxLod){
+        samplerInfo.maxLod = _maxLod; return *this; } 
+    SamplerCreateInfoBuilder& compareOp(VkCompareOp _compareOp){
+        samplerInfo.maxLod = _compareOp; return *this; } 
 
     VkSamplerCreateInfo getInfo() const {return samplerInfo;}
 };

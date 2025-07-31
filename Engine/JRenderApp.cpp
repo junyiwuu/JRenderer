@@ -39,10 +39,11 @@ void JRenderApp::run(){
         glfwPollEvents(); // 遍历所有的callback
         
         const float ratio = renderer_app.getSwapchainImageAspectRatio();
+        // std::cout << "DEBUG:: current ratio" << ratio <<std::endl;
                 
         // build projection and view matrices
-        const glm::mat4 perspMatrix = interactiveSystem.getArcballCamera().getProjMatrix(ratio);;
-        const glm::mat4 viewMatrix = interactiveSystem.getArcballCamera().getViewMatrix();
+        const glm::mat4 perspMatrix = interactiveSystem.getProjMatrix(ratio);;
+        const glm::mat4 viewMatrix = interactiveSystem.getViewMatrix();
 
 
         // Start ImGui frame

@@ -224,7 +224,9 @@ struct ImageCreateInfoBuilder{
         imageInfo.initialLayout = _initialLayout; return *this; }
     ImageCreateInfoBuilder& format(VkFormat _format){
         imageInfo.format = _format; return *this; }
-        
+    ImageCreateInfoBuilder& flags(VkImageCreateFlags _flags){
+        imageInfo.flags = _flags; return *this; }
+
     VkImageCreateInfo getInfo() const {return imageInfo;}
 
 

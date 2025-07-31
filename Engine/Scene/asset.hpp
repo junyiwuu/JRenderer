@@ -47,17 +47,39 @@ public:
   
 
 private:
-
-
     JAsset(id_t objId) : id{objId} {}
-
     id_t id;
 
 
-
-
-
 };
+
+
+class JEnvMap{
+  public:
+  
+      using id_t = unsigned int;
+      using Map = std::unordered_map<id_t, JEnvMap>;
+  
+      static JEnvMap createEnvMap() {
+          static id_t currentId = 0;
+          return JEnvMap{currentId++};
+        }
+  
+    id_t getId() { return id; }
+  
+    glm::vec3 color{};
+    TransformComponent transform{};
+  
+    // Optional pointer components
+    std::shared_ptr<JTexture> texture{};
+    
+  private:
+      JEnvMap(id_t objId) : id{objId} {}
+      id_t id; 
+  };
+
+
+
 
 
 

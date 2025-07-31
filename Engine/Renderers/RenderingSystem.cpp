@@ -16,6 +16,7 @@ RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
     createDescriptorResources();
     createPipelineResources();
     loadAssets();
+    // loadEnvMaps();  // Re-enabled with minimal version
 }
 
 
@@ -42,10 +43,20 @@ void RenderingSystem::createDescriptorResources(){
 
 
     //create descriptor set layout
+    /*  global (change every frame)
+        0: uniform buffer  */
     descriptorSetLayout_glob = JDescriptorSetLayout::Builder{device_app}
-        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)    
         .build();
 
+    /*  global (static)
+        0: cubemap  */
+    descriptorSetLayout_glob_static = JDescriptorSetLayout::Builder{device_app}
+        .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1) 
+        .build();
+
+    /*  PBR material
+        0: albedo  */
     descriptorSetLayout_asset = JDescriptorSetLayout::Builder{device_app}
         .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
         .build();
@@ -81,6 +92,8 @@ void RenderingSystem::createDescriptorResources(){
 
 
 void RenderingSystem::createPipelineResources(){
+
+    //
     PipelineConfigInfo pipelineConfig{};
     JPipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
@@ -95,15 +108,33 @@ void RenderingSystem::createPipelineResources(){
 
     VkDescriptorSetLayout setLayouts[] = {
                 descriptorSetLayout_glob->descriptorSetLayout(), 
+                descriptorSetLayout_glob_static->descriptorSetLayout(),
                 descriptorSetLayout_asset->descriptorSetLayout()};
+
     pipelinelayout_app = JPipelineLayout::Builder{device_app}
-                        .setDescriptorSetLayout(2, setLayouts)
+                        .setDescriptorSetLayout(3, setLayouts)
                         .setPushConstRanges(1, &pushConstanRange)
                         .build();
 
     pipeline_app = std::make_unique<JPipeline>(device_app, swapchain_app,
                     "../shaders/shader.vert.spv", "../shaders/shader.frag.spv",
                     pipelinelayout_app->getPipelineLayout(), pipelineConfig);
+
+
+
+    //skybox pipeline
+    PipelineConfigInfo pipelineConfig_skybox{};
+    JPipeline::defaultPipelineConfigInfo(pipelineConfig_skybox);
+    pipelineConfig_skybox.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;  // Disable culling completely
+    pipelineConfig_skybox.depthStencilInfo.depthWriteEnable = VK_FALSE;  // Don't write to depth buffer
+    pipelineConfig_skybox.depthStencilInfo.depthTestEnable = VK_FALSE;  // Disable depth test completely for debugging
+    pipelineConfig_skybox.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;  // Allow drawing at max depth
+    pipelineConfig_skybox.multisampleInfo.rasterizationSamples = device_app.msaaSamples();
+
+    pipeline_skybox_app = std::make_unique<JPipeline>(device_app, swapchain_app,
+                    "../shaders/skybox.vert.spv", "../shaders/skybox.frag.spv",
+                    pipelinelayout_app->getPipelineLayout(), pipelineConfig_skybox);
+
 
 
 }
@@ -113,36 +144,54 @@ void RenderingSystem::createPipelineResources(){
 void RenderingSystem::render(VkCommandBuffer commandBuffer, 
                                 uint32_t currentFrame ){
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
-  
-    
+    // // Render skybox FIRST (for debugging render order)
+    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_skybox_app->getGraphicPipeline());
 
-    // for (int i = 0; i < numAssets; ++i) {
-    //     // 先把本帧的全局 UBO 和 第 i 个 asset 的贴图 绑定到 set 0/1
-    //     VkDescriptorSet setsToBind[2] = {
-    //         globalSet,               // layout(set=0,binding=0)
-    //         descriptorSets_asset[i]  // layout(set=1,binding=1)
-    //     };
-
-
-    // VkDescriptorSet setToBind[2] = {
-    //     descriptorSets_glob[currentFrame],
-    //     descriptorSets_asset[0],  // [asset id]
+    // // Bind global descriptors for skybox (UBO)
+    // VkDescriptorSet glob_bind_skybox_first[1] = {
+    //     descriptorSets_glob[currentFrame]
     // };
 
     // vkCmdBindDescriptorSets(commandBuffer, 
     //             VK_PIPELINE_BIND_POINT_GRAPHICS, 
     //             pipelinelayout_app->getPipelineLayout(),
-    //             0,
-    //             2,
-    //             setToBind, 
+    //             0,/* firstSet */
+    //             1, /* descriptorSetCount */
+    //             glob_bind_skybox_first, /* *pDescriptorSets */
     //             0, 
     //             nullptr );
 
+    // // Bind static descriptors (cubemap)
+    // if (!descriptorSets_glob_static.empty()) {
+    //     VkDescriptorSet glob_static_bind_first[1] = {
+    //         descriptorSets_glob_static[0]
+    //     };
 
+    //     vkCmdBindDescriptorSets(commandBuffer, 
+    //                 VK_PIPELINE_BIND_POINT_GRAPHICS, 
+    //                 pipelinelayout_app->getPipelineLayout(),
+    //                 1,/* firstSet */
+    //                 1, /* descriptorSetCount */
+    //                 glob_static_bind_first, /* *pDescriptorSets */
+    //                 0, 
+    //                 nullptr );
 
+    //     // Simple skybox draw
+    //     pushTransformation transformPushData{};
+    //     transformPushData.modelMatrix = glm::mat4(1.0f); // Identity matrix for skybox
 
+    //     vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
+    //         VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
+    //         sizeof(pushTransformation), &transformPushData );
 
+    //     std::cout << "DEBUG: Drawing skybox FIRST with texture" << std::endl;
+    //     vkCmdDraw(commandBuffer, 36, 1, 0, 0);
+    // }
+
+    // Now render regular objects
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
+
+    //global dynamic descriptors
     VkDescriptorSet glob_bind[1] = {
         descriptorSets_glob[currentFrame]
     };
@@ -150,16 +199,14 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
     vkCmdBindDescriptorSets(commandBuffer, 
                 VK_PIPELINE_BIND_POINT_GRAPHICS, 
                 pipelinelayout_app->getPipelineLayout(),
-                0,
-                1,
-                glob_bind, 
+                0,/* firstSet */
+                1, /* descriptorSetCount */
+                glob_bind, /* *pDescriptorSets */
                 0, 
                 nullptr );
 
-
-
     // loop all collected assets, and all bind, also aplied push constant
-    for (auto& asset : sceneInfo.assets )
+    for (auto& asset : sceneAssets )
     {   
         auto& obj = asset.second;
         if (obj.model == nullptr) { continue;}
@@ -171,26 +218,12 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
             VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
             sizeof(pushTransformation), &transformPushData );
 
-
-        // VkDescriptorSet asset_bind[1] = {
-        //     descriptorSets_asset[0],
-        // };
-    
-        // vkCmdBindDescriptorSets(commandBuffer, 
-        //             VK_PIPELINE_BIND_POINT_GRAPHICS, 
-        //             pipelinelayout_app->getPipelineLayout(),
-        //             1, /* firstSet */
-        //             1, /* descriptorSetCount */
-        //             asset_bind, /* *pDescriptorSets */
-        //             0, 
-        //             nullptr );
-
         obj.material->bind(commandBuffer, pipelinelayout_app->getPipelineLayout());
             
         obj.model->bind(commandBuffer); //bind vertex buffer and index buffer
-        obj.model->draw(commandBuffer);
+        obj.model->draw(commandBuffer); 
+    }
 
-}
 
 }
 
@@ -206,6 +239,7 @@ void RenderingSystem::loadAssets(){
     std::shared_ptr<JTexture> viking_texture = std::make_shared<JTexture>("../assets/viking_room.png", device_app);
     textures_["viking_room"] = viking_texture;
 
+    //allocate descriptor automatically in material class
     std::shared_ptr<JPBRMaterial> pbrMat = std::make_shared<JPBRMaterial>(device_app, 
                                                                         descriptorAllocator_obj, 
                                                                         descriptorSetLayout_asset->descriptorSetLayout());
@@ -219,18 +253,35 @@ void RenderingSystem::loadAssets(){
     vikingHouse.material = materials_["viking_room_mat"];
     vikingHouse.transform.translation = {0.f, 0.f, 0.f};
     vikingHouse.transform.scale = {1.f, 1.f, 1.f};
-    vikingHouse.transform.rotation = {-0.0f, 0.f, 0.0f};
+    vikingHouse.transform.rotation = {-glm::radians(90.f), 0.f, 0.0f};
     sceneAssets.emplace(vikingHouse.getId(), std::move(vikingHouse));
+
+}
+
+
+void RenderingSystem::loadEnvMaps(){
+    std::shared_ptr<JCubemap> skybox_texture = std::make_shared<JCubemap>("../assets/piazza_bologni_1k.hdr", device_app);
+    textures_["skybox"] = skybox_texture;
+
+    JDescriptorWriter writer_glob_static(*descriptorSetLayout_glob_static, descriptorAllocator_obj->getDescriptorPool());
+    auto imageInfo = textures_["skybox"]->getDescriptorImageInfo();
+    VkDescriptorSet desSet;
+    if(!writer_glob_static
+                    .writeImage(0, &imageInfo)
+                    .build(desSet)){ throw std::runtime_error("failed to allocate descriptor set for cubemap!");}
+    descriptorSets_glob_static.push_back(desSet);
+
+    auto skybox = Scene::JEnvMap::createEnvMap();
+    skybox.texture = textures_["skybox"];
+    skybox.transform.translation = {0.f, 0.f, 0.f};
+    skybox.transform.scale = {1.f, 1.f, 1.f};
+    skybox.transform.rotation = {-0.0f, 0.f, 0.0f};
+    sceneEnvMap.emplace(skybox.getId(), std::move(skybox));
 
 
 
 
 }
-
-
-
-
-
 
 
 

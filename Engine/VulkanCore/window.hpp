@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <map>
+#include <functional>
 
 
 class JWindow{

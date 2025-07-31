@@ -24,7 +24,9 @@ public:
     JImGui& getImguiApp()                           {return *imgui_obj;}
     Scene::JCamera& getArcballCamera() {return camera_Arcball;}
     
-    
+    const glm::mat4 getProjMatrix(float ratio);
+    const glm::mat4 getViewMatrix();
+
     
     
 private:
@@ -34,9 +36,15 @@ private:
     
     Scene::JCameraPositioner_Arcball camera_Arcball_positioner;
     Scene::JCamera camera_Arcball;
+
+    Scene::JCameraPositioner_firstPerson camera_FPerson_positioner;
+    Scene::JCamera camera_FPerson;
     
     //imgui
     std::unique_ptr<JImGui> imgui_obj;
+
+
+    std::shared_ptr<UI::UISettings> uiSettings;
 
 
 
