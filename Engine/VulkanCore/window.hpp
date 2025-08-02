@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "global.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <string>
@@ -22,6 +22,7 @@ public:
     GLFWwindow* getGLFWwindow() const {return window;}
     bool ifFramebufferResized() {return framebufferResized; }
     void resetWindowResizedFlag() {framebufferResized = false; }
+    void setFramebufferResized(bool resized) {framebufferResized = resized; }
 
     
 private:
@@ -35,6 +36,6 @@ private:
     uint32_t height;
     const char* title;
 
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+    // static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
     bool framebufferResized = false;
 };

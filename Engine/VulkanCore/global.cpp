@@ -1,5 +1,8 @@
 #include "global.hpp"
 #include "window.hpp"
+#include "../Renderers/interactiveSystem.hpp"
+#include <GLFW/glfw3.h>
+#include "imgui.h"
 
 namespace tools
 {
@@ -40,6 +43,75 @@ namespace tools
             return "UNKNOWN_ERROR";
         }
     }
+}
+
+
+
+
+
+
+
+// AppContext implementation
+void AppContext::registerAllCallbacks(GLFWwindow* window) {
+    // Set this AppContext as the user pointer
+    glfwSetWindowUserPointer(window, this);
+    
+    // Register all callbacks
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+    glfwSetKeyCallback(window, keyCallback);
+}
+
+void AppContext::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    auto* context = static_cast<AppContext*>(glfwGetWindowUserPointer(window));
+    if (context && context->window_) {
+        // Call the window's resize handling
+        context->window_->setFramebufferResized(true);
+    }
+}
+
+void AppContext::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    auto* context = static_cast<AppContext*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->interactiveSystem_) return;
+    
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    
+    // Handle ImGui input first
+    const ImGuiMouseButton_ imguiButton = (button == GLFW_MOUSE_BUTTON_LEFT)
+            ? ImGuiMouseButton_Left
+            : (button == GLFW_MOUSE_BUTTON_RIGHT ? ImGuiMouseButton_Right : ImGuiMouseButton_Middle);
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseDown[imguiButton] = action == GLFW_PRESS;
+
+    // Only handle camera input if ImGui doesn't want the mouse
+    if (!io.WantCaptureMouse) {
+        context->interactiveSystem_->handleMouseButton(button, action, xpos, ypos);
+    }
+}
+
+void AppContext::cursorPosCallback(GLFWwindow* window, double x, double y) {
+    auto* context = static_cast<AppContext*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->interactiveSystem_) return;
+    
+    // Update ImGui mouse position
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos = ImVec2((float)x, (float)y);
+    
+    // Only handle camera input if ImGui doesn't want the mouse
+    if (!io.WantCaptureMouse) {
+        context->interactiveSystem_->handleCursorPos(x, y, window);
+    }
+}
+
+void AppContext::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    auto* context = static_cast<AppContext*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->interactiveSystem_) return;
+    
+    // Delegate to InteractiveSystem
+    context->interactiveSystem_->handleKeyboard(key, scancode, action, mods);
 }
 
 

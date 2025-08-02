@@ -26,6 +26,11 @@ public:
     
     const glm::mat4 getProjMatrix(float ratio);
     const glm::mat4 getViewMatrix();
+    
+    // Delegate methods for AppContext callbacks
+    void handleMouseButton(int button, int action, double xpos, double ypos);
+    void handleCursorPos(double x, double y, GLFWwindow* window);
+    void handleKeyboard(int key, int scancode, int action, int mods);
 
     
     
@@ -34,10 +39,10 @@ private:
     JDevice& device_app;
     const JSwapchain& swapchain_app;
     
-    Scene::JCameraPositioner_Arcball camera_Arcball_positioner;
+    std::shared_ptr<Scene::JCameraPositioner_Arcball> camera_Arcball_positioner;
     Scene::JCamera camera_Arcball;
 
-    Scene::JCameraPositioner_firstPerson camera_FPerson_positioner;
+    std::shared_ptr<Scene::JCameraPositioner_firstPerson> camera_FPerson_positioner;
     Scene::JCamera camera_FPerson;
     
     //imgui

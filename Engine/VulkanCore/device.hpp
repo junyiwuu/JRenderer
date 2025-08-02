@@ -57,7 +57,7 @@ public:
     void transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image,  
         VkImageLayout oldLayout, VkImageLayout newLayout,
         VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, 
-        VkImageAspectFlags aspectMasek,  uint32_t mipLevels);
+        VkImageAspectFlags aspectMasek,  uint32_t mipLevels, uint32_t layerCount=1);
 
     VkSampleCountFlagBits msaaSamples() const {return msaaSamples_;}
 

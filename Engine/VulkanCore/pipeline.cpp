@@ -7,24 +7,62 @@
 #include "pipeline.hpp"
 #include "swapchain.hpp"
 
+PipelineConfigInfo::PipelineConfigInfo(){
+    resetVertexInputState();
+
+    viewportInfo = {};
+    inputAssemblyInfo = {};
+    rasterizationInfo = {};
+    multisampleInfo = {};
+    colorBlendInfo = {};
+    colorBlendAttachment = {};
+    depthStencilInfo = {};
+    dynamicStateInfo = {};
+
+
+
+}
+
+void PipelineConfigInfo::setVertexInputState(
+    std::span<const VkVertexInputBindingDescription> bindings,  
+    std::span<const VkVertexInputAttributeDescription> attributes  )
+{
+    bindingDescription_.assign(bindings.begin(), bindings.end());
+    attributeDescription_.assign(attributes.begin(), attributes.end());
+    
+    vertexInputStateInfo_  = {};
+    vertexInputStateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStateInfo_.vertexBindingDescriptionCount =  static_cast<uint32_t>(bindingDescription_.size());
+    vertexInputStateInfo_.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription_.size()); 
+    vertexInputStateInfo_.pVertexBindingDescriptions = bindingDescription_.data();
+    vertexInputStateInfo_.pVertexAttributeDescriptions = attributeDescription_.data();
+}
+
+void PipelineConfigInfo::resetVertexInputState(){
+    bindingDescription_.clear();
+    attributeDescription_.clear();
+    vertexInputStateInfo_  = {};
+    vertexInputStateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStateInfo_.vertexBindingDescriptionCount =  0;
+    vertexInputStateInfo_.vertexAttributeDescriptionCount = 0; 
+    vertexInputStateInfo_.pVertexBindingDescriptions =  nullptr;
+    vertexInputStateInfo_.pVertexAttributeDescriptions = nullptr;
+}
+
+
 
 
 
 JPipeline::JPipeline(
-    JDevice& device , const JSwapchain& swapchain,
-    const std::string& vertFilepath, const std::string& fragFilepath, 
-    const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo ) : 
-    
+    JDevice& device , const JSwapchain& swapchain, const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo ) : 
         device_app(device), swapchain_app(swapchain)
 {
-    createGraphicsPipeline(vertFilepath, fragFilepath,  pipelineLayout ,configInfo);
+    createGraphicsPipeline(pipelineLayout ,configInfo);
 
 }
 
 
 JPipeline::~JPipeline(){
-    
-
     vkDestroyPipeline(device_app.device(), graphicsPipeline_, nullptr);
 
 }
@@ -33,43 +71,9 @@ JPipeline::~JPipeline(){
 
 
 void JPipeline:: createGraphicsPipeline(
-        const std::string& vertFilepath, const std::string& fragFilepath, 
         const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo ) 
         
 {
-    auto vertShaderCode = util::readFile(vertFilepath);
-    auto fragShaderCode = util::readFile(fragFilepath);
-
-    JShaderModule vertShaderModule_obj{device_app.device(), vertShaderCode};
-    VkShaderModule vertShaderModule = vertShaderModule_obj.getShaderModule();
-    JShaderModule fragShaderModule_obj{device_app.device(), fragShaderCode};
-    VkShaderModule fragShaderModule = fragShaderModule_obj.getShaderModule();
-
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = vertShaderModule;
-    vertShaderStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = fragShaderModule;
-    fragShaderStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-
-    auto bindingDescription = Vertex::getBindingDescription();
-    auto attributeDescription = Vertex::getAttributeDescriptions();
-
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount =  1;
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size()); 
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
-
-
 //rendering info (dynamic rendering)
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
     VkFormat colorFormat = swapchain_app.getSwapChainImageFormat();
@@ -84,9 +88,9 @@ void JPipeline:: createGraphicsPipeline(
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.pNext = &renderingCreateInfo;
 
-    pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
-    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.stageCount = configInfo.stageCount;
+    pipelineInfo.pStages = configInfo.pStages;
+    pipelineInfo.pVertexInputState = &configInfo.vertexInputStateInfo_;
 
     pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
     pipelineInfo.pViewportState = &configInfo.viewportInfo;
@@ -113,6 +117,8 @@ void JPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo){
     configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
+    configInfo.inputAssemblyInfo.flags = 0;
+    configInfo.inputAssemblyInfo.pNext = nullptr;
     
     configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     configInfo.viewportInfo.viewportCount = 1;
@@ -149,6 +155,7 @@ void JPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo){
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags=0;
+    configInfo.dynamicStateInfo.pNext = nullptr;
 
     configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;

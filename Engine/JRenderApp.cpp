@@ -15,7 +15,13 @@ JRenderApp::JRenderApp()
 { 
     MouseState mouseState{};
 
-
+    renderingSystem_ = std::make_unique<RenderingSystem>(device_app, renderer_app.getSwapchainApp());
+    interactiveSystem_ = std::make_unique<InteractiveSystem>(window_app, device_app, renderer_app.getSwapchainApp());
+    
+    // Setup AppContext with all components
+    appContext_.setWindow(&window_app);
+    appContext_.setInteractiveSystem(interactiveSystem_.get());
+    appContext_.registerAllCallbacks(window_app.getGLFWwindow());
 
 }
 
@@ -29,9 +35,9 @@ JRenderApp::~JRenderApp(){  }
 
 void JRenderApp::run(){
     //initiate resources
-    RenderingSystem renderingSystem{device_app, renderer_app.getSwapchainApp()};
-    InteractiveSystem interactiveSystem(window_app, device_app, renderer_app.getSwapchainApp());
-    interactiveSystem.registerGlfwCallbacks();
+    // RenderingSystem renderingSystem{device_app, renderer_app.getSwapchainApp()};
+    
+
 
 
 
@@ -42,12 +48,12 @@ void JRenderApp::run(){
         // std::cout << "DEBUG:: current ratio" << ratio <<std::endl;
                 
         // build projection and view matrices
-        const glm::mat4 perspMatrix = interactiveSystem.getProjMatrix(ratio);;
-        const glm::mat4 viewMatrix = interactiveSystem.getViewMatrix();
+        const glm::mat4 perspMatrix = interactiveSystem_->getProjMatrix(ratio);;
+        const glm::mat4 viewMatrix = interactiveSystem_->getViewMatrix();
 
 
         // Start ImGui frame
-        interactiveSystem.getImguiApp().newFrame();
+        interactiveSystem_->getImguiApp().newFrame();
         
         
 
@@ -71,7 +77,7 @@ void JRenderApp::run(){
             // }
 
 
-            memcpy(renderingSystem.getUniformBufferObjs()[currentFrame]->getBufferMapped(), 
+            memcpy(renderingSystem_->getUniformBufferObjs()[currentFrame]->getBufferMapped(), 
                     &ubo, 
                     sizeof(ubo) );
             // ------------------------------------------------
@@ -79,9 +85,9 @@ void JRenderApp::run(){
 
 
             renderer_app.beginRender(commandBuffer);
-            renderingSystem.render(commandBuffer, renderer_app.getCurrentFrame());
+            renderingSystem_->render(commandBuffer, renderer_app.getCurrentFrame());
 
-            interactiveSystem.getImguiApp().render(commandBuffer);
+            interactiveSystem_->getImguiApp().render(commandBuffer);
 
             renderer_app.endRender(commandBuffer);
             renderer_app.endFrame();
@@ -95,7 +101,7 @@ void JRenderApp::run(){
         }
         
         // End ImGui frame
-        interactiveSystem.getImguiApp().endFrame();
+        interactiveSystem_->getImguiApp().endFrame();
 
 
     }

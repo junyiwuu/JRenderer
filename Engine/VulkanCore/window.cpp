@@ -20,14 +20,14 @@ void JWindow::initWindow(){
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    // glfwSetWindowUserPointer(window, this);
+    // glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-void JWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height){
-    auto app = reinterpret_cast<JWindow*>(glfwGetWindowUserPointer(window));
-    app->framebufferResized = true;
-}
+// void JWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height){
+//     auto app = reinterpret_cast<JWindow*>(glfwGetWindowUserPointer(window));
+//     app->framebufferResized = true;
+// }
 
 
 

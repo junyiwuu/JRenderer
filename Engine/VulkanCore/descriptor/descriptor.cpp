@@ -186,6 +186,7 @@ bool JDescriptorWriter::overwrite(VkDescriptorSet& set){
         write.dstSet = set;  }
     vkUpdateDescriptorSets(descriptorSetLayout_.device_app.device(), 
             descriptorWrites_.size(), descriptorWrites_.data(), 0, nullptr);
+    return true;
 }
 
 

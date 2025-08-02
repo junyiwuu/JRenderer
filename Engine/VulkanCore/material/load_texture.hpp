@@ -50,7 +50,7 @@ protected:
  
     void createDescriptorInfo();
     void generateMipmaps(VkImage image, VkFormat imageFormat, 
-        int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+        int32_t texWidth, int32_t texHeight, uint32_t mipLevels, uint32_t layerCount=1);
 
 
 protected:
@@ -80,7 +80,10 @@ private:
     void createCubemapImage(const std::string& path, JDevice& device);
     void createCubemapImageView();
     void createCubemapSampler();
-
+    void copyBufferToImage_multiple(VkCommandBuffer commandBuffer,
+        VkBuffer buffer, VkImage image, 
+        uint32_t imgWidth, uint32_t imgHeight, 
+        VkDeviceSize bufferOffset, uint32_t layers);
 
 };
 

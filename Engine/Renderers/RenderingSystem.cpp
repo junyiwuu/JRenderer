@@ -8,6 +8,7 @@
 #include "../VulkanCore/load_model.hpp"
 #include "../VulkanCore/structs/uniforms.hpp"
 #include "../VulkanCore/structs/pushConstants.hpp"
+#include "../VulkanCore/shaderModule.hpp"
 
 
 RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
@@ -16,7 +17,7 @@ RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
     createDescriptorResources();
     createPipelineResources();
     loadAssets();
-    // loadEnvMaps();  // Re-enabled with minimal version
+    loadEnvMaps();  
 }
 
 
@@ -92,13 +93,28 @@ void RenderingSystem::createDescriptorResources(){
 
 
 void RenderingSystem::createPipelineResources(){
-
+    //create shader stage
+    shaderStages_main = std::make_unique<JShaderStages>(
+        JShaderStages::Builder(device_app)
+                        .setVert("../shaders/shader.vert.spv")
+                        .setFrag( "../shaders/shader.frag.spv")
+                        .build());
     //
     PipelineConfigInfo pipelineConfig{};
     JPipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
     pipelineConfig.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
     pipelineConfig.multisampleInfo.rasterizationSamples = device_app.msaaSamples();
+    //input shader stage
+    auto& stages = shaderStages_main->getStageInfos();
+    pipelineConfig.pStages = stages.data();
+    pipelineConfig.stageCount = static_cast<uint32_t>(stages.size());
+
+    auto bindingDescription = Vertex::getBindingDescription();
+    auto attributeDescription = Vertex::getAttributeDescriptions();
+    pipelineConfig.setVertexInputState(
+            std::span{ &bindingDescription, 1}, 
+            std::span{attributeDescription}    );
 
     //for set up push constant
     VkPushConstantRange pushConstanRange{};
@@ -117,12 +133,18 @@ void RenderingSystem::createPipelineResources(){
                         .build();
 
     pipeline_app = std::make_unique<JPipeline>(device_app, swapchain_app,
-                    "../shaders/shader.vert.spv", "../shaders/shader.frag.spv",
                     pipelinelayout_app->getPipelineLayout(), pipelineConfig);
 
 
 
     //skybox pipeline
+
+    shaderStages_skybox = std::make_unique<JShaderStages>(
+        JShaderStages::Builder(device_app)
+        .setVert("../shaders/skybox.vert.spv")
+        .setFrag( "../shaders/skybox.frag.spv")
+        .build());
+
     PipelineConfigInfo pipelineConfig_skybox{};
     JPipeline::defaultPipelineConfigInfo(pipelineConfig_skybox);
     pipelineConfig_skybox.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;  // Disable culling completely
@@ -130,9 +152,12 @@ void RenderingSystem::createPipelineResources(){
     pipelineConfig_skybox.depthStencilInfo.depthTestEnable = VK_FALSE;  // Disable depth test completely for debugging
     pipelineConfig_skybox.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;  // Allow drawing at max depth
     pipelineConfig_skybox.multisampleInfo.rasterizationSamples = device_app.msaaSamples();
+    auto& stages_skybox = shaderStages_skybox->getStageInfos();
+    pipelineConfig_skybox.pStages = stages_skybox.data();
+    pipelineConfig_skybox.stageCount = static_cast<uint32_t>(stages_skybox.size());
+
 
     pipeline_skybox_app = std::make_unique<JPipeline>(device_app, swapchain_app,
-                    "../shaders/skybox.vert.spv", "../shaders/skybox.frag.spv",
                     pipelinelayout_app->getPipelineLayout(), pipelineConfig_skybox);
 
 
@@ -144,49 +169,48 @@ void RenderingSystem::createPipelineResources(){
 void RenderingSystem::render(VkCommandBuffer commandBuffer, 
                                 uint32_t currentFrame ){
 
-    // // Render skybox FIRST (for debugging render order)
-    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_skybox_app->getGraphicPipeline());
+    // Render skybox FIRST (for debugging render order)
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_skybox_app->getGraphicPipeline());
 
-    // // Bind global descriptors for skybox (UBO)
-    // VkDescriptorSet glob_bind_skybox_first[1] = {
-    //     descriptorSets_glob[currentFrame]
-    // };
+    // Bind global descriptors for skybox (UBO)
+    VkDescriptorSet glob_bind_skybox[1] = {
+        descriptorSets_glob[currentFrame]
+    };
 
-    // vkCmdBindDescriptorSets(commandBuffer, 
-    //             VK_PIPELINE_BIND_POINT_GRAPHICS, 
-    //             pipelinelayout_app->getPipelineLayout(),
-    //             0,/* firstSet */
-    //             1, /* descriptorSetCount */
-    //             glob_bind_skybox_first, /* *pDescriptorSets */
-    //             0, 
-    //             nullptr );
+    vkCmdBindDescriptorSets(commandBuffer, 
+                VK_PIPELINE_BIND_POINT_GRAPHICS, 
+                pipelinelayout_app->getPipelineLayout(),
+                0,/* firstSet */
+                1, /* descriptorSetCount */
+                glob_bind_skybox, /* *pDescriptorSets */
+                0, 
+                nullptr );
 
-    // // Bind static descriptors (cubemap)
-    // if (!descriptorSets_glob_static.empty()) {
-    //     VkDescriptorSet glob_static_bind_first[1] = {
-    //         descriptorSets_glob_static[0]
-    //     };
+    // Bind static descriptors (cubemap)
+    if (!descriptorSets_glob_static.empty()) {
+        VkDescriptorSet glob_static_bind_first[1] = {
+            descriptorSets_glob_static[0]
+        };
 
-    //     vkCmdBindDescriptorSets(commandBuffer, 
-    //                 VK_PIPELINE_BIND_POINT_GRAPHICS, 
-    //                 pipelinelayout_app->getPipelineLayout(),
-    //                 1,/* firstSet */
-    //                 1, /* descriptorSetCount */
-    //                 glob_static_bind_first, /* *pDescriptorSets */
-    //                 0, 
-    //                 nullptr );
+        vkCmdBindDescriptorSets(commandBuffer, 
+                    VK_PIPELINE_BIND_POINT_GRAPHICS, 
+                    pipelinelayout_app->getPipelineLayout(),
+                    1,/* firstSet */
+                    1, /* descriptorSetCount */
+                    glob_static_bind_first, /* *pDescriptorSets */
+                    0, 
+                    nullptr );
 
-    //     // Simple skybox draw
-    //     pushTransformation transformPushData{};
-    //     transformPushData.modelMatrix = glm::mat4(1.0f); // Identity matrix for skybox
+        // Simple skybox draw
+        pushTransformation transformPushData{};
+        transformPushData.modelMatrix = glm::mat4(1.0f); // Identity matrix for skybox
 
-    //     vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
-    //         VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
-    //         sizeof(pushTransformation), &transformPushData );
+        vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
+            VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
+            sizeof(pushTransformation), &transformPushData );
 
-    //     std::cout << "DEBUG: Drawing skybox FIRST with texture" << std::endl;
-    //     vkCmdDraw(commandBuffer, 36, 1, 0, 0);
-    // }
+        vkCmdDraw(commandBuffer, 36, 1, 0, 0);
+    }
 
     // Now render regular objects
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
@@ -277,7 +301,6 @@ void RenderingSystem::loadEnvMaps(){
     skybox.transform.scale = {1.f, 1.f, 1.f};
     skybox.transform.rotation = {-0.0f, 0.f, 0.0f};
     sceneEnvMap.emplace(skybox.getId(), std::move(skybox));
-
 
 
 

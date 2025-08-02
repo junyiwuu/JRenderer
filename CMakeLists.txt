@@ -7,6 +7,7 @@ set(CMAKE_BUILD_TYPE Debug)
 #specify the c++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 #inlcude directories for GLFW and vulkan
 find_package(Vulkan REQUIRED)
@@ -29,6 +30,10 @@ target_link_libraries(imgui PUBLIC
 
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,undefined")
+
 
 #link the required libraries
 #第一个参数是链接库的目标

@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.hpp>
 #include <vector>
 #include <memory>
+#include <span>
 
 #include "utility.hpp"
 class JDevice;
@@ -11,17 +12,18 @@ class JSwapchain;
 
 struct PipelineConfigInfo
 {
-    PipelineConfigInfo() = default;   
+    PipelineConfigInfo();   
     PipelineConfigInfo(const PipelineConfigInfo& ) = delete;
     PipelineConfigInfo& operator=(const PipelineConfigInfo) = delete;
 
-    VkPipelineViewportStateCreateInfo viewportInfo;
-    VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-    VkPipelineRasterizationStateCreateInfo rasterizationInfo;
-    VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-    VkPipelineColorBlendAttachmentState colorBlendAttachment;
-    VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+
+    VkPipelineViewportStateCreateInfo       viewportInfo;
+    VkPipelineInputAssemblyStateCreateInfo  inputAssemblyInfo;
+    VkPipelineRasterizationStateCreateInfo  rasterizationInfo;
+    VkPipelineMultisampleStateCreateInfo    multisampleInfo;
+    VkPipelineColorBlendStateCreateInfo     colorBlendInfo;
+    VkPipelineColorBlendAttachmentState     colorBlendAttachment;
+    VkPipelineDepthStencilStateCreateInfo   depthStencilInfo;
 
     std::vector<VkDynamicState> dynamicStateEnables;
     VkPipelineDynamicStateCreateInfo dynamicStateInfo;
@@ -30,13 +32,29 @@ struct PipelineConfigInfo
     VkRenderPass renderPass = nullptr;
     uint32_t subpass = 0;
 
+    //shader stage
+    VkPipelineShaderStageCreateInfo*        pStages;        //need a pointer here
+    uint32_t                                stageCount;
+
+    VkPipelineVertexInputStateCreateInfo            vertexInputStateInfo_;
+    void setVertexInputState(
+            std::span<const VkVertexInputBindingDescription> bindings,  //span require data need to be laid out contiguously in memory
+            std::span<const VkVertexInputAttributeDescription> attributes  );
+
+  private:
+    void resetVertexInputState();
+    //vertex input
+    std::vector<VkVertexInputBindingDescription>    bindingDescription_;  //lifetime issue
+    std::vector<VkVertexInputAttributeDescription>  attributeDescription_;
+    
 };
 
 
 class JPipeline{
 public:
+//do builder
+    
     JPipeline(JDevice& device , const JSwapchain& swapchain,
-        const std::string& vertFilepath, const std::string& fragFilepath, 
         const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo);
     ~JPipeline();
 
@@ -48,10 +66,10 @@ private:
     // VkDescriptorSetLayout& descriptorSetLayout;
     const JSwapchain& swapchain_app;
 
+    //some member
     VkPipeline graphicsPipeline_;
 
-    void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, 
-        const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo );
+    void createGraphicsPipeline( const VkPipelineLayout pipelineLayout, const PipelineConfigInfo& configInfo );
 };
 
 /////////////////////////////////////////////////////////////////

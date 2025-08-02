@@ -37,6 +37,7 @@
 struct UniformBufferObject;
 class Renderer;
 class InteractiveSystem;
+class RenderingSystem;
 
 
 
@@ -66,6 +67,10 @@ private:
   JDevice device_app{window_app};
   Renderer renderer_app{window_app, device_app};
   
+  std::unique_ptr<InteractiveSystem> interactiveSystem_;
+  std::unique_ptr<RenderingSystem> renderingSystem_;
+  
+  AppContext appContext_;
 
   bool framebufferResized = false;
 

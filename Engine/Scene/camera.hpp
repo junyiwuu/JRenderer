@@ -183,15 +183,12 @@ class JCamera final{
         glm::mat4 getViewMatrix() const     {return positioner_->getViewMatrix();}
         glm::vec3 getPosition() const       {return positioner_->getPosition();}
         glm::mat4 getProjMatrix(const float ratio) const {
-            std::cerr << "DEBUG: JCamera::getProjMatrix called, positioner_ = " << positioner_ << std::endl;
+            // std::cerr << "DEBUG: JCamera::getProjMatrix called, positioner_ = " << positioner_ << std::endl;
             assert (positioner_ && "positioner is null in getProjMatrix!");
-            if(!positioner_){
-                std::cerr << "ERROR: positioner_ is null!" << std::endl;
-                return glm::mat4{1.f};
-            }
-            std::cerr << "DEBUG: About to call positioner_->getProjMatrix()" << std::endl;
+            
+            // std::cerr << "DEBUG: About to call positioner_->getProjMatrix()" << std::endl;
             auto result = positioner_->getProjMatrix(ratio);
-            std::cerr << "DEBUG: positioner_->getProjMatrix() returned successfully" << std::endl;
+            // std::cerr << "DEBUG: positioner_->getProjMatrix() returned successfully" << std::endl;
             return result;
         }
         const JCameraPositioner* debug_getRawPositioner() const { return positioner_; }

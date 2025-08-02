@@ -18,6 +18,7 @@ class JSwapchain;
 class JBuffer;
 struct SceneInfo;
 class JDescriptorAllocator;
+class JShaderStages;
 
 class RenderingSystem{
 
@@ -47,6 +48,10 @@ private:
     std::unique_ptr<JPipeline> pipeline_app;
     std::unique_ptr<JPipeline> pipeline_skybox_app;
     std::unique_ptr<JPipelineLayout> pipelinelayout_app;
+    
+    //shader stages - must be kept alive for pipeline lifetime
+    std::unique_ptr<JShaderStages> shaderStages_main;
+    std::unique_ptr<JShaderStages> shaderStages_skybox;
 
 
     //descriptor

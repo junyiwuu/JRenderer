@@ -49,16 +49,16 @@ JCameraPositioner_Arcball::JCameraPositioner_Arcball (
 
 
 glm::mat4 JCameraPositioner_Arcball::getProjMatrix(const float ratio) const {
-    std::cerr << "DEBUG: Arcball getProjMatrix called with ratio: " << ratio << std::endl;
+    // std::cerr << "DEBUG: Arcball getProjMatrix called with ratio: " << ratio << std::endl;
     
     // Check for invalid ratio
     if (!std::isfinite(ratio) || ratio <= 0.0f) {
-        std::cerr << "ERROR: Invalid aspect ratio: " << ratio << std::endl;
+        // std::cerr << "ERROR: Invalid aspect ratio: " << ratio << std::endl;
         return glm::perspective(glm::radians(60.f), 1.0f, 0.1f, 1000.0f); // Fallback
     }
     
     auto result = glm::perspective(glm::radians(60.f), ratio, 0.1f, 1000.0f);
-    std::cerr << "DEBUG: Arcball getProjMatrix returning successfully" << std::endl;
+    // std::cerr << "DEBUG: Arcball getProjMatrix returning successfully" << std::endl;
     return result;
 }
 

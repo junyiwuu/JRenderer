@@ -67,16 +67,13 @@ void JTexture::createTextureImage(const std::string& path, JDevice& device_app) 
     device_app.transitionImageLayout(commandBuffer.getCommandBuffer() ,textureImage_,  
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,   VK_PIPELINE_STAGE_TRANSFER_BIT,
-        VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_);
+        VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, 1);
 
     copyBufferToImage(commandBuffer.getCommandBuffer(), stagingBuffer.buffer(), textureImage_, 
         static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    
+
     commandBuffer.endSingleTimeCommands(device_app.graphicsQueue());
 
-
-    // device_app.transitionImageLayout(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, 
-    //     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels_);
     generateMipmaps(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels_);
 
 }
@@ -134,7 +131,8 @@ void JTexture::createTextureSampler() {
 
 
  void JTexture::generateMipmaps(VkImage image, VkFormat imageFormat, 
-                      int32_t texWidth, int32_t texHeight, uint32_t mipLevels){
+                      int32_t texWidth, int32_t texHeight, 
+                      uint32_t mipLevels, uint32_t layerCount){
 
     VkFormatProperties formatProperties;
     vkGetPhysicalDeviceFormatProperties(device_app.physicalDevice(), imageFormat, &formatProperties);
@@ -151,7 +149,7 @@ void JTexture::createTextureSampler() {
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.layerCount = layerCount;
     barrier.subresourceRange.levelCount = 1;
 
     int32_t mipWidth = texWidth;
@@ -176,13 +174,13 @@ void JTexture::createTextureSampler() {
         blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         blit.srcSubresource.mipLevel = i - 1;
         blit.srcSubresource.baseArrayLayer = 0;
-        blit.srcSubresource.layerCount = 1;
+        blit.srcSubresource.layerCount = layerCount;
         blit.dstOffsets[0] = {0, 0, 0};
         blit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
         blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         blit.dstSubresource.mipLevel = i;
         blit.dstSubresource.baseArrayLayer = 0;
-        blit.dstSubresource.layerCount = 1;
+        blit.dstSubresource.layerCount = layerCount;
 
         vkCmdBlitImage(commandBuffer,
             image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -238,10 +236,10 @@ JCubemap::JCubemap(const std::string& path, JDevice& device):
 
 
 JCubemap::~JCubemap(){
-    vkDestroyImage(device_app.device(), textureImage_, nullptr);
-    vkFreeMemory(device_app.device(), textureImageMemory_, nullptr);
-    vkDestroySampler(device_app.device(), textureSampler_, nullptr);
-    vkDestroyImageView(device_app.device(), textureImageView_, nullptr);
+    // vkDestroyImage(device_app.device(), textureImage_, nullptr);
+    // vkFreeMemory(device_app.device(), textureImageMemory_, nullptr);
+    // vkDestroySampler(device_app.device(), textureSampler_, nullptr);
+    // vkDestroyImageView(device_app.device(), textureImageView_, nullptr);
 
 }
 
@@ -332,67 +330,24 @@ void JCubemap::createCubemapImage(const std::string& path, JDevice& device_app) 
     JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     commandBuffer.beginSingleTimeCommands();
 
-    // Transition all 6 cubemap faces manually since transitionImageLayout only handles layerCount=1
-    VkImageMemoryBarrier barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = textureImage_;
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = mipLevels_;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 6;  // All 6 cubemap faces
-    barrier.srcAccessMask = 0;
-    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    device_app.transitionImageLayout(commandBuffer.getCommandBuffer(), textureImage_,
+        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, 6);
 
-    vkCmdPipelineBarrier(commandBuffer.getCommandBuffer(),
-        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-        0, nullptr, 0, nullptr, 1, &barrier);
-
-    // need able to copy 6 times
-    // copyBufferToImage(commandBuffer.getCommandBuffer(), stagingBuffer.buffer(), textureImage_, 
-    //     static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-
-
-    std::array<VkBufferImageCopy, 6> regions{};
-    for (uint32_t i = 0; i < 6; ++i) {
-        regions[i].bufferOffset = faceSize * i;
-        regions[i].bufferRowLength = 0;
-        regions[i].bufferImageHeight = 0;
-        regions[i].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        regions[i].imageSubresource.mipLevel = 0;
-        regions[i].imageSubresource.baseArrayLayer = i; // 逐层
-        regions[i].imageSubresource.layerCount = 1;
-        regions[i].imageOffset = {0, 0, 0};
-        regions[i].imageExtent = { (uint32_t)texWidth, (uint32_t)texHeight, 1 };
-    }
     
-    vkCmdCopyBufferToImage(
-        commandBuffer.getCommandBuffer(),
-        stagingBuffer.buffer(),
-        textureImage_,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        static_cast<uint32_t>(regions.size()),
-        regions.data()
-    );
+    copyBufferToImage_multiple(commandBuffer.getCommandBuffer(), 
+        stagingBuffer.buffer(), textureImage_,
+        (uint32_t)texWidth, (uint32_t)texHeight,
+        faceSize, 6   );
 
-    // Transition to shader read-only layout
-    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+// no transition again, egerate mipmaps will transfer everything back
 
-    vkCmdPipelineBarrier(commandBuffer.getCommandBuffer(),
-        VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-        0, nullptr, 0, nullptr, 1, &barrier);
-    
+   
     commandBuffer.endSingleTimeCommands(device_app.graphicsQueue());
 
-    //generate mipmaps
-    // generateMipmaps(textureImage_, cubemap_.getVkFormat(), texWidth, texHeight, mipLevels_);
+    //generate mipmaps for cubemap (6 layers)
+    generateMipmaps(textureImage_, cubemap_.getVkFormat(), texWidth, texHeight, mipLevels_, 6);
 
 }
 
@@ -430,13 +385,37 @@ void JCubemap::createCubemapSampler() {
     if (vkCreateSampler(device_app.device(), &samplerInfo, nullptr, &textureSampler_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
-    std::cout << "DEBUG: Cubemap sampler created successfully" << std::endl;
+    // std::cout << "DEBUG: Cubemap sampler created successfully" << std::endl;
 }
 
 
+void JCubemap::copyBufferToImage_multiple(VkCommandBuffer commandBuffer,
+    VkBuffer buffer, VkImage image, 
+    uint32_t imgWidth, uint32_t imgHeight, 
+    VkDeviceSize bufferOffset, uint32_t layers) {
 
+        std::vector<VkBufferImageCopy> regions(layers);
+        for(uint32_t i = 0 ; i<layers; ++i){
+            regions[i].bufferOffset = bufferOffset * i;
+            regions[i].bufferRowLength = 0;
+            regions[i].bufferImageHeight = 0;
+            regions[i].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            regions[i].imageSubresource.mipLevel = 0;
+            regions[i].imageSubresource.baseArrayLayer = i; // 逐层
+            regions[i].imageSubresource.layerCount = 1;
+            regions[i].imageOffset = {0, 0, 0};
+            regions[i].imageExtent = { (uint32_t)texWidth, (uint32_t)texHeight, 1 };
+        }
 
-
+        vkCmdCopyBufferToImage(
+            commandBuffer,
+            buffer,
+            textureImage_,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            static_cast<uint32_t>(regions.size()),
+            regions.data()
+        );
+}
 
 
 
