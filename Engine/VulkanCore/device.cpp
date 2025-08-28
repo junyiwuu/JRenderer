@@ -266,16 +266,40 @@ void JDevice::createLogicalDevice(){
     VkPhysicalDeviceFeatures deviceFeatures{}; // for now, all false (default)
     deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+
+    VkPhysicalDeviceVulkan12Features vulkan12Features{};
+    vulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    vulkan12Features.bufferDeviceAddress = VK_TRUE;
+
+
+    VkPhysicalDeviceVulkan11Features vulkan11Features{};
+    vulkan11Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+    vulkan11Features.storageBuffer16BitAccess = VK_TRUE;
+    vulkan11Features.multiview = VK_TRUE;
+    vulkan11Features.pNext = &vulkan12Features;
+ 
     // turn on dynamic rendering
     VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderFeatures{};
     dynamicRenderFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
     dynamicRenderFeatures.dynamicRendering = VK_TRUE;
+    dynamicRenderFeatures.pNext = &vulkan11Features;
+
 
     //combo
     VkPhysicalDeviceFeatures2 features2{};
     features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     features2.features = deviceFeatures;           // 复制普通特性
-    features2.pNext    = &dynamicRenderFeatures;   // 链上 dynamic 特性
+    features2.pNext    = &dynamicRenderFeatures;   // 链上 所有
+
+    //check if all supported
+    if(!vulkan12Features.bufferDeviceAddress){
+        throw std::runtime_error("Buffer device address not supported!");
+    }
+    if(!vulkan11Features.storageBuffer16BitAccess){
+        throw std::runtime_error("16-bit storage not supported!");
+    }
+
+
 
     //logical device
     VkDeviceCreateInfo createInfo{};

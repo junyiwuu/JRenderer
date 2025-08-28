@@ -78,6 +78,7 @@ private:
 
   bool isFrameStarted{false};
 
+
   // Scene::JAsset::Map sceneAssets;
 
 

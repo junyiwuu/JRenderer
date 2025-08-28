@@ -9,6 +9,9 @@
 #include "../VulkanCore/structs/uniforms.hpp"
 #include "../VulkanCore/structs/pushConstants.hpp"
 #include "../VulkanCore/shaderModule.hpp"
+#include "../VulkanCore/commandBuffer.hpp"
+
+#include "ktx.h"
 
 
 RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
@@ -16,6 +19,7 @@ RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
 {
     createDescriptorResources();
     createPipelineResources();
+    createBRDFLUT();
     loadAssets();
     loadEnvMaps();  
 }
@@ -28,7 +32,95 @@ RenderingSystem::~RenderingSystem(){
 
 
 
+// void JModel::createVertexBuffer(const std::vector<Vertex>&vertices){
+//     vertexCount = static_cast<uint32_t>(vertices.size());
+//     assert(vertexCount>=3 && "Vertex count must be more than 3 vertices ");
+//     vertexBuffer = std::make_unique<JBuffer>(
+//             device_app ,
+//             sizeof(Vertex)*vertices.size(), 
+//             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+//             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
 
+//     JBuffer stagingBuffer(device_app, vertexBuffer->getSize(),   // in gpu but cpu can access
+//             VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+//             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+//     stagingBuffer.stagingAction(vertices.data());
+
+//     util::copyBuffer(stagingBuffer.buffer(), vertexBuffer->buffer(), vertexBuffer->getSize(), 
+//             device_app.device(), device_app.getCommandPool(), device_app.graphicsQueue());   
+
+// }
+
+
+void RenderingSystem::createBRDFLUT(){
+
+
+    storageBuffer_ = std::make_unique<JBuffer>(device_app, bufferSize, 
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT|VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT|VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT      );
+
+   //BRDF LUT -----------------------------------------------------------------------------
+   pushBRDFStruct brdfPushConstant{};
+   brdfPushConstant.BRDF_H = brdf_h;
+   brdfPushConstant.BRDF_W = brdf_w;
+   brdfPushConstant.bufferAddr = storageBuffer_->getBufferAddress();
+
+   JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+   commandBuffer.beginSingleTimeCommands();
+   
+   vkCmdBindPipeline(commandBuffer.getCommandBuffer(), VK_PIPELINE_BIND_POINT_COMPUTE, brdfComputePipeline_app->getComputePipeline());
+   vkCmdPushConstants(commandBuffer.getCommandBuffer(), brdfPipelineLayout_app->getPipelineLayout(), 
+                       VK_SHADER_STAGE_COMPUTE_BIT, 0, 
+                       sizeof(brdfPushConstant), &brdfPushConstant);
+   vkCmdDispatch(commandBuffer.getCommandBuffer(), (brdf_w / 16), (brdf_h / 16), 1);
+   //用graphicqueue来计算compute的东西
+   commandBuffer.endSingleTimeCommands(device_app.graphicsQueue());
+
+
+   //write to ktx file
+   
+   ktxTextureCreateInfo ktxCreateInfo{};
+   ktxCreateInfo.vkFormat         = VK_FORMAT_R16G16B16A16_SFLOAT;
+   ktxCreateInfo.baseWidth        = brdf_w;
+   ktxCreateInfo.baseHeight       = brdf_h;
+   ktxCreateInfo.baseDepth        = 1;
+   ktxCreateInfo.numDimensions    = 2;
+   ktxCreateInfo.numLayers        = 1;
+   ktxCreateInfo.numLevels        = 1;
+   ktxCreateInfo.numFaces         = 1;
+   ktxCreateInfo.generateMipmaps  = KTX_FALSE;
+   ktxCreateInfo.isArray          = KTX_FALSE;
+   
+   ktxTexture2* lutTexture = nullptr;
+   if (ktxTexture2_Create(&ktxCreateInfo, KTX_TEXTURE_CREATE_ALLOC_STORAGE, &lutTexture) != KTX_SUCCESS){
+       throw std::runtime_error("BRDF LUT ktx file create failed!");   };
+       
+    
+    JBuffer stagingBuffer(device_app, storageBuffer_->getSize(),   // in gpu but cpu can access
+                VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    util::copyBuffer(storageBuffer_->buffer() , stagingBuffer.buffer(),  storageBuffer_->getSize(), 
+            device_app.device(), device_app.getCommandPool(), device_app.graphicsQueue()); 
+
+    stagingBuffer.map();    
+
+    const ktx_size_t imageSize = static_cast<ktx_size_t>(brdf_w) * brdf_h * 4 * sizeof(uint16_t);
+    if(ktxTexture_SetImageFromMemory(ktxTexture(lutTexture), /*level*/0, /*layer*/0, /*faceSlice*/0,
+                            reinterpret_cast<const ktx_uint8_t*>(stagingBuffer.getBufferMapped()), imageSize )
+              != KTX_SUCCESS)
+    {
+        throw std::runtime_error("BRDF LUT ktx texture set image from memory failed!") ;
+    };
+
+    ktxTexture2_WriteToNamedFile(lutTexture, "../data/BRDF_LUT.ktx");
+    ktxTexture2_Destroy(lutTexture);
+
+    stagingBuffer.unmap();
+
+
+
+}
  
 void RenderingSystem::createDescriptorResources(){
 
@@ -93,6 +185,25 @@ void RenderingSystem::createDescriptorResources(){
 
 
 void RenderingSystem::createPipelineResources(){
+    //compute pipeline -- for BRDF LUT
+    auto code = util::readFile("../shaders/BRDF_LUT.comp.spv");
+    brdfComputeShader = std::make_unique<JShaderModule>(device_app.device(), code);
+
+    VkPushConstantRange brdf_pushConstantRange{};
+    brdf_pushConstantRange.stageFlags    = VK_SHADER_STAGE_COMPUTE_BIT;
+    brdf_pushConstantRange.offset        = 0;
+    brdf_pushConstantRange.size          = sizeof(uint32_t) * 2 + sizeof(uint64_t); //BRDF_W + BRDF_H + buffer address
+
+    brdfPipelineLayout_app = JPipelineLayout::Builder{device_app}
+                            .setPushConstRanges(1, &brdf_pushConstantRange)
+                            .build();
+
+    brdfComputePipeline_app = std::make_unique<JComputePipeline>(
+                                device_app, *brdfComputeShader,
+                                brdfPipelineLayout_app->getPipelineLayout());    
+
+
+
     //create shader stage
     shaderStages_main = std::make_unique<JShaderStages>(
         JShaderStages::Builder(device_app)
@@ -116,7 +227,7 @@ void RenderingSystem::createPipelineResources(){
             std::span{ &bindingDescription, 1}, 
             std::span{attributeDescription}    );
 
-    //for set up push constant
+    //set up push constant
     VkPushConstantRange pushConstanRange{};
     pushConstanRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstanRange.offset = 0;
@@ -212,7 +323,10 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
         vkCmdDraw(commandBuffer, 36, 1, 0, 0);
     }
 
-    // Now render regular objects
+
+ 
+
+    // Now render regular objects -----------------------------------------------------
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_app->getGraphicPipeline());
 
     //global dynamic descriptors
@@ -257,10 +371,10 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
 
 void RenderingSystem::loadAssets(){
 
-    std::shared_ptr<JModel> viking_model = JModel::loadModelFromFile(device_app, "../assets/viking_room.obj");
+    std::shared_ptr<JModel> viking_model = JModel::loadModelFromFile(device_app, "/home/j/projects/playground/nvdiffrec/output/sphere/learnLGT/mesh/mesh.obj");
     models_["viking_room"] = viking_model;
 
-    std::shared_ptr<JTexture> viking_texture = std::make_shared<JTexture>("../assets/viking_room.png", device_app);
+    std::shared_ptr<JTexture> viking_texture = std::make_shared<JTexture>("/home/j/projects/playground/nvdiffrec/output/sphere/learnLGT/mesh/textures/albedo_srgb.png", device_app);
     textures_["viking_room"] = viking_texture;
 
     //allocate descriptor automatically in material class

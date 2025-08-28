@@ -18,10 +18,13 @@ PipelineConfigInfo::PipelineConfigInfo(){
     colorBlendAttachment = {};
     depthStencilInfo = {};
     dynamicStateInfo = {};
-
-
-
 }
+
+
+
+
+
+
 
 void PipelineConfigInfo::setVertexInputState(
     std::span<const VkVertexInputBindingDescription> bindings,  
@@ -223,16 +226,68 @@ std::unique_ptr<JPipelineLayout> JPipelineLayout::Builder::build() const{
 }
 
 
+////////////////////////////////////////////////////////////
+JComputePipeline::JComputePipeline(JDevice& device, 
+                                   const JShaderModule& shaderModule,
+                                   const VkPipelineLayout pipelineLayout)
+                                   :
+    device_app(device)
+{
+    createComputePipeline(pipelineLayout, shaderModule);
+}
+
+
+JComputePipeline::~JComputePipeline(){
+    vkDestroyPipeline(device_app.device(), computePipeline_, nullptr);
+}
+
+//pname
+void JComputePipeline::createComputePipeline(const VkPipelineLayout pipelineLayout, 
+                                            const JShaderModule& shaderModule)
+{
+
+    VkSpecializationMapEntry entries[]={
+        {  .constantID = 0,
+          .offset= 0,
+          .size = sizeof(uint32_t)
+        }};
+      //dynamic get from the file
+
+    VkSpecializationInfo specInfo{};
+    specInfo.mapEntryCount  = 1;
+    specInfo.pMapEntries    = entries;
+    specInfo.dataSize       = sizeof(uint32_t);
+    specInfo.pData          = &numSamples;
+
+
+    VkPipelineShaderStageCreateInfo stageInfo{};
+    stageInfo.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    stageInfo.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
+    stageInfo.module                = shaderModule.getShaderModule();
+    stageInfo.pName                 = "main";
+    stageInfo.pSpecializationInfo   = &specInfo;
+
+
+
+    VkComputePipelineCreateInfo computePipelineInfo{};
+    computePipelineInfo.sType   = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    computePipelineInfo.stage   = stageInfo;
+    computePipelineInfo.layout  = pipelineLayout;
+    
+    vkCreateComputePipelines(device_app.device(), VK_NULL_HANDLE, 1, &computePipelineInfo, nullptr, &computePipeline_);
+
+}
 
 
 
 
+// 你的BRDF LUT需要：
 
+// 1. 创建JComputePipeline类（类似JPipeline）
+// 2. 使用specialization constants（你注释里的代码）
+// 3. Buffer device address（你的着色器用的方式）
 
-
-
-
-
+// 关键是compute pipeline比graphics pipeline简单很多！主要就是：着色器 + layout + specialization constants。
 
 
 

@@ -14,3 +14,35 @@ struct pushTransformation{
     glm::mat4 modelMatrix{1.f};
 };
 
+
+
+struct pushBRDFStruct{
+    uint32_t BRDF_W;
+    uint32_t BRDF_H;
+    uint64_t bufferAddr;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

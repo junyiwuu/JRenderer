@@ -1,0 +1,209 @@
+#version 450
+#extension GL_EXT_buffer_reference : require
+#extension GL_EXT_buffer_reference2 : require
+#extension GL_EXT_shader_16bit_storage : require
+
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in ;  //定义了compute shader的work group size
+//work group在x方向有16个线程...。16x16是常用的2d工作组大小，适合处理图像数据   in表示这是一个输入layout
+//同一个work group可以共享shared memory,工作组内Threads可同步 barrier()等待workgroup内所有的Thread完成
+
+
+layout (constant_id = 0) const uint NUM_SAMPLES = 1024u;
+//在pipeline创建时动态设置这个常量值，而不是着色器中hardcode
+//每像素进行1024次采样积分,需要大样本才能得到准确的数值积分结果
+
+layout(std430, buffer_reference) readonly buffer Data{
+    float16_t floats[];   
+};
+//buffer device address扩展，定义了一个缓冲类型模板，不是具体的缓冲区实例
+//传统方式需要descriptor的绑定
+//buffer reference就是定义了一个类型，类似于struct定义，没有做任何比如分配内存的事情
+//floats 这里面填的实际的数据数组
+//buffer reference主要是为了不需要descriptor的bindless绑定
+
+layout (push_constant) uniform constants{
+    uint BRDF_W;
+    uint BRDF_H;
+    Data data;
+};
+
+
+const float PI = 3.1415926536;
+
+
+
+// based on http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+float random(vec2 co) {
+  float a = 12.9898;
+  float b = 78.233;
+  float c = 43758.5453;
+  float dt= dot(co.xy ,vec2(a,b));
+  float sn= mod(dt,3.14);
+  return fract(sin(sn) * c);  //fract只保留小数点的部分
+}
+
+
+//hammersley2d
+vec2 hammersley2d(uint i, uint N){
+    uint bits = (i<<16u)|(i>>16u);
+    bits = ( (bits & 0x55555555u)<<1u ) | ( (bits & 0xAAAAAAAAu)>>1u );
+    bits = ( (bits & 0x33333333u)<<2u ) | ( (bits & 0xCCCCCCCCu)>>2u );
+    bits = ( (bits & 0x0F0F0F0Fu)<<4u ) | ( (bits & 0xF0F0F0F0u)>>4u );
+    bits = ( (bits & 0x00FF00FFu)<<8u ) | ( (bits & 0xFF00FF00u)>>8u );
+    float radicalInverse = float(bits) * 2.3283064365386963e-10;
+    return vec2(float(i)/float(N) , radicalInverse);
+}
+
+
+
+
+
+
+//        Z (cosTheta)
+//        |
+//        |    * (采样点)
+//        |   /|
+//        |  / |
+//        | /  | sinTheta
+//        |/   |
+//        +----|-----> Y
+//       /     |
+//      /      |
+//     /       |
+//    X        |
+
+//phi是x轴到投影的角度（绕z轴旋转） ， 在xy平面上
+//theta是与z轴（法线）的夹角
+//costheta是采样点到投影到xy平面上的点之间的距离（z分量
+//sintheta是投影点和原点之间的距离
+//   在直角三角形中：
+//   - 斜边 = 1 (单位球半径)
+//   - Z 分量 = cosTheta (垂直高度)
+//   - XY 平面半径 = sinTheta (水平距离)
+
+vec3 importanceSample_GGX(vec2 xi, float roughness , vec3 normal){
+    float alpha = roughness*roughness;
+    float phi = 2.0*PI * xi.x + random(normal.xz) * 0.1 ;  //加了随机偏移，可以避免moire patterns,banding artifacts，打破规律性
+    float cosTheta = sqrt( (1.0 - xi.y) / (1.0 + (alpha*alpha-1.0) * xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+    vec3 H = vec3(sinTheta * cos(phi) , sinTheta*sin(phi), cosTheta);
+
+
+    //tangent space
+    vec3 up = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 tangentX = normalize(cross(up, normal));
+    vec3 tangentY = normalize(cross(normal, tangentX));
+
+    //convert to world space
+    return normalize(tangentX * H.x + tangentY * H.y + normal * H.z);
+}
+
+
+//G term, geometry shadowing function
+float G_SchlicksmithGGX(float NdotL, float NdotV, float roughness){
+    float k = (roughness*roughness) / 2.0;  //for IBL (epic games pbr paper)
+    float GL = NdotL / (NdotL * (1.0-k) + k);
+    float GV = NdotV / (NdotV * (1.0-k) + k);
+    return GL * GV;
+}
+
+
+float V_Ashikhmin(float NdotL, float NdotV){
+    return clamp(1.0/  (4.0 * (NdotL + NdotV - NdotL * NdotV)), 0.0, 1.0);
+}
+
+
+//N dot V是法线与视线夹角的consine 值
+
+//   BRDF 只需要几个关键角度：
+//   - NdotL - 光照强度
+//   - NdotV - 观察角度
+//   - NdotH - 微表面对齐度
+//   - VdotH - 菲涅尔效应
+
+vec3 BRDF(float NdotV, float roughness){
+    //normal always points along z-axis for the 2D lookup
+    const vec3 N = vec3(0.0, 0.0, 1.0);
+
+    //重构视线向量
+    vec3 V = vec3(sqrt(1.0 - NdotV*NdotV), 0.0, NdotV);
+
+    vec3 LUT = vec3(0.0);
+    for(uint i = 0u; i<NUM_SAMPLES; i++){
+        vec2 xi = hammersley2d(i, NUM_SAMPLES);
+        vec3 H = importanceSample_GGX(xi, roughness, N);  //H是根据才值分布采样得来的
+        //H不是硬算出来的，是根据材质的microfacets分布采样生成的所有可能方向，然后统计他们的平均贡献，这即是monte carlo的核心思想
+
+        vec3 L = 2.0 * dot(V, H) * H - V;
+
+        float NdotL = max(dot(N, L), 0.0);
+        float NdotV = max(dot(N, V), 0.0);
+        float VdotH = max(dot(V, H), 0.0);
+        float NdotH = max(dot(H, N), 0.0);
+
+        if(NdotL > 0.0){
+            float G = G_SchlicksmithGGX(NdotL, NdotV, roughness);
+            float G_vis = (G*VdotH) / (NdotH*NdotV) ;  //考虑了采样权重和积分归一化的有效可见性
+            float Fc = pow(1.0-VdotH, 5.0);  //Fc 是 Fresnel 系数，来自 Schlick 菲涅尔近似。
+            LUT.rg += vec2((1.0-Fc) * G_vis, Fc*G_vis);
+
+        }
+
+    }
+    return LUT / float(NUM_SAMPLES) ;
+
+}
+
+
+void main(){
+    vec2 uv;
+
+    // gl_GlobalInvocationID 表示当前thread在全局坐标系统中的ID（是3D坐标xyz）
+    // gl_GlobalInvocationID = gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID
+    //在BRDF LUT中，讲thread id转换成纹理坐标
+    uv.x = (float(gl_GlobalInvocationID.x) + 0.5)  /  float(BRDF_W);  //NdotV
+    uv.y = (float(gl_GlobalInvocationID.y) + 0.5)  /  float(BRDF_H);  //roughness
+
+    vec3 v = BRDF(uv.x , uv.y);
+    
+    uint offset = gl_GlobalInvocationID.y * BRDF_W + gl_GlobalInvocationID.x;
+
+    data.floats[offset*4 + 0] = float16_t(v.x);
+    data.floats[offset*4 + 1] = float16_t(v.y);
+    data.floats[offset*4 + 2] = float16_t(v.z);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

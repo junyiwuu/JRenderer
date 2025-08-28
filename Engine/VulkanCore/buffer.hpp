@@ -25,6 +25,7 @@ public:
     VkDeviceMemory bufferMemory()       {return bufferMemory_;}
     VkDeviceSize getSize()              {return size_;}
     void* getBufferMapped()              {return mapped_;}
+    uint64_t getBufferAddress() ;
 
     // struct externalCreateBufferResult {
     //     VkBuffer r_buffer_; 
@@ -35,7 +36,9 @@ public:
     VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
     void map();
+    void unmap();
     void stagingAction(const void* transferData);
+    
 
     
 

@@ -1,0 +1,188 @@
+# version 450
+#define MATH_PI 3.1415926535897932384626433832795
+
+
+layout(binding = 0) uniform samplerCube envMap;
+
+layout(push_constant) uniform PerFrameData{
+    uint face;
+    float roughness;
+
+    uint width;
+    uint height;
+
+    uint sampleCount;
+    uint distribution;
+}perFrameData;
+
+const int cLambertian = 0;
+const int cGGX = 1;
+
+
+
+struct MicrofacetDistributionSample{
+    float pdf;
+    float cosTheta;
+    float sinTheta;
+    float phi;
+};
+
+
+
+
+//hammersley2d
+vec2 hammersley2d(uint i, uint N){
+    uint bits = (i<<16u)|(i>>16u);
+    bits = ( (bits & 0x55555555u)<<1u ) | ( (bits & 0xAAAAAAAAu)>>1u );
+    bits = ( (bits & 0x33333333u)<<2u ) | ( (bits & 0xCCCCCCCCu)>>2u );
+    bits = ( (bits & 0x0F0F0F0Fu)<<4u ) | ( (bits & 0xF0F0F0F0u)>>4u );
+    bits = ( (bits & 0x00FF00FFu)<<8u ) | ( (bits & 0xFF00FF00u)>>8u );
+    float radicalInverse = float(bits) * 2.3283064365386963e-10;
+    return vec2(float(i)/float(N) , radicalInverse);
+}
+
+// GGX D term
+float D_GGX(float NdotH, float roughness){
+    float alpha = roughness*roughness;
+    float a = alpha*alpha*NdotH*NdotH - NdotH*NdotH + 1;
+    return alpha*alpha / (MATH_PI * a * a);
+    //得到的是分布密度值distribution value，表示某个法向量方向上维表面的密度
+}
+
+mat3 generate_TB_normal(vec3 normal){
+    vec3 bitangent = vec3(0.0, 1.0, 0.0);
+    float NdotUp = dot(normal, vec3(0.0, 1.0, 0.0));
+    float epsilon = 0.0000001;
+    if(  1.0 - abs(NdotUp) <=  epsilon){
+        bitangent = (NdotUp>0.0) ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 0.0, -1.0);
+    }
+
+    vec3 tangent = normalize(cross(bitangent, normal));
+    bitangent = cross(normal, tangent);
+
+    return mat3(tangent, bitangent, normal);
+}
+
+//用于prefiltered envmap 生成specular IBL
+float computeLod(float pdf){
+    float width = float(perFrameData.width);
+    float height = float(perFrameData.height);
+    float sampleCount = float(perFrameData.sampleCount);
+    float lod = 0.5 * log2(  6.0*width*height  /  (sampleCount*pdf)  );
+    return lod;
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////
+//irradiance map
+MicrofacetDistributionSample Lambertian(vec2 xi, float roughness){
+    //cosine-weighted hemisphere sampling
+
+    MicrofacetDistributionSample lambertian;
+
+    lambertian.cosTheta = sqrt(1.0 - xi.y);
+    lambertian.sinTheta = sqrt(xi.y);
+    lambertian.phi = 2.0 * MATH_PI * xi.x;
+
+    lambertian.pdf = lambertian.cosTheta / MATH_PI;
+    return lambertian;
+}
+
+//GGX
+//在为IBL滤波做按GGX的NDF采样H并给出对L的pdf
+
+MicrofacetDistributionSample GGX(vec2 xi, float roughness){
+    MicrofacetDistributionSample ggx;
+
+    float alpha = roughness* roughness;  //isotropic
+    //GGX distribution importance sampling 看笔记
+    ggx.cosTheta = clamp( sqrt(  (1.0-xi.y) / (1.0+(alpha*alpha-1.0)*xi.y)  )  , 0.0, 1.0  );
+    ggx.sinTheta = sqrt( 1.0 - ggx.cosTheta * ggx.cosTheta);
+    ggx.phi = 2.0 * MATH_PI * xi.x;
+
+
+    //将distribution function到probability density function的转换，要考虑秋坐标系的几何
+    //cosTheta = N dot H.. theta是与法线N的夹角。
+    ggx.pdf = D_GGX(ggx.cosTheta, roughness);
+    // Typically you'd have the following:
+    //   float pdf = D_GGX(NoH, roughness) * NoH / (4.0 * VoH);
+    // but since V = N => VoH == NoH
+    ggx.pdf /= 4.0;
+
+    return ggx;
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+
+//importance sample direction with pdf in the .w component
+vec4 getImportanceSample(uint sampleIndex, vec3 N, float roughness){
+    vec2 xi = hammersley2d(sampleIndex, perFrameData.sampleCount);
+
+    MicrofacetDistributionSample importanceSample;
+
+    if(perFrameData.distribution == cLambertian){
+        importanceSample = Lambertian(xi, roughness);
+    }
+    else if(perFrameData.distribution == cGGX){
+        importanceSample = GGX(xi, roughness);
+    }
+
+    //transform the hemisphere sample to the normal coordinate frame. hemisphere->normal direction
+    vec3 localSpaceDirection = normalize(vec3(
+        importanceSample.sinTheta * cos(importanceSample.phi),
+        importanceSample.sinTheta * sin(importanceSample.phi),
+        importanceSample.cosTheta    ));
+    
+    mat3 TB_normals = generate_TB_normal(N);
+    vec3 worldSpaceDirection = TB_normals * localSpaceDirection;
+    return vec4(worldSpaceDirection, importanceSample.pdf);
+}
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+vec3 filterColor(vec3 N){
+    vec3 color = vec3(0.0f);
+    float weights = 0.0f;
+
+    for(uint i = 0; i < perFrameData.sampleCount; i++){
+        vec4 importanceSample = getImportanceSample(i, N , perFrameData.roughness);
+        vec3 H = vec3(importanceSample.xyz); //extract first three elemenmts. half vector
+        float pdf = importanceSample.w;
+
+        //mipmap filtered samples
+        float lod = computeLod(pdf);
+        
+        if(perFrameData.distribution == cLambertian){
+            vec3 lambertian = textureLod(envMap, H, lod).xyz;  //vec4 textureLod(samplerCube sampler, vec3 coord, float lod)
+            color += lambertian;
+        }
+        else if (perFrameData.distribution == cGGX){
+            vec3 V = N;                //因为是为了所有可能的视角生成通用的过滤结果，而不是为了特定视角渲染的
+            vec3 L = normalize(reflect(-V, H)); //-V作为入射方向（相机指向表面），V是视线方向（从表面指向相机）
+            float NdotL = dot(N, L);
+
+            if(NdotL > 0.0){
+                if(perFrameData.roughness == 0.0){
+                    lod = 0.0;
+                }
+                vec3 samplerColor = textureLod(envMap, L, lod).xyz;
+                color += samplerColor * NdotL;
+                weights += NdotL;
+            }
+        }
+    }
+
+    color /= (weights!=0.0f) ? weights : float(perFrameData.sampleCount);
+    return color.rgb;
+}
+
+
+void main(){
+
+    
+}

@@ -21,7 +21,7 @@ public:
     JShaderModule(const JShaderModule&) = delete;
     JShaderModule& operator=(const JShaderModule&) = delete;
 
-    VkShaderModule getShaderModule() {return shaderModule_;}
+    VkShaderModule getShaderModule() const {return shaderModule_;}
 
 private:
     VkDevice device;

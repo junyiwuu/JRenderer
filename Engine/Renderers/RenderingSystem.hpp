@@ -19,6 +19,8 @@ class JBuffer;
 struct SceneInfo;
 class JDescriptorAllocator;
 class JShaderStages;
+class JShaderModule;
+class JComputePipeline;
 
 class RenderingSystem{
 
@@ -47,11 +49,15 @@ private:
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
     std::unique_ptr<JPipeline> pipeline_skybox_app;
+    std::unique_ptr<JComputePipeline> brdfComputePipeline_app;
+
     std::unique_ptr<JPipelineLayout> pipelinelayout_app;
+    std::unique_ptr<JPipelineLayout> brdfPipelineLayout_app;
     
     //shader stages - must be kept alive for pipeline lifetime
     std::unique_ptr<JShaderStages> shaderStages_main;
     std::unique_ptr<JShaderStages> shaderStages_skybox;
+    std::unique_ptr<JShaderModule> brdfComputeShader;
 
 
     //descriptor
@@ -77,9 +83,16 @@ private:
 
     Scene::JAsset::Map sceneAssets;
     Scene::JEnvMap::Map sceneEnvMap;
+    //for brdf lut
+    std::unique_ptr<JBuffer> storageBuffer_;
+    const uint32_t brdf_w = 256, brdf_h = 256;
+    const uint32_t bufferSize = 4u * sizeof(uint16_t) * brdf_h * brdf_w;
 
     void loadAssets();
     void loadEnvMaps();
+    void createBRDFLUT();
+
+
 
     // get the scene info, which including all assets
     SceneInfo sceneInfo{

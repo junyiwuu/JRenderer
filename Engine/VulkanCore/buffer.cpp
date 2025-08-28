@@ -29,12 +29,32 @@ JBuffer::JBuffer(JDevice& device,  VkDeviceSize size,
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = util::findMemoryType(memRequirements.memoryTypeBits, properties, device_app.physicalDevice() );
 
+
+        //if it is buffer reference --> need device address
+        if (usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT){
+            VkMemoryAllocateFlagsInfo allocFlagsInfo{};
+            allocFlagsInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+            allocFlagsInfo.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+            allocInfo.pNext = &allocFlagsInfo;
+        }
+
+
+
         if(vkAllocateMemory(device_app.device(), &allocInfo, nullptr, &bufferMemory_) != VK_SUCCESS){
             throw std::runtime_error("failed to allocate buffer memory!"); }
 
         vkBindBufferMemory(device_app.device(), buffer_,  bufferMemory_, 0);
 
 }
+
+
+uint64_t JBuffer::getBufferAddress() {
+    VkBufferDeviceAddressInfo addrInfo{};
+    addrInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+    addrInfo.buffer = buffer_;;
+    return vkGetBufferDeviceAddress(device_app.device(), &addrInfo);
+}
+
 
 
 
@@ -48,18 +68,22 @@ JBuffer::~JBuffer(){
 }
 
 void JBuffer::map(){
-    vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  
+    vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  //在cpu上创建mapped_指针
 }
+
+void JBuffer::unmap(){
+    if(mapped_!=nullptr){
+        vkUnmapMemory(device_app.device(), bufferMemory_);
+        mapped_=nullptr;
+    }
+}
+
 
 void JBuffer::stagingAction(const void* transferData){
     vkMapMemory(device_app.device(), bufferMemory_, 0, size_, 0, &mapped_);  //staging buffer is host access on gpu
     memcpy(mapped_, transferData, (size_t)(size_)); //transfer data is host access, copy to staging buffer
     vkUnmapMemory(device_app.device(), bufferMemory_);  // unmap staging buffer and will be destroyed
 }
-
-
-
-
 
 void JBuffer::destroyBuffer(JDevice& device_app, VkBuffer buffer, VkDeviceMemory bufferMemory){
     if(buffer != VK_NULL_HANDLE){
