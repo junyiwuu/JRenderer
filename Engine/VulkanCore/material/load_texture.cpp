@@ -8,6 +8,119 @@
 #include "../device.hpp"
 #include "../commandBuffer.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+
+//控制所有的资源安排，创建销毁
+JTextureBase::JTextureBase(JDevice& device, TextureConfig& textureConfig):
+    device_app(device), config_(textureConfig)
+
+{
+    texWidth = config_.extent.width;
+    texHeight = config_.extent.height;
+
+
+    //if not setting miplevel, means need to calculate
+    if(config_.mipLevels){
+        mipLevels_ = *config_.mipLevels;
+    }else{
+        mipLevels_ = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight))))+1;
+    }
+
+    createTextureBase();
+
+}
+
+
+JTextureBase:: ~JTextureBase(){
+    vkDestroyImage(device_app.device(), textureBaseImage_, nullptr);
+    vkFreeMemory(device_app.device(), textureBaseImageMemory_, nullptr);
+    vkDestroySampler(device_app.device(), textureBaseSampler_, nullptr);
+    vkDestroyImageView(device_app.device(), textureBaseImageView_, nullptr);
+
+}
+
+
+VkImageView JTextureBase::switchViewForMip(uint32_t selectMip, VkImageViewType vType){
+    auto viewInfo = ImageViewCreateInfoBuilder(textureBaseImage_)
+                    .viewType(vType)
+                    .format(config_.format)
+                    .mipLevels(selectMip, 1)
+                    .arrayLayers(0, config_.arrayLayers)
+                    .getInfo();
+
+    VkImageView currentView;
+    device_app.createImageViewWithInfo(viewInfo, currentView);
+    return currentView;
+}
+
+
+void JTextureBase::createTextureBase(){
+    auto imageInfo = ImageCreateInfoBuilder(texWidth, texHeight)
+                    .imageType(config_.imageType)
+                    .format(config_.format)
+                    .arrayLayers(config_.arrayLayers)
+                    .mipLevels(mipLevels_)
+                    .flags(config_.createFlags)
+                    .usage(config_.usageFlags)
+                    .getInfo();
+    device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureBaseImage_, textureBaseImageMemory_);
+
+    //create image view
+    auto viewInfo = ImageViewCreateInfoBuilder(textureBaseImage_)
+                    .viewType(config_.viewType)
+                    .format(config_.format)
+                    .mipLevels(0, mipLevels_)
+                    .arrayLayers(0, config_.arrayLayers)
+                    .getInfo();
+    device_app.createImageViewWithInfo(viewInfo, textureBaseImageView_);
+
+    //create sampler
+    VkPhysicalDeviceProperties properties{};
+    vkGetPhysicalDeviceProperties(device_app.physicalDevice(), &properties);
+    auto samplerInfoBuilder = SamplerCreateInfoBuilder()
+                        .maxAnisotropy(properties.limits.maxSamplerAnisotropy)
+                        .maxLod(mipLevels_);
+
+        if(config_.addressModeU && config_.addressModeV && config_.addressModeW){
+            samplerInfoBuilder.addressMode(*config_.addressModeU, *config_.addressModeV, *config_.addressModeW); }
+        if(config_.compareOp){
+            samplerInfoBuilder.compareOp(*config_.compareOp);    }
+
+     VkSamplerCreateInfo samplerInfo = samplerInfoBuilder.getInfo();
+
+    if (vkCreateSampler(device_app.device(), &samplerInfo, nullptr, &textureBaseSampler_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create texture sampler!");  }
+
+    //transition image layout for all
+    JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    commandBuffer.beginSingleTimeCommands();
+
+    device_app.transitionImageLayout(commandBuffer.getCommandBuffer(), textureBaseImage_,
+        VK_IMAGE_LAYOUT_UNDEFINED, config_.newLayout, 
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, config_.arrayLayers);
+
+    commandBuffer.endSingleTimeCommands(device_app.graphicsQueue());
+
+    
+}
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
 JTexture::JTexture(const std::string& path, JDevice& device):
     device_app(device)    
 {
@@ -51,8 +164,6 @@ void JTexture::createTextureImage(const std::string& path, JDevice& device_app) 
     vkMapMemory(device_app.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
     vkUnmapMemory(device_app.device(), stagingBuffer.bufferMemory());
-
-
     stbi_image_free(pixels);
 
     auto imageInfo = ImageCreateInfoBuilder(texWidth, texHeight)
@@ -218,6 +329,15 @@ void JTexture::createTextureSampler() {
     util::endSingleTimeCommands(device_app.device(), commandBuffer, device_app.getCommandPool(), device_app.graphicsQueue());
 }
 
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
 /*  ------------------
 
      ----Cube Map-----
@@ -247,7 +367,6 @@ JCubemap::~JCubemap(){
 
 void JCubemap::createCubemapImage(const std::string& path, JDevice& device_app) {
 
-
     int width, height;
     const float* pixels = stbi_loadf(path.data(), &width, &height, nullptr, 4);
         if (!pixels) {
@@ -257,30 +376,19 @@ void JCubemap::createCubemapImage(const std::string& path, JDevice& device_app) 
             throw std::runtime_error("Loaded cubemap image has invalid dimensions!");
         }
 
-    std::cout << "DEBUG: HDR loaded successfully: " << width << "x" << height << std::endl;
-
-    JBitmap in(width, height, 4, eJBitmapFormat_Float, pixels);
-    std::cout << "DEBUG: JBitmap created successfully" << std::endl;
     
+    JBitmap in(width, height, 4, eJBitmapFormat_Float, pixels); 
     //convert to vertical cross
-    std::cout << "DEBUG: Starting convertEquirectangularMapToVerticalCross..." << std::endl;
-    JBitmap out = convertEquirectangularMapToVerticalCross(in);
-    std::cout << "DEBUG: convertEquirectangularMapToVerticalCross completed" << std::endl;
-    
+    JBitmap out = convertEquirectangularMapToVerticalCross(in);    
     stbi_image_free((void*)pixels);
     
     //write to disk to debug
     // stbi_write_hdr("./loaded_hdr_toVertical.hdr", out.w_, out.h_, out.channels_,
     //                 (const float*)out.data_.data());
-    std::cout << "DEBUG: Starting convertVerticalCrossToCubeMapFaces..." << std::endl;
+    
     cubemap_ = convertVerticalCrossToCubeMapFaces(out);  //create cubemap
-    std::cout << "DEBUG: convertVerticalCrossToCubeMapFaces completed" << std::endl;
-
     VkDeviceSize faceSize = cubemap_.w_ * cubemap_.h_ * cubemap_.channels_ * JBitmap::getBytesPerChannel(cubemap_.format_) ; //float, 4 channels
-    std::cout<< "DEBUG: cubemap size" << faceSize<< std::endl;
     VkDeviceSize totalSize = faceSize * 6;
-    std::cout << "DEBUG: cubemap total size = " << totalSize << " faceSize=" << faceSize << std::endl;
-
 
     //find miplevels figure
     mipLevels_ = static_cast<uint32_t>(std::floor(std::log2(std::max(cubemap_.w_, cubemap_.h_))))+1;
@@ -288,8 +396,6 @@ void JCubemap::createCubemapImage(const std::string& path, JDevice& device_app) 
     texWidth = cubemap_.w_;
     texHeight = cubemap_.h_;
     texChannels = cubemap_.channels_;
-
-
 
 
     // Debug checks
@@ -325,7 +431,6 @@ void JCubemap::createCubemapImage(const std::string& path, JDevice& device_app) 
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create cubemap image! VkResult: " + std::to_string(result));
     }
-    std::cout << "DEBUG: Cubemap image created successfully" << std::endl;
     
     JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     commandBuffer.beginSingleTimeCommands();
@@ -365,7 +470,6 @@ void JCubemap::createCubemapImageView(){
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create cubemap image view! VkResult: " + std::to_string(result));
     }
-    std::cout << "DEBUG: Cubemap image view created successfully" << std::endl;
 }
 
 
@@ -385,7 +489,6 @@ void JCubemap::createCubemapSampler() {
     if (vkCreateSampler(device_app.device(), &samplerInfo, nullptr, &textureSampler_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
-    // std::cout << "DEBUG: Cubemap sampler created successfully" << std::endl;
 }
 
 
@@ -418,8 +521,87 @@ void JCubemap::copyBufferToImage_multiple(VkCommandBuffer commandBuffer,
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+
+JCubemapAlter::JCubemapAlter(const JCubemap& cubemapBase, JDevice& device):
+    JTexture(device)
+{
+
+
+}
+
+
+JCubemapAlter::~JCubemapAlter() {
+
+
+}
+
+
+void JCubemapAlter::createTextureImage(const JCubemap& cubemapBase, JDevice& device_app)  
+{
+
+
+    texWidth = cubemapBase.getTextureWidth();
+    texHeight = cubemapBase.getTextureHeight();
+    texChannels = cubemapBase.getTextureChannels();
+    mipLevels_ = cubemapBase.getMipLevels();
+
+//     // image create info
+//     auto imageInfo = ImageCreateInfoBuilder(texWidth, texHeight)
+//                     .mipLevels(mipLevels_)
+//                     .arrayLayers(6)
+//                     .format(cubemap_.getVkFormat())
+//                     .flags(VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT) // for cubemap_ especially
+//                     .usage(VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_SAMPLED_BIT)
+//                     .getInfo();
+//     VkResult result = device_app.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage_, textureImageMemory_);
+//     if (result != VK_SUCCESS) {
+//         throw std::runtime_error("Failed to create cubemap image! VkResult: " + std::to_string(result));
+//     }
+    
+//     JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+//     commandBuffer.beginSingleTimeCommands();
+
+//     device_app.transitionImageLayout(commandBuffer.getCommandBuffer(), textureImage_,
+//         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+//         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+//         VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, 6);
+
+    
+//     copyBufferToImage_multiple(commandBuffer.getCommandBuffer(), 
+//         stagingBuffer.buffer(), textureImage_,
+//         (uint32_t)texWidth, (uint32_t)texHeight,
+//         faceSize, 6   );
+
+// // no transition again, egerate mipmaps will transfer everything back
+
+   
+//     commandBuffer.endSingleTimeCommands(device_app.graphicsQueue());
+
+//     //generate mipmaps for cubemap (6 layers)
+//     generateMipmaps(textureImage_, cubemap_.getVkFormat(), texWidth, texHeight, mipLevels_, 6);
+
+
+}
+
+
+void JCubemapAlter::createTextureImageView(){
+
+
+}
+
+
+void JCubemapAlter::createTextureSampler(){
+
+
+}
 
 
 

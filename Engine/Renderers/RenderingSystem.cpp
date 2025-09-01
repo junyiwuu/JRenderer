@@ -10,6 +10,7 @@
 #include "../VulkanCore/structs/pushConstants.hpp"
 #include "../VulkanCore/shaderModule.hpp"
 #include "../VulkanCore/commandBuffer.hpp"
+#include "precomputeSystem.hpp"
 
 #include "ktx.h"
 
@@ -21,7 +22,10 @@ RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
     createPipelineResources();
     createBRDFLUT();
     loadAssets();
-    loadEnvMaps();  
+    loadEnvMaps();
+    // Use the skybox cubemap as the base environment map for precomputation
+    auto* skyboxCubemap = static_cast<JCubemap*>(textures_["skybox"].get());
+    precompSystem_app = std::make_unique<PrecomputeSystem>(device_app, *skyboxCubemap);
 }
 
 
@@ -29,27 +33,6 @@ RenderingSystem::~RenderingSystem(){
 
 
 }
-
-
-
-// void JModel::createVertexBuffer(const std::vector<Vertex>&vertices){
-//     vertexCount = static_cast<uint32_t>(vertices.size());
-//     assert(vertexCount>=3 && "Vertex count must be more than 3 vertices ");
-//     vertexBuffer = std::make_unique<JBuffer>(
-//             device_app ,
-//             sizeof(Vertex)*vertices.size(), 
-//             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
-//             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
-
-//     JBuffer stagingBuffer(device_app, vertexBuffer->getSize(),   // in gpu but cpu can access
-//             VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-//             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-//     stagingBuffer.stagingAction(vertices.data());
-
-//     util::copyBuffer(stagingBuffer.buffer(), vertexBuffer->buffer(), vertexBuffer->getSize(), 
-//             device_app.device(), device_app.getCommandPool(), device_app.graphicsQueue());   
-
-// }
 
 
 void RenderingSystem::createBRDFLUT(){
@@ -117,10 +100,10 @@ void RenderingSystem::createBRDFLUT(){
     ktxTexture2_Destroy(lutTexture);
 
     stagingBuffer.unmap();
-
-
-
 }
+
+
+
  
 void RenderingSystem::createDescriptorResources(){
 

@@ -60,6 +60,16 @@
         "sstream": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "any": "cpp",
+        "bitset": "cpp",
+        "codecvt": "cpp",
+        "unordered_set": "cpp",
+        "regex": "cpp",
+        "iomanip": "cpp",
+        "typeindex": "cpp",
+        "variant": "cpp",
+        "cfenv": "cpp",
+        "shared_mutex": "cpp"
     }
 }

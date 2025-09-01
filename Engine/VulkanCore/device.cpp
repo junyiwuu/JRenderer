@@ -266,11 +266,9 @@ void JDevice::createLogicalDevice(){
     VkPhysicalDeviceFeatures deviceFeatures{}; // for now, all false (default)
     deviceFeatures.samplerAnisotropy = VK_TRUE;
 
-
     VkPhysicalDeviceVulkan12Features vulkan12Features{};
     vulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
     vulkan12Features.bufferDeviceAddress = VK_TRUE;
-
 
     VkPhysicalDeviceVulkan11Features vulkan11Features{};
     vulkan11Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;

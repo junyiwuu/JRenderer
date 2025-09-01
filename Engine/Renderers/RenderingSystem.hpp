@@ -21,6 +21,7 @@ class JDescriptorAllocator;
 class JShaderStages;
 class JShaderModule;
 class JComputePipeline;
+class PrecomputeSystem;
 
 class RenderingSystem{
 
@@ -101,7 +102,7 @@ private:
     };
 
 
-
+    std::unique_ptr<PrecomputeSystem> precompSystem_app;
 
 };
 

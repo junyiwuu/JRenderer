@@ -2,7 +2,11 @@
 #define MATH_PI 3.1415926535897932384626433832795
 
 
-layout(binding = 0) uniform samplerCube envMap;
+// layout(binding = 0) uniform samplerCube envMap;
+
+//set up descriptor
+layout(set=0, binding = 0) uniform samplerCube envMap;
+layout(set = 0, binding = 1, rgba32f) writeonly uniform image2DArray dst;
 
 layout(push_constant) uniform PerFrameData{
     uint face;
@@ -181,8 +185,52 @@ vec3 filterColor(vec3 N){
     return color.rgb;
 }
 
+vec3 uvToXYZ(uint face, vec2 uv)
+{
+  if (face == 0) return vec3(   1.,   uv.y,  -uv.x);
+  if (face == 1) return vec3(  -1.,   uv.y,   uv.x);
+  if (face == 2) return vec3(+uv.x,     1.,  -uv.y);
+  if (face == 3) return vec3(+uv.x,    -1.,  +uv.y);
+  if (face == 4) return vec3(+uv.x,   uv.y,     1.);
+  if (face == 5) return vec3(-uv.x,  +uv.y,    -1.);
+}
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
 
 void main(){
-
+    ivec3 coords = ivec3(gl_GlobalInvocationID);
     
+    if (coords.x >= perFrameData.width || coords.y >= perFrameData.height) {
+        return;
+    }
+    
+    // Convert pixel coordinates to UV coordinates [-1, 1]
+    vec2 uv = (vec2(coords.xy) + 0.5) / vec2(perFrameData.width, perFrameData.height) * 2.0 - 1.0;
+    
+    // Get the cube direction for this face and UV coordinate
+    vec3 N = normalize(uvToXYZ(perFrameData.face, uv));
+    
+    // Filter the color using importance sampling
+    vec3 color = filterColor(N);
+    
+    // Write to the output cubemap
+    imageStore(dst, ivec3(coords.xy, int(perFrameData.face)), vec4(color, 1.0));
 }
+
+
+
+
+// void main(){
+//     ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
+//     // 由 C++ 计算 gx/gy 做边界裁剪也行；保险起见再判一次
+//     // if (pix.x >= faceSize || pix.y >= faceSize) return; // 如需，额外传 faceSize
+
+//     // 先占位：直接采样（把你的积分逻辑贴进来即可）
+//     // 真实实现里按 distribution + roughness 做 GGX/IBL 重要性采样 + textureLod
+//     vec2 uv = (vec2(pix)+0.5); // 只是占位别忘了换成你自己的方向映射
+//     vec3 dir = vec3(0,0,1);    // TODO: 用你的 face/uv->dir
+//     vec3 c = textureLod(uEnv, dir, 0.0).rgb;
+
+//     imageStore(uDst, ivec3(pix, int(pc.face)), vec4(c,1.0));
+// }
