@@ -163,6 +163,7 @@ vec3 filterColor(vec3 N){
         
         if(perFrameData.distribution == cLambertian){
             vec3 lambertian = textureLod(envMap, H, lod).xyz;  //vec4 textureLod(samplerCube sampler, vec3 coord, float lod)
+            // vec3 lambertian = textureLod(envMap, normalize(N), 0.0f).xyz; 
             color += lambertian;
         }
         else if (perFrameData.distribution == cGGX){
@@ -187,12 +188,24 @@ vec3 filterColor(vec3 N){
 
 vec3 uvToXYZ(uint face, vec2 uv)
 {
-  if (face == 0) return vec3(   1.,   uv.y,  -uv.x);
-  if (face == 1) return vec3(  -1.,   uv.y,   uv.x);
-  if (face == 2) return vec3(+uv.x,     1.,  -uv.y);
-  if (face == 3) return vec3(+uv.x,    -1.,  +uv.y);
-  if (face == 4) return vec3(+uv.x,   uv.y,     1.);
-  if (face == 5) return vec3(-uv.x,  +uv.y,    -1.);
+//   if (face == 0) return vec3(   1.,   uv.y,  -uv.x);
+//   if (face == 1) return vec3(  -1.,   uv.y,   uv.x);
+//   if (face == 2) return vec3(+uv.x,    1.,  -uv.y);
+//   if (face == 3) return vec3(+uv.x,    -1.,  +uv.y);
+//   if (face == 4) return vec3(+uv.x,   uv.y,     1.);
+//   if (face == 5) return vec3(-uv.x,  +uv.y,    -1.);
+
+
+ if (face == 0) return vec3( 1.0,  -uv.y, -uv.x); // +X
+  if (face == 1) return vec3(-1.0,  -uv.y,  uv.x); // -X  
+  if (face == 2) return vec3( uv.x,   1.0,  uv.y); // +Y
+  if (face == 3) return vec3( uv.x,  -1.0, -uv.y); // -Y
+  if (face == 4) return vec3( uv.x,  -uv.y,  1.0); // +Z
+  if (face == 5) return vec3(-uv.x,  -uv.y, -1.0); // -Z
+
+
+
+
 }
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;

@@ -97,8 +97,8 @@ public:
     JDescriptorWriter& operator=(const JDescriptorWriter&) = delete;
 
 
-    JDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
-    JDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
+    JDescriptorWriter& writeBuffer(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo);
+    JDescriptorWriter& writeImage(uint32_t binding, const VkDescriptorImageInfo* imageInfo);
 
     bool build(VkDescriptorSet& set);
     bool overwrite(VkDescriptorSet& set);

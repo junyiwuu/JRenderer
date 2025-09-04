@@ -3,8 +3,9 @@
 #include "buffer.hpp"
 #include "utility.hpp"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 JModel::JModel(JDevice& device, const JModel::Builder& builder):
@@ -90,51 +91,158 @@ void JModel::draw(VkCommandBuffer commandBuffer){
 }
 
 
+// void JModel::Builder::loadModel(const std::string& filepath){
+
+//     tinyobj::attrib_t attrib;
+//     std::vector<tinyobj::shape_t> shapes;
+//     std::vector<tinyobj::material_t> materials;
+//     std::string warn, err;
+
+//     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) {
+//         throw std::runtime_error(warn + err);
+//     }
+
+//     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+//     for (const auto& shape : shapes) {
+//         for (const auto& index : shape.mesh.indices) {
+//             Vertex vertex{};
+
+//             vertex.pos = {
+//                 attrib.vertices[3 * index.vertex_index + 0],
+//                 attrib.vertices[3 * index.vertex_index + 1],
+//                 attrib.vertices[3 * index.vertex_index + 2]
+//             };
+
+//             vertex.uv = {
+//                 attrib.texcoords[2 * index.texcoord_index + 0],
+//                 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+//             };
+
+//             if (uniqueVertices.count(vertex) == 0) {
+//                 uniqueVertices[vertex] = static_cast<uint32_t>(vertices_.size());
+//                 vertices_.push_back(vertex);
+//             }
+
+//             indices_.push_back(uniqueVertices[vertex]);
+//         }
+//     }
+
+
+
+// }
+
+
+/*
+
+T: tangent, point along U on UV
+B: bitangent, point along V on UV
+N: normal
+
+
+right hand rule, thumb normal/z, index T/x, middle B/y
+left hand rule, thumb -z, index x, middle y
+
+
+Right-handed: T×B=+N
+Left-handed: T×B=−N
+
+
+
+Pick what your importer says are +X, +Y, +Z in the asset.
+If X × Y ≈ +Z → the asset’s coordinates are right-handed.
+If X × Y ≈ −Z → the asset’s coordinates are left-handed.
+
+
+*/
+
+
+
+
+
+
+
+//scene -> Node -> Mesh -> faces -> vertices
+//mesh: a group of triangles/faces that use the same material (texture, shader properties)
 void JModel::Builder::loadModel(const std::string& filepath){
 
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
+    Assimp::Importer importer;
+    //https://the-asset-importer-lib-documentation.readthedocs.io/en/latest/usage/use_the_lib.html
+    const aiScene* scene = importer.ReadFile(filepath, 
+        aiProcess_FlipUVs |
+        aiProcess_GenNormals |              //generate normal if not provided
+        aiProcess_CalcTangentSpace |        //post process, generate tangent
+        aiProcess_JoinIdenticalVertices |   //post process, deduplicate everything
+        aiProcess_Triangulate   //triangluate all faces
+    );
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) {
-        throw std::runtime_error(warn + err);
+
+    vertices_.clear();
+    indices_.clear();
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        throw std::runtime_error("Error loading model: " + std::string(importer.GetErrorString()));
     }
 
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-    for (const auto& shape : shapes) {
-        for (const auto& index : shape.mesh.indices) {
+    // Process all meshes in the scene
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+        aiMesh* mesh = scene->mMeshes[i];
+        // Record current vertex count to offset indices for this mesh
+        const uint32_t perMeshVertex = static_cast<uint32_t>(vertices_.size());
+        
+        for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
             Vertex vertex{};
 
+            // Position
             vertex.pos = {
-                attrib.vertices[3 * index.vertex_index + 0],
-                attrib.vertices[3 * index.vertex_index + 1],
-                attrib.vertices[3 * index.vertex_index + 2]
+                mesh->mVertices[j].x,
+                mesh->mVertices[j].y,
+                mesh->mVertices[j].z
             };
 
-            vertex.texCoord = {
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-            };
-
-            vertex.color = {1.0f, 1.0f, 1.0f};
-
-            if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices_.size());
-                vertices_.push_back(vertex);
+            // Normal
+            if (mesh->HasNormals()) {
+                vertex.normal = {
+                    mesh->mNormals[j].x,
+                    mesh->mNormals[j].y,
+                    mesh->mNormals[j].z };
+                    
             }
 
-            indices_.push_back(uniqueVertices[vertex]);
+            // Texture coordinates, first uv set
+            if (mesh->mTextureCoords[0]) {
+                vertex.uv = {
+                    mesh->mTextureCoords[0][j].x,
+                    mesh->mTextureCoords[0][j].y      };
+            }else{
+                vertex.uv = {0.0f, 0.0f}; //default uv if not provided
+            }
+
+            // Tangent
+            if (mesh->HasTangentsAndBitangents()) {
+                vertex.tangent = {
+                    mesh->mTangents[j].x,
+                    mesh->mTangents[j].y,
+                    mesh->mTangents[j].z       };
+
+                vertex.bitangent = {
+                    mesh->mBitangents[j].x,
+                    mesh->mBitangents[j].y,
+                    mesh->mBitangents[j].z,    };
+            }
+
+            
+
+            vertices_.push_back(vertex);
+        }
+
+        // Process indices (offset by perMeshVertex so indices reference the combined vertex buffer)
+        for (unsigned int m = 0; m < mesh->mNumFaces; m++) {
+            const aiFace& face = mesh->mFaces[m];
+            for (unsigned int n = 0; n < face.mNumIndices; n++) {
+                indices_.push_back(perMeshVertex + face.mIndices[n]);
+            }
         }
     }
-
-
-
 }
-
-
-
-
-
 

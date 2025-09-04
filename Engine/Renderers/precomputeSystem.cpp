@@ -65,10 +65,7 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
     //use one descriptor set two bindings
     VkDescriptorSet desSet;
 
-
-
     std::vector<VkImageView> loopImageViews;
-
     //placeholder for initial
     VkImageView placeholder = prefilterEnvmap_->switchViewForMip(1, VK_IMAGE_VIEW_TYPE_2D_ARRAY);
     loopImageViews.push_back(placeholder);  // all need to be destory in the end 
@@ -87,8 +84,6 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
     //calculate working group size
     uint32_t shader_localX = 16;           // must match the shader
     uint32_t shader_localY = 16;
-
-
 
     // For irradiance (Lambertian), only generate mip 0
     // For prefilter (GGX), generate all mip levels
@@ -120,9 +115,7 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
         overwriteWrite.descriptorCount = 1;
         overwriteWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         overwriteWrite.pImageInfo = &updateDstImageInfo;
-
         vkUpdateDescriptorSets(device_app.device(), 1, &overwriteWrite, 0,nullptr);
-
 
         vkCmdBindPipeline(commandBuffer.getCommandBuffer(), VK_PIPELINE_BIND_POINT_COMPUTE, prefilterComputePipeline_app->getComputePipeline());
         vkCmdBindDescriptorSets(
@@ -141,7 +134,7 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
             
             // Set roughness based on distribution type
             if (distributionIndex == 0) { // Lambertian (irradiance)
-                perFrameData.roughness = 1.0f; // Maximum roughness for diffuse
+                perFrameData.roughness = 0.0f; // Maximum roughness for diffuse
             } else { // GGX (prefilter)
                 perFrameData.roughness = (float)(mip) / (float)(prefilterEnvmap_->getMipLevels() - 1);
             }
@@ -248,8 +241,8 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
     //create an empty ktx file
     ktxTextureCreateInfo ktxCreateInfo = {
             .vkFormat         = VK_FORMAT_R32G32B32A32_SFLOAT,  
-            .baseWidth        = prefilterEnvmap_->getTextureWidth(),
-            .baseHeight       = prefilterEnvmap_->getTextureHeight(),
+            .baseWidth        = static_cast<ktx_uint32_t>(prefilterEnvmap_->getTextureWidth()),
+            .baseHeight       = static_cast<ktx_uint32_t>(prefilterEnvmap_->getTextureHeight()),
             .baseDepth        = 1u,
             .numDimensions    = 2u,
             .numLevels        = maxMip,
@@ -289,8 +282,8 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
 
 //generate irradiance, prefilter
 void PrecomputeSystem::generatePrecomputedMaps(const JCubemap& cubemapBase){
-    processCubemap(cubemapBase, 1, "../data/prefilterEnvMap.ktx2", 1024);
-    processCubemap(cubemapBase, 0, "../data/irradianceMap.ktx2", 2048);
+    processCubemap(cubemapBase, 1, "../data/prefilterEnvMap.ktx", 1024);
+    processCubemap(cubemapBase, 0, "../data/irradianceMap.ktx", 2048);
 
 }
 
@@ -340,8 +333,6 @@ void PrecomputeSystem::createComputePipeline(){
 
 
 }
-
-
 
 
 

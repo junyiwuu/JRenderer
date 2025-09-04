@@ -37,5 +37,5 @@ namespace util{
         } throw std::runtime_error("failed to find suitable memory type!");
     }
     
-    
+
 }

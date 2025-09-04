@@ -37,6 +37,7 @@ endif()
 #inlcude directories for GLFW and vulkan
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(assimp REQUIRED)
 
 find_package(glm REQUIRED)
 
@@ -63,7 +64,7 @@ set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=add
 
 #link the required libraries
 #第一个参数是链接库的目标
-target_link_libraries(vulkanTriangle Vulkan::Vulkan glfw imgui ${KTX_TARGET})
+target_link_libraries(vulkanTriangle Vulkan::Vulkan glfw imgui ${KTX_TARGET} assimp)
 
 
 # auto compile glsl -> spirv
@@ -78,7 +79,6 @@ add_custom_target(compile_shaders
 add_dependencies(vulkanTriangle compile_shaders)
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/third_party/tinyobjloader)
 
 
 

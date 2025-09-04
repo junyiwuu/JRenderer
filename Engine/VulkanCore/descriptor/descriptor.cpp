@@ -133,7 +133,7 @@ JDescriptorWriter::JDescriptorWriter(JDescriptorSetLayout& descriptorSetLayout, 
 // JDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
 
 
-JDescriptorWriter &JDescriptorWriter::writeBuffer(uint32_t n_binding, VkDescriptorBufferInfo* bufferInfo){
+JDescriptorWriter &JDescriptorWriter::writeBuffer(uint32_t n_binding, const VkDescriptorBufferInfo* bufferInfo){
     assert(descriptorSetLayout_.bindings_.count(n_binding) == 1 && "Descriptor layout does not contain specified binding");
     auto& bindingDescription = descriptorSetLayout_.bindings_[n_binding];
 
@@ -148,7 +148,7 @@ JDescriptorWriter &JDescriptorWriter::writeBuffer(uint32_t n_binding, VkDescript
     return *this;
 }
 
-JDescriptorWriter &JDescriptorWriter::writeImage(uint32_t n_binding, VkDescriptorImageInfo* imageInfo){
+JDescriptorWriter &JDescriptorWriter::writeImage(uint32_t n_binding, const VkDescriptorImageInfo* imageInfo){
     assert(descriptorSetLayout_.bindings_.count(n_binding) == 1 && "Descriptor layout does not contain specified binding");
     auto& bindingDescription = descriptorSetLayout_.bindings_[n_binding];
 

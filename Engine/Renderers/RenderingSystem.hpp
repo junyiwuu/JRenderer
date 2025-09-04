@@ -22,14 +22,16 @@ class JShaderStages;
 class JShaderModule;
 class JComputePipeline;
 class PrecomputeSystem;
+class SamplerManager;
+class JCubemap;
+class JTexture2D;
+class JTextureBase;
 
 class RenderingSystem{
 
 
 
 public:
-
-
     RenderingSystem(JDevice& device, const JSwapchain& swapchain);
     ~RenderingSystem();
 
@@ -47,6 +49,9 @@ public:
 private:
     JDevice& device_app;
     const JSwapchain& swapchain_app;
+
+    //sampler
+    std::unique_ptr<SamplerManager> samplerManager_app;
     //pipeline
     std::unique_ptr<JPipeline> pipeline_app;
     std::unique_ptr<JPipeline> pipeline_skybox_app;
@@ -78,7 +83,8 @@ private:
     std::shared_ptr<JDescriptorAllocator> descriptorAllocator_obj;
 
     std::unordered_map<std::string, std::shared_ptr<JModel>>        models_;
-    std::unordered_map<std::string, std::shared_ptr<JTexture>>      textures_;
+    std::unordered_map<std::string, std::shared_ptr<JTexture2D>>    textures_;
+    std::unordered_map<std::string, std::shared_ptr<JCubemap>>      cubemaps_; //legacy issue, need to be changed in the future
     std::unordered_map<std::string, std::shared_ptr<JPBRMaterial>>  materials_;
 
 
@@ -89,10 +95,16 @@ private:
     const uint32_t brdf_w = 256, brdf_h = 256;
     const uint32_t bufferSize = 4u * sizeof(uint16_t) * brdf_h * brdf_w;
 
+
+    std::unique_ptr<JTextureBase> brdf_lut;
+    std::unique_ptr<JTextureBase> prefilterEnvmap;
+    std::unique_ptr<JTextureBase> irradianceMap;
+
     void loadAssets();
     void loadEnvMaps();
     void createBRDFLUT();
-
+    void loadPrecomputedResources();
+    void bindGlobalStatic();
 
 
     // get the scene info, which including all assets

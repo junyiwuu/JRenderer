@@ -66,8 +66,9 @@ void JRenderApp::run(){
             GlobalUbo ubo{};
             ubo.projection = perspMatrix;
             ubo.view = viewMatrix;
-            // ubo.inverseView = camera.getInverseView();
             ubo.projection[1][1] *= -1;
+            ubo.invView = glm::inverse(viewMatrix);
+            ubo.camPos = glm::vec3(ubo.invView[3]);
             
             // Debug camera position
             // static int frameCount = 0;

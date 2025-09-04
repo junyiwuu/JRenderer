@@ -30,12 +30,8 @@ public:
 
 //optionally create 
 
+
     void generatePrecomputedMaps(const JCubemap& cubemapBase);
-
-
-
-
-
 
 
 private:

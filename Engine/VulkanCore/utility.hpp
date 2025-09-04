@@ -4,6 +4,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "stb_image.h"
+#include "stb_image_write.h"
+#include <ktx.h>
 
 #include "global.hpp"
 
@@ -71,7 +74,6 @@ inline void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size
 
 
 uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice); 
-
 
 
 

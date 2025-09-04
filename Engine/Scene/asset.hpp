@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../VulkanCore/load_model.hpp"
 #include "../VulkanCore/material/PBRmaterial.hpp"
+class JTexture;
+
 
 namespace Scene{
 
