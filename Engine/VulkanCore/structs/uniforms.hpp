@@ -20,3 +20,7 @@ struct GlobalUbo {
     alignas(16) glm::vec3 camPos{1.f};
 
   };
+
+
+
+// struct Material

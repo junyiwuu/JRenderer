@@ -34,77 +34,11 @@ RenderingSystem::RenderingSystem(JDevice& device, const JSwapchain& swapchain):
 
 
 RenderingSystem::~RenderingSystem(){
+    samplerManager_app->destroy();
 }
 
 
 
-static void UploadKtxToTexture(JDevice& device,
-                               ktxTexture2* ktxTex,
-                               JTextureBase& dstTex,
-                               bool isCube)
-{
-    // Build a staging buffer with the entire KTX image data
-    const ktx_size_t dataSize = ktxTex->dataSize; // raw image data size
-    JBuffer stagingBuffer(device, dataSize,
-                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    void* mapped = nullptr;
-    vkMapMemory(device.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &mapped);
-    memcpy(mapped, ktxTex->pData, dataSize);
-    vkUnmapMemory(device.device(), stagingBuffer.bufferMemory());
-
-    // Build copy regions for all levels and faces
-    std::vector<VkBufferImageCopy> regions;
-    regions.reserve(ktxTex->numLevels * (isCube ? 6u : 1u));
-
-    for (ktx_uint32_t level = 0; level < ktxTex->numLevels; ++level) {
-        const ktx_size_t levelOffsetBase = 0; // offsets are absolute via ktxTexture_GetImageOffset
-        const uint32_t w = std::max(1u, ktxTex->baseWidth >> level);
-        const uint32_t h = std::max(1u, ktxTex->baseHeight >> level);
-
-        const uint32_t faceCount = isCube ? 6u : 1u;
-        for (uint32_t face = 0; face < faceCount; ++face) {
-            ktx_size_t offset = 0;
-            // layer = 0 for non-array textures
-            KTX_error_code rc = ktxTexture_GetImageOffset(ktxTexture(ktxTex), level, /*layer*/0, /*faceSlice*/face, &offset);
-            if (rc != KTX_SUCCESS) {
-                throw std::runtime_error("ktxTexture_GetImageOffset failed while preparing upload");
-            }
-
-            VkBufferImageCopy region{};
-            region.bufferOffset = levelOffsetBase + offset;
-            region.bufferRowLength = 0;
-            region.bufferImageHeight = 0;
-            region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.imageSubresource.mipLevel = level;
-            region.imageSubresource.baseArrayLayer = face; // each face into its layer
-            region.imageSubresource.layerCount = 1;
-            region.imageOffset = {0, 0, 0};
-            region.imageExtent = { w, h, 1 };
-            regions.push_back(region);
-        }
-    }
-
-    // Copy to image and transition to shader-read
-    JCommandBuffer cmd(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-    cmd.beginSingleTimeCommands();
-
-    // Ensure image is in TRANSFER_DST for all mips/layers already (created that way)
-    vkCmdCopyBufferToImage(cmd.getCommandBuffer(),
-                           stagingBuffer.buffer(),
-                           dstTex.textureImage(),
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           static_cast<uint32_t>(regions.size()),
-                           regions.data());
-
-    device.transitionImageLayout(cmd.getCommandBuffer(), dstTex.textureImage(),
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                 VK_IMAGE_ASPECT_COLOR_BIT, dstTex.getMipLevels(), isCube ? 6u : 1u);
-
-    cmd.endSingleTimeCommands(device.graphicsQueue());
-}
 
 void RenderingSystem::loadPrecomputedResources(){
 
@@ -125,7 +59,7 @@ void RenderingSystem::loadPrecomputedResources(){
         .arrayLayers = 1,
     };
     brdf_lut = std::make_unique<JTextureBase>(device_app, brdf_config);
-    UploadKtxToTexture(device_app, ktxTex_brdf, *brdf_lut, /*isCube*/false);
+    TexUtils::UploadKtxToTexture(device_app, ktxTex_brdf, *brdf_lut, /*isCube*/false);
     ktxTexture2_Destroy(ktxTex_brdf);
 
 
@@ -149,7 +83,7 @@ void RenderingSystem::loadPrecomputedResources(){
         .arrayLayers = irradIsCube ? 6u : 1u,
     };
     irradianceMap = std::make_unique<JTextureBase>(device_app, irrad_config);
-    UploadKtxToTexture(device_app, ktxTex_irrad, *irradianceMap, true);
+    TexUtils::UploadKtxToTexture(device_app, ktxTex_irrad, *irradianceMap, true);
     ktxTexture2_Destroy(ktxTex_irrad);
     
          
@@ -172,7 +106,7 @@ void RenderingSystem::loadPrecomputedResources(){
         .arrayLayers = prefilterIsCube ? 6u : 1u,
     };
     prefilterEnvmap = std::make_unique<JTextureBase>(device_app, prefilter_config);
-    UploadKtxToTexture(device_app, ktxTex_prefilter, *prefilterEnvmap, true);
+    TexUtils::UploadKtxToTexture(device_app, ktxTex_prefilter, *prefilterEnvmap, true);
     ktxTexture2_Destroy(ktxTex_prefilter);
 
 }
@@ -520,7 +454,7 @@ void RenderingSystem::loadAssets(){
 
     std::shared_ptr<JTexture2D> fruit_albedo = std::make_shared<JTexture2D>(device_app, "../assets/pomoFruit/pomoFruit_2K_Albedo.jpg", VK_FORMAT_R8G8B8A8_SRGB);
     textures_["pomoFruit_Albedo"] = fruit_albedo;
-    std::shared_ptr<JTexture2D> fruit_rough = std::make_shared<JTexture2D>(device_app, "../assets/pomoFruit/pomoFruit_2K_Roughness.jpg", VK_FORMAT_R8_UNORM);
+    std::shared_ptr<JTexture2D> fruit_rough = std::make_shared<JTexture2D>(device_app, "../assets/pomoFruit/pomoFruit_2K_Roughness.jpg", VK_FORMAT_R8G8B8A8_UNORM);  //has to be 4 channels
     textures_["pomoFruit_Roughness"] = fruit_rough;
     std::shared_ptr<JTexture2D> fruit_normal = std::make_shared<JTexture2D>(device_app, "../assets/pomoFruit/pomoFruit_2K_Normal_LOD0.jpg", VK_FORMAT_R8G8B8A8_UNORM);
     textures_["pomoFruit_Normal"] = fruit_normal;
@@ -532,8 +466,8 @@ void RenderingSystem::loadAssets(){
                                                                         descriptorSetLayout_asset->descriptorSetLayout(),
                                                                         *samplerManager_app);
     pbrMat->setAlbedoTexture(*fruit_albedo);
-    // pbrMat->setRoughnessTexture(*fruit_rough);
-    // pbrMat->setNormalTexture(*fruit_normal);
+    pbrMat->setRoughnessTexture(*fruit_rough);
+    pbrMat->setNormalTexture(*fruit_normal);
     materials_["pomoFruit_mat"] = pbrMat;
     
     auto pomoFruit = Scene::JAsset::createAsset();

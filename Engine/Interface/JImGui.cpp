@@ -123,7 +123,14 @@ void JImGui::newFrame() {
         reinterpret_cast<int*>(&uiSettings.userCam),
         static_cast<int>(UI::UserCam::FirstPersonCamera));
     
-    
+    // ImGui::Separator();
+    // ImGui::Text("Material Properties");
+
+    // //base color
+    // ImGui::ColorEdit3("Base Color", )
+
+    //roughness
+
     
     ImGui::End();
 

@@ -8,6 +8,8 @@
 class JDevice;
 
 
+
+
 inline int bytesPerPixel(VkFormat format){
     switch(format){
         case VK_FORMAT_R8_UNORM: 
@@ -391,7 +393,15 @@ struct SamplerCreateInfoBuilder{
 
 
 
+namespace TexUtils{
 
+void UploadKtxToTexture(JDevice& device,
+        ktxTexture2* ktxTex,
+        JTextureBase& dstTex,
+        bool isCube);
+    
+}
+    
 
 
 

@@ -168,7 +168,7 @@ void main()
 	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
 	// Specular reflectance
-	vec3 specular = reflection * (F * brdf.x + brdf.y);
+	vec3 specular = reflection * (F0 * brdf.x + brdf.y);
 
 
 	// Ambient part (i dont use ao for now)

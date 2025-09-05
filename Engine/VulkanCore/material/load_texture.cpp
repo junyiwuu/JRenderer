@@ -8,6 +8,7 @@
 #include "../device.hpp"
 #include "../commandBuffer.hpp"
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 SamplerManager::SamplerManager(JDevice& device):
     device_app(device)
@@ -212,7 +213,8 @@ void JTextureBase::createTextureBase(){
 
     
 
-void JTextureBase::copyBufferToImage(VkCommandBuffer commandBuffer,VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
+void JTextureBase::copyBufferToImage(VkCommandBuffer commandBuffer,VkBuffer buffer, 
+    VkImage image, uint32_t width, uint32_t height,
     VkDeviceSize bufferOffset, uint32_t layers) 
 {
     //include the single layer or multi layer cases
@@ -541,6 +543,8 @@ JSolidColor::~JSolidColor(){
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
+//LEGACY class, exisit because of cube map, will change later
+
 
 JTexture::JTexture(const std::string& path, JDevice& device):
     device_app(device)    
@@ -780,10 +784,6 @@ JCubemap::JCubemap(const std::string& path, JDevice& device):
 
 
 JCubemap::~JCubemap(){
-    // vkDestroyImage(device_app.device(), textureImage_, nullptr);
-    // vkFreeMemory(device_app.device(), textureImageMemory_, nullptr);
-    // vkDestroySampler(device_app.device(), textureSampler_, nullptr);
-    // vkDestroyImageView(device_app.device(), textureImageView_, nullptr);
 
 }
 
@@ -955,6 +955,81 @@ void JCubemap::copyBufferToImage_multiple(VkCommandBuffer commandBuffer,
 
 
 
+
+namespace TexUtils
+{
+
+void UploadKtxToTexture(JDevice& device,
+                               ktxTexture2* ktxTex,
+                               JTextureBase& dstTex,
+                               bool isCube)
+{
+    //ktx, has layers, face, mipmap . when comes to vulkan, face become layers.
+    const ktx_size_t dataSize = ktxTex->dataSize; // raw image data size
+    JBuffer stagingBuffer(device, dataSize,
+                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    void* mapped = nullptr;
+    vkMapMemory(device.device(), stagingBuffer.bufferMemory(), 0, stagingBuffer.getSize(), 0, &mapped);
+    memcpy(mapped, ktxTex->pData, dataSize);
+    vkUnmapMemory(device.device(), stagingBuffer.bufferMemory());
+
+    // Build copy regions for all levels and faces
+    std::vector<VkBufferImageCopy> regions;
+    regions.reserve(ktxTex->numLevels * (isCube ? 6u : 1u));
+
+    for (ktx_uint32_t level = 0; level < ktxTex->numLevels; ++level) {
+        const ktx_size_t levelOffsetBase = 0; // offsets are absolute via ktxTexture_GetImageOffset
+        const uint32_t w = std::max(1u, ktxTex->baseWidth >> level);
+        const uint32_t h = std::max(1u, ktxTex->baseHeight >> level);
+
+        const uint32_t faceCount = isCube ? 6u : 1u;
+
+
+        for (uint32_t face = 0; face < faceCount; ++face) {
+            ktx_size_t offset = 0;
+            // layer = 0 for non-array textures
+            KTX_error_code result = ktxTexture2_GetImageOffset(ktxTex, level, /*layer*/0, /*faceSlice*/face, &offset);
+            if (result != KTX_SUCCESS) {
+                throw std::runtime_error("ktxTexture_GetImageOffset failed while preparing upload");
+            }
+
+            VkBufferImageCopy region{};
+            region.bufferOffset = levelOffsetBase + offset;
+            region.bufferRowLength = 0;
+            region.bufferImageHeight = 0;
+            region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            region.imageSubresource.mipLevel = level;
+            region.imageSubresource.baseArrayLayer = face; // each face into its layer
+            region.imageSubresource.layerCount = 1;
+            region.imageOffset = {0, 0, 0};
+            region.imageExtent = { w, h, 1 };
+            regions.push_back(region);        }
+    }
+
+    // Copy to image and transition to shader-read
+    JCommandBuffer cmd(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    cmd.beginSingleTimeCommands();
+
+    // Ensure image is in TRANSFER_DST for all mips/layers already (created that way)
+    vkCmdCopyBufferToImage(cmd.getCommandBuffer(),
+                           stagingBuffer.buffer(),
+                           dstTex.textureImage(),
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<uint32_t>(regions.size()),
+                           regions.data());
+
+    device.transitionImageLayout(cmd.getCommandBuffer(), dstTex.textureImage(),
+                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                 VK_IMAGE_ASPECT_COLOR_BIT, dstTex.getMipLevels(), isCube ? 6u : 1u);
+
+    cmd.endSingleTimeCommands(device.graphicsQueue());
+}
+
+
+} // namespace TexUtils
 
 
 

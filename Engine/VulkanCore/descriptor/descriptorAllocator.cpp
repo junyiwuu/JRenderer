@@ -82,7 +82,6 @@ VkDescriptorPool JDescriptorAllocator::createPool(uint32_t maxSetsCounter_){
     if (vkCreateDescriptorPool(device_app.device(), &descriptorPoolInfo, nullptr, &pool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor pool!");}
     
-    printf("DEBUG: createPool returning: %p\n", (void*)pool);
     return pool;
 }
 
