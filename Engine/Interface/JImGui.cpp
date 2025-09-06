@@ -32,7 +32,8 @@ JImGui::JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window 
     pipelineRenderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForVulkan(window_ptr, true);
+    // We install our own GLFW callbacks and forward to ImGui backend, so set install_callbacks=false
+    ImGui_ImplGlfw_InitForVulkan(window_ptr, false);
     
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance = device_app.getInstance();
@@ -102,6 +103,16 @@ void JImGui::createDescriptorPool() {
         .build();
 }
 
+// Basic slider syntax:
+// // Float slider
+// ImGui::SliderFloat("Roughness", &roughnessValue, 0.0f, 1.0f);
+
+// // Color picker  
+// ImGui::ColorEdit3("Base Color", baseColorArray);
+
+// // Checkbox for toggles
+// ImGui::Checkbox("Use Roughness Texture", &useRoughnessTexture);
+
 void JImGui::newFrame() {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -123,19 +134,64 @@ void JImGui::newFrame() {
         reinterpret_cast<int*>(&uiSettings.userCam),
         static_cast<int>(UI::UserCam::FirstPersonCamera));
     
-    // ImGui::Separator();
-    // ImGui::Text("Material Properties");
+    // use ## to make the same text unique
+        //base color
+    ImGui::Separator();
+    ImGui::Text("Base Color");
+    const char* BaseColButton = uiSettings.inputAlbedoPath ? "Use Slider##albedo": "Input Path##albedo";
+    if(ImGui::Button(BaseColButton)){
+        uiSettings.inputAlbedoPath = !uiSettings.inputAlbedoPath;    }
 
-    // //base color
-    // ImGui::ColorEdit3("Base Color", )
+    if(uiSettings.inputAlbedoPath){
+        ImGui::InputText("File Path##albedo ", uiSettings.albedoTexPath, sizeof(uiSettings.albedoTexPath)); 
+    }else{
+        ImGui::ColorEdit3("Color Picker##albedo", uiSettings.baseColor );
+    }
+
 
     //roughness
+    ImGui::Separator();
+    ImGui::Text("Roughness");
+    const char* RoughButton = uiSettings.inputRoughnessPath ? "Use Slider##rough" : "Input Path##rough";
+    if(ImGui::Button(RoughButton)){
+        uiSettings.inputRoughnessPath = !uiSettings.inputRoughnessPath;    }
 
+    if(uiSettings.inputRoughnessPath){
+        ImGui::InputText("File Path##rough", uiSettings.roughnessTexPath, sizeof(uiSettings.roughnessTexPath));
+    }else{
+        ImGui::SliderFloat("Float##rough", &uiSettings.roughness, 0.f, 1.0f);
+    }
+
+
+    //metallic
+    ImGui::Separator();
+    ImGui::Text("Metallic");
+    const char* MetalButton = uiSettings.inputMetallicPath ? "Use Slider##metallic" : "Input Path##metallic";
+    if(ImGui::Button(MetalButton)){
+        uiSettings.inputMetallicPath = !uiSettings.inputMetallicPath;    }
+
+    if(uiSettings.inputMetallicPath){
+        ImGui::InputText("File Path##metallic", uiSettings.metallicTexPath, sizeof(uiSettings.metallicTexPath));
+    }else{
+        ImGui::SliderFloat("Float##metallic", &uiSettings.metallic, 0.f, 1.f);
+    }
     
+
+    //norma
+    ImGui::Separator();
+    ImGui::Text("Normal");
+    const char* NormalButton = uiSettings.inputNormalPath ? "Default Normal##normal" : "Input Path##normal";
+    if(ImGui::Button(NormalButton)){
+        uiSettings.inputNormalPath = !uiSettings.inputNormalPath;    }
+
+    if(uiSettings.inputNormalPath){
+        ImGui::InputText("File Path##normal", uiSettings.normalTexPath, sizeof(uiSettings.normalTexPath));
+    }else{
+        // ImGui::SliderFloat("Float", &uiSettings.roughness, 0.f, 1.0f);
+    }
     ImGui::End();
 
     
-
 
 
     ImGui::Begin("Texture Viewer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);

@@ -32,7 +32,10 @@ public:
     void handleCursorPos(double x, double y, GLFWwindow* window);
     void handleKeyboard(int key, int scancode, int action, int mods);
 
-    
+    //getter
+    const UI::UISettings& getUISettings() const {
+        return *uiSettings;
+    }
     
 private:
     JWindow& window_app;
@@ -55,9 +58,6 @@ private:
 
 
 };
-
-
-
 
 
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <memory>
+#include <filesystem>
 #include "../VulkanCore/global.hpp"
 #include "../Scene/info.hpp"
 #include "../Scene/asset.hpp"
@@ -27,6 +28,11 @@ class JCubemap;
 class JTexture2D;
 class JTextureBase;
 
+namespace UI{
+    class UISettings;
+}
+
+
 class RenderingSystem{
 
 
@@ -39,12 +45,12 @@ public:
 
     //commands
     void render(VkCommandBuffer commandBuffer, 
-                uint32_t currentFrame );
+                uint32_t currentFrame, const UI::UISettings& uiSettings );
 
     //getter
     std::vector<std::unique_ptr<JBuffer>>& getUniformBufferObjs() {return uniformBuffer_objs;}
 
-
+    void updateMaterial(const UI::UISettings& uiSettings);
 
 private:
     JDevice& device_app;
@@ -116,5 +122,17 @@ private:
 
     std::unique_ptr<PrecomputeSystem> precompSystem_app;
 
+
+
+
+    bool lastAlbedoTexState = false;
+    bool lastRoughnessTexState = false;
+    bool lastMetallicTexState = false;
+    bool lastNormalTexState = false;
+
+    std::string lastAlbedoPath;
+    std::string lastRoughnessPath;
+    std::string lastMetallicPath;
+    std::string lastNormalPath;
 };
 

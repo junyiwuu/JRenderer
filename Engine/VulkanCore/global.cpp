@@ -3,6 +3,7 @@
 #include "../Renderers/interactiveSystem.hpp"
 #include <GLFW/glfw3.h>
 #include "imgui.h"
+#include "imgui_impl_glfw.h"
 
 namespace tools
 {
@@ -61,6 +62,8 @@ void AppContext::registerAllCallbacks(GLFWwindow* window) {
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetKeyCallback(window, keyCallback);
+    glfwSetCharCallback(window, charCallback);        //register character, you input stuff
+    glfwSetScrollCallback(window, scrollCallback);     // register scroll
 }
 
 void AppContext::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
@@ -78,6 +81,9 @@ void AppContext::mouseButtonCallback(GLFWwindow* window, int button, int action,
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     
+    // Forward to ImGui backend
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
     // Handle ImGui input first
     const ImGuiMouseButton_ imguiButton = (button == GLFW_MOUSE_BUTTON_LEFT)
             ? ImGuiMouseButton_Left
@@ -96,6 +102,9 @@ void AppContext::cursorPosCallback(GLFWwindow* window, double x, double y) {
     auto* context = static_cast<AppContext*>(glfwGetWindowUserPointer(window));
     if (!context || !context->interactiveSystem_) return;
     
+    // Forward to ImGui backend
+    ImGui_ImplGlfw_CursorPosCallback(window, x, y);
+
     // Update ImGui mouse position
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((float)x, (float)y);
@@ -110,10 +119,22 @@ void AppContext::keyCallback(GLFWwindow* window, int key, int scancode, int acti
     auto* context = static_cast<AppContext*>(glfwGetWindowUserPointer(window));
     if (!context || !context->interactiveSystem_) return;
     
+    // Forward to ImGui backend (ensures Backspace/Delete/Ctrl/etc. work)
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
     // Delegate to InteractiveSystem
     context->interactiveSystem_->handleKeyboard(key, scancode, action, mods);
 }
 
+void AppContext::charCallback(GLFWwindow* window, unsigned int c) {
+    // Forward text input to ImGui backend
+    ImGui_ImplGlfw_CharCallback(window, c);
+}
+
+void AppContext::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    // Forward scroll to ImGui backend
+    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+}
 
 
 

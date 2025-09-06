@@ -55,7 +55,8 @@ void JRenderApp::run(){
         // Start ImGui frame
         interactiveSystem_->getImguiApp().newFrame();
         
-        
+        // Apply any material/texture updates before recording begins
+        renderingSystem_->updateMaterial(interactiveSystem_->getUISettings());
 
         //if command buffer has something/working.. otherwise if it is return nullptr, will go else branch
         if(VkCommandBuffer commandBuffer = renderer_app.beginFrame()){
@@ -86,7 +87,7 @@ void JRenderApp::run(){
 
 
             renderer_app.beginRender(commandBuffer);
-            renderingSystem_->render(commandBuffer, renderer_app.getCurrentFrame());
+            renderingSystem_->render(commandBuffer, renderer_app.getCurrentFrame(), interactiveSystem_->getUISettings());
 
             interactiveSystem_->getImguiApp().render(commandBuffer);
 
@@ -110,6 +111,5 @@ void JRenderApp::run(){
     vkDeviceWaitIdle(device_app.device());
 
 }
-
 
 

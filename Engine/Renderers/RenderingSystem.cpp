@@ -11,6 +11,7 @@
 #include "../VulkanCore/shaderModule.hpp"
 #include "../VulkanCore/commandBuffer.hpp"
 #include "precomputeSystem.hpp"
+#include "../Interface/uiSettings.hpp"
 
 #include "ktx.h"
 
@@ -342,7 +343,7 @@ void RenderingSystem::createPipelineResources(){
 
 //including binding descriptor sets, vertex, and pipeline
 void RenderingSystem::render(VkCommandBuffer commandBuffer, 
-                                uint32_t currentFrame ){
+                                uint32_t currentFrame, const UI::UISettings& uiSettings ){
 
     /* --------------------------------
      ------------ skybox ------------
@@ -431,6 +432,16 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
 
         pushTransformation transformPushData{};
         transformPushData.modelMatrix = obj.transform.mat4();
+        transformPushData.baseColor = glm::vec3(uiSettings.baseColor[0],
+            uiSettings.baseColor[1],
+            uiSettings.baseColor[2]);
+        transformPushData.roughness = uiSettings.roughness;
+        transformPushData.metallic = uiSettings.metallic;
+        // Set the flags
+        transformPushData.inputAlbedoPath = uiSettings.inputAlbedoPath ? 1 : 0;
+        transformPushData.inputRoughnessPath = uiSettings.inputRoughnessPath ? 1 : 0;
+        transformPushData.inputMetallicPath = uiSettings.inputMetallicPath ? 1 : 0;
+        transformPushData.inputNormalPath = uiSettings.inputNormalPath ? 1 : 0;
 
         vkCmdPushConstants(commandBuffer, pipelinelayout_app->getPipelineLayout(), 
             VK_SHADER_STAGE_VERTEX_BIT|VK_SHADER_STAGE_FRAGMENT_BIT, 0, 
@@ -441,7 +452,6 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
         obj.model->draw(commandBuffer); 
     }
 }
-
 
 
 
@@ -537,6 +547,93 @@ void RenderingSystem::bindGlobalStatic(){
 }
 
 
+
+
+
+
+void RenderingSystem::updateMaterial(const UI::UISettings& uiSettings){
+
+    vkDeviceWaitIdle(device_app.device());
+    auto& pbrMat = materials_["pomoFruit_mat"];
+    bool needsUpdate = false;
+
+    //need to use function to not do this repeat thing
+
+
+    //when toggle on, and the path is valid, and the path is not empty
+    if(uiSettings.inputAlbedoPath && lastAlbedoPath != std::string(uiSettings.albedoTexPath) && strlen(uiSettings.albedoTexPath) >0){
+        //check if file exist
+        if(!std::filesystem::exists(uiSettings.albedoTexPath)){
+            // std::cout << "warning: Albedo texture path not found!: " << uiSettings.albedoTexPath << std::endl;
+            return;
+        }
+        try{
+            vkDeviceWaitIdle(device_app.device());
+            std::shared_ptr<JTexture2D> fruit_albedo = std::make_shared<JTexture2D>(device_app, uiSettings.albedoTexPath, VK_FORMAT_R8G8B8A8_SRGB);
+            textures_["pomoFruit_Albedo"] = fruit_albedo;  //must for render
+            pbrMat->setAlbedoTexture(*fruit_albedo);
+            lastAlbedoPath = std::string(uiSettings.albedoTexPath);
+        }catch(const std::exception& error){
+            std::cout << "warning: Failed to load Albedo Texture: " <<uiSettings.albedoTexPath<<std::endl;
+        }
+    }
+
+    
+    if(uiSettings.inputRoughnessPath && lastRoughnessPath != std::string(uiSettings.roughnessTexPath) && strlen(uiSettings.roughnessTexPath) >0){
+    //check if file exist
+        if(!std::filesystem::exists(uiSettings.roughnessTexPath)){
+            // std::cout << "warning: Roughness texture path not found!: " << uiSettings.albedoTexPath << std::endl;
+            return;
+        }
+        try{
+            vkDeviceWaitIdle(device_app.device());
+            std::shared_ptr<JTexture2D> fruit_roughness = std::make_shared<JTexture2D>(device_app, uiSettings.roughnessTexPath, VK_FORMAT_R8G8B8A8_UNORM);
+            pbrMat->setRoughnessTexture(*fruit_roughness);
+            textures_["pomoFruit_Roughness"] = fruit_roughness;  //must for render
+            lastRoughnessPath = std::string(uiSettings.roughnessTexPath);
+        }catch(const std::exception& error){
+            std::cout << "warning: Failed to load Roughness Texture: " <<uiSettings.roughnessTexPath<<std::endl;
+        }
+    }
+    
+    if(uiSettings.inputMetallicPath && lastMetallicPath != std::string(uiSettings.metallicTexPath) && strlen(uiSettings.metallicTexPath) >0){
+        //check if file exist
+        if(!std::filesystem::exists(uiSettings.metallicTexPath)){
+            // std::cout << "warning: Metallic texture path not found!: " << uiSettings.albedoTexPath << std::endl;
+            return;
+        }
+        try{
+            vkDeviceWaitIdle(device_app.device());
+            std::shared_ptr<JTexture2D> fruit_Metallic = std::make_shared<JTexture2D>(device_app, uiSettings.metallicTexPath, VK_FORMAT_R8G8B8A8_UNORM);
+            pbrMat->setMetallicTexture(*fruit_Metallic);
+            textures_["pomoFruit_Metallic"] = fruit_Metallic;  //must for render
+            lastMetallicPath = std::string(uiSettings.metallicTexPath);
+        }catch(const std::exception& error){
+            std::cout << "warning: Failed to load Metallic Texture: " <<uiSettings.metallicTexPath<<std::endl;
+            }
+        }
+
+        
+
+    if(uiSettings.inputNormalPath && lastNormalPath != std::string(uiSettings.normalTexPath) && strlen(uiSettings.normalTexPath) >0){
+        //check if file exist
+        if(!std::filesystem::exists(uiSettings.normalTexPath)){
+            // std::cout << "warning: Normal texture path not found!: " << uiSettings.albedoTexPath << std::endl;
+            return;
+        }
+        try{
+            vkDeviceWaitIdle(device_app.device());
+            std::shared_ptr<JTexture2D> fruit_Normal = std::make_shared<JTexture2D>(device_app, uiSettings.normalTexPath, VK_FORMAT_R8G8B8A8_UNORM);
+            pbrMat->setNormalTexture(*fruit_Normal);
+            textures_["pomoFruit_Normal"] = fruit_Normal;  //must for render
+            lastNormalPath = std::string(uiSettings.normalTexPath);
+        }catch(const std::exception& error){
+            std::cout << "warning: Failed to load Normal Texture: " <<uiSettings.normalTexPath<<std::endl;
+            }
+        }
+
+
+}
 
 
 

@@ -12,6 +12,17 @@ struct pushConstantStruct{
 
 struct pushTransformation{
     glm::mat4 modelMatrix{1.f};
+
+    //for now push material here
+    glm::vec3 baseColor;
+    float roughness;
+    float metallic;
+
+    //flags
+    int inputAlbedoPath;
+    int inputRoughnessPath;
+    int inputMetallicPath;
+    int inputNormalPath;
 };
 
 

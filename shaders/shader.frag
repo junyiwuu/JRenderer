@@ -19,6 +19,20 @@ layout(location = 4) in vec3 inBitangent;
 layout(location = 0) out vec4 outColor;
 
 
+layout(push_constant) uniform Push{
+    mat4 modelMatrix;
+    vec3 baseColor;
+    float roughness;
+    float metallic;
+
+    //flags
+    int inputAlbedoPath;
+    int inputRoughnessPath;
+    int inputMetallicPath;
+    int inputNormalPath;
+}push;
+
+
 //from https://github.com/SaschaWillems/Vulkan/blob/master/shaders/glsl/pbrtexture/pbrtexture.frag
 #define PI 3.1415926535897932384626433832795
 #define ALBEDO pow(texture(albedoMap, inUV).rgb, vec3(2.2))  //convert from srgb to linear
@@ -126,15 +140,32 @@ vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 // }
 
 
+// vec3 calculateNormal()
+// {
+// 	vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0 - 1.0;
+
+// 	vec3 N = normalize(inNormal);
+// 	vec3 T = normalize(inTangent.xyz);
+// 	vec3 B = normalize(cross(N, T));
+// 	mat3 TBN = mat3(T, B, N);
+
+// 	if(push.inputNormalPath == 1){
+// 		return normalize(TBN * tangentNormal);
+// 	}else{
+// 		return N;
+// 	}
+// }
 vec3 calculateNormal()
 {
-	vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0 - 1.0;
+    vec3 N = normalize(inNormal);
+    if (push.inputNormalPath == 0)
+        return N;
 
-	vec3 N = normalize(inNormal);
-	vec3 T = normalize(inTangent.xyz);
-	vec3 B = normalize(cross(N, T));
-	mat3 TBN = mat3(T, B, N);
-	return normalize(TBN * tangentNormal);
+    vec3 T = normalize(inTangent);
+    T = normalize(T - N * dot(N, T));
+    vec3 B = normalize(cross(N, T));
+    vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0 - 1.0;
+    return normalize(mat3(T, B, N) * tangentNormal);
 }
 
 
@@ -145,11 +176,32 @@ void main()
 	vec3 V = normalize(ubo.camPos - inWorldPos);
 	vec3 R = reflect(-V, N); 
 
-	float metallic = texture(metallicMap, inUV).r;
-	float roughness = texture(roughnessMap, inUV).r;
+
+
+	vec3 albedo;
+	if(push.inputAlbedoPath == 1){
+		// albedo = pow(texture(albedoMap, inUV).rgb, vec3(2.2));
+		albedo = texture(albedoMap, inUV).rgb; 
+	}else{
+		albedo = push.baseColor;
+	}
+
+	float metallic;
+	if(push.inputMetallicPath == 1){
+		metallic = texture(metallicMap, inUV).r;
+	}else{
+		metallic = push.metallic;
+	}
+
+	float roughness;
+	if(push.inputRoughnessPath == 1){
+		roughness = texture(roughnessMap, inUV).r;
+	}else{
+		roughness = push.roughness;
+	}
 
 	vec3 F0 = vec3(0.04); 
-	F0 = mix(F0, ALBEDO, metallic);
+	F0 = mix(F0, albedo, metallic);
 
 	vec3 Lo = vec3(0.0);
     // no light for now
@@ -163,7 +215,7 @@ void main()
 	vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
 	// Diffuse based on irradiance
-	vec3 diffuse = irradiance * ALBEDO;	
+	vec3 diffuse = irradiance * albedo;	
 
 	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
