@@ -34,7 +34,7 @@ struct MicrofacetDistributionSample{
 
 
 
-//hammersley2d
+//hammersley2d  pseudo-random number
 vec2 hammersley2d(uint i, uint N){
     uint bits = (i<<16u)|(i>>16u);
     bits = ( (bits & 0x55555555u)<<1u ) | ( (bits & 0xAAAAAAAAu)>>1u );
@@ -48,8 +48,10 @@ vec2 hammersley2d(uint i, uint N){
 // GGX D term
 float D_GGX(float NdotH, float roughness){
     float alpha = roughness*roughness;
-    float a = alpha*alpha*NdotH*NdotH - NdotH*NdotH + 1;
-    return alpha*alpha / (MATH_PI * a * a);
+    float alpha2 = alpha * alpha;
+    // float denom = alpha*alpha*NdotH*NdotH - NdotH*NdotH + 1;
+    float denom = NdotH * NdotH * (alpha2 - 1.0 ) + 1.0;
+    return alpha2 / (MATH_PI * denom * denom);
     //得到的是分布密度值distribution value，表示某个法向量方向上维表面的密度
 }
 
@@ -72,7 +74,12 @@ float computeLod(float pdf){
     float width = float(perFrameData.width);
     float height = float(perFrameData.height);
     float sampleCount = float(perFrameData.sampleCount);
+
+    // float saTexel = 4.0 * MATH_PI/(6.0* width*height);
+    // float saSample = 1.0/(max(1.0, float(sampleCount)) * max(pdf, 1e-6));
+    // float lod = max(0.0, 0.5 * log2(saSample / saTexel));
     float lod = 0.5 * log2(  6.0*width*height  /  (sampleCount*pdf)  );
+
     return lod;
 }
 

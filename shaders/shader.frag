@@ -220,7 +220,7 @@ void main()
 	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
 	// Specular reflectance
-	vec3 specular = reflection * (F0 * brdf.x + brdf.y);
+	vec3 specular = reflection * (F * brdf.x + brdf.y);
 
 
 	// Ambient part (i dont use ao for now)
@@ -243,7 +243,9 @@ void main()
 	// Gamma correction
     //dont have gamma for now
 	// color = pow(color, vec3(1.0f / uboParams.gamma));
-	color = pow(color, vec3(1.0f / 2.2f)); // Standard sRGB gamma
+
+    // Gamma correction: skip here because the swapchain uses sRGB format and will perform the linear->sRGB conversion on write. 
+	// color = pow(color, vec3(1.0f / 2.2f)); // Standard sRGB gamma
 
 	outColor = vec4(color, 1.0);
 	// outColor = vec4(texture(samplerIrradiance, N).rgb, 1.0);

@@ -282,7 +282,7 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
 
 //generate irradiance, prefilter
 void PrecomputeSystem::generatePrecomputedMaps(const JCubemap& cubemapBase){
-    processCubemap(cubemapBase, 1, "../data/prefilterEnvMap.ktx", 1024);
+    processCubemap(cubemapBase, 1, "../data/prefilterEnvMap.ktx", 2048);
     processCubemap(cubemapBase, 0, "../data/irradianceMap.ktx", 2048);
 
 }

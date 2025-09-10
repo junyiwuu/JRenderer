@@ -73,6 +73,7 @@
         "shared_mutex": "cpp",
         "csignal": "cpp",
         "strstream": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "future": "cpp"
     }
 }
