@@ -1,5 +1,5 @@
-/third_party/
-/assets/
+/assets/Cerberus/*
 /build/
 /.vscode/
-/data/
+/data/*
+/others/

@@ -9,7 +9,7 @@
 
 JImGui::JImGui(JDevice& device, const JSwapchain& swapchain, GLFWwindow* window , UI::UISettings& uiSettings)
     : device_app(device), window_ptr(window), swapchain_app(swapchain), 
-    texture_viewTest("../assets/cat.jpg", device), uiSettings(uiSettings)
+    texture_viewTest("../assets/fufu_placeholder.jpg", device), uiSettings(uiSettings)
 {
     // UIsettings::UserCam userCam
     // Setup Dear ImGui context

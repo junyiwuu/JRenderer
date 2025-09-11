@@ -1,45 +1,79 @@
-#Minumum cmake version
 cmake_minimum_required(VERSION 3.10)
+project(JRenderer VERSION 1.0 LANGUAGES CXX)
 
-#project name and version
-project(vulkanTriangle VERSION 1.0 LANGUAGES CXX)
-set(CMAKE_BUILD_TYPE Debug)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 #specify the c++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
-set(Ktx_DIR "/usr/local/lib/cmake/ktx" CACHE PATH "Path to ktxConfig.cmake directory")
 
-option(USE_SYSTEM_KTX "Prefer system-installed libktx if available" ON)
+include(FetchContent)
 
-if(USE_SYSTEM_KTX)
-  find_package(Ktx CONFIG QUIET) # 会找 ktxConfig.cmake。 QUITE会找不到就进入ifelse branch，如果改成required会直接报错
-endif()
 
+
+find_package(Vulkan REQUIRED)
+find_package(X11 REQUIRED)
+# set(Ktx_DIR "/usr/local/lib/cmake/ktx" CACHE PATH "Path to ktxConfig.cmake directory")
+
+
+find_package(Ktx CONFIG QUIET) # 会找 ktxConfig.cmake。 QUITE会找不到就进入ifelse branch，如果改成required会直接报错
 # 如果系统没找到，就用子模块
-if(NOT (TARGET KTX::ktx))
+if(TARGET KTX::ktx)
+  set(KTX_TARGET KTX::ktx)
+else()
   message(STATUS "Using bundled KTX-Software (third_party).")
-  #not compile these
   set(KTX_FEATURE_TOOLS OFF CACHE BOOL "" FORCE)
   set(KTX_FEATURE_TESTS OFF CACHE BOOL "" FORCE)
+  set(KTX_TARGET ktx)
 
   add_subdirectory(third_party/KTX-Software EXCLUDE_FROM_ALL) #将这个ktx-software作为子目录加进来。 excludefromall意思是所有target得显式要求才会编
 endif()
 
-# if system find ktx
-if(TARGET KTX::ktx)
-  set(KTX_TARGET KTX::ktx)
+
+
+find_package(glfw3 QUIET)
+if(NOT glfw3_FOUND)
+  message(STATUS "Fetching GLFW (no system install found)")
+  FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+  )
+  FetchContent_MakeAvailable(glfw)
 endif()
 
 
+# GLM (header-only)
+find_package(glm QUIET)
+if(NOT glm_FOUND)
+  message(STATUS "Fetching GLM")
+  FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG        1.0.1
+  )
+  FetchContent_MakeAvailable(glm)
+endif()
 
-#inlcude directories for GLFW and vulkan
-find_package(Vulkan REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(assimp REQUIRED)
 
-find_package(glm REQUIRED)
+# Assimp
+find_package(assimp QUIET)
+if(NOT assimp_FOUND)
+  message(STATUS "Fetching Assimp")
+  FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp.git
+    GIT_TAG        v6.0.2
+  )
+  set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
+  set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(assimp)
+  # target 'assimp' provided
+endif()
+
 
 
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/Engine/*.cpp" "${CMAKE_SOURCE_DIR}/Engine/*.hpp")
@@ -58,13 +92,25 @@ target_link_libraries(imgui PUBLIC
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    Vulkan::Vulkan
+    glfw
+    imgui
+    assimp
+    glm::glm
+    ${KTX_TARGET}
+    ${X11_LIBRARIES}
+)
+
+
+
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,undefined")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 
 
-#link the required libraries
-#第一个参数是链接库的目标
-target_link_libraries(vulkanTriangle Vulkan::Vulkan glfw imgui ${KTX_TARGET} assimp)
 
 
 # auto compile glsl -> spirv
@@ -75,13 +121,16 @@ add_custom_target(compile_shaders
         COMMENT "Running compile.sh to compile shaders"
         VERBATIM)
 
-# run compile_shaders first, before run vulkanTriangle
-add_dependencies(vulkanTriangle compile_shaders)
+# run compile_shaders first, before run JRenderer
+add_dependencies(JRenderer compile_shaders)
 
 
+# USE: 
+# Debug build (with sanitizers):
+# cmake -DCMAKE_BUILD_TYPE=Debug ..
+# make
 
-
-
-
-
+# Release build (optimized, no sanitizers):
+# cmake -DCMAKE_BUILD_TYPE=Release ..
+# make
 

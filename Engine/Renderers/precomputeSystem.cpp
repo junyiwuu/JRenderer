@@ -55,11 +55,11 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
                                             cubemapBase.getTextureWidth(),
                                             cubemapBase.getTextureHeight(),
                                             VK_FORMAT_R32G32B32A32_SFLOAT);
+    //empty container
     prefilterEnvmap_ = std::make_unique<JTextureBase>(device_app, prefilterEnvConfig);
 
  
     JDescriptorWriter writer(*descriptorSetLayout_app, descriptorAllocator_app->getDescriptorPool());
-
     //for source env map, just one time set up
     auto srcImageInfo = cubemapBase.getDescriptorImageInfo();
     //use one descriptor set two bindings
@@ -99,7 +99,7 @@ void PrecomputeSystem::processCubemap(const JCubemap& cubemapBase,
         JCommandBuffer commandBuffer(device_app, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
         commandBuffer.beginSingleTimeCommands();
 
-        //image view+image layout         //storage image不需要sampler
+        //image view+image layout  
         VkImageView currentMip_imageView = prefilterEnvmap_->switchViewForMip(mip, VK_IMAGE_VIEW_TYPE_2D_ARRAY);
         loopImageViews.push_back(currentMip_imageView);
 

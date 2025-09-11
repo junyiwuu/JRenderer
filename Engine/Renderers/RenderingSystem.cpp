@@ -458,19 +458,18 @@ void RenderingSystem::render(VkCommandBuffer commandBuffer,
 
 void RenderingSystem::loadAssets(){
 
-    // std::shared_ptr<JModel> fruit_model = JModel::loadModelFromFile(device_app, "/mnt/D/material_support/3d_industrial_vj2oefbs/vj2oefbs_lod0.fbx");
     // std::shared_ptr<JModel> fruit_model = JModel::loadModelFromFile(device_app, "../assets/Cerberus/Cerberus_LP.FBX");
     std::shared_ptr<JModel> fruit_model = JModel::loadModelFromFile(device_app, "../assets/sphere_highres.obj");
     models_["pomoFruit"] = fruit_model;
 
-    std::shared_ptr<JTexture2D> fruit_albedo = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_A.tga", VK_FORMAT_R8G8B8A8_SRGB);
-    textures_["pomoFruit_Albedo"] = fruit_albedo;
-    std::shared_ptr<JTexture2D> fruit_rough = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_R.tga", VK_FORMAT_R8G8B8A8_UNORM);  //has to be 4 channels
-    textures_["pomoFruit_Roughness"] = fruit_rough;
-    std::shared_ptr<JTexture2D> fruit_metallic = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_M.tga", VK_FORMAT_R8G8B8A8_UNORM);
-    textures_["pomoFruit_Metallic"] = fruit_metallic;
-    std::shared_ptr<JTexture2D> fruit_normal = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_N.tga", VK_FORMAT_R8G8B8A8_UNORM);
-    textures_["pomoFruit_Normal"] = fruit_normal;
+    // std::shared_ptr<JTexture2D> fruit_albedo = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_A.tga", VK_FORMAT_R8G8B8A8_SRGB);
+    // textures_["pomoFruit_Albedo"] = fruit_albedo;
+    // std::shared_ptr<JTexture2D> fruit_rough = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_R.tga", VK_FORMAT_R8G8B8A8_UNORM);  //has to be 4 channels
+    // textures_["pomoFruit_Roughness"] = fruit_rough;
+    // std::shared_ptr<JTexture2D> fruit_metallic = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_M.tga", VK_FORMAT_R8G8B8A8_UNORM);
+    // textures_["pomoFruit_Metallic"] = fruit_metallic;
+    // std::shared_ptr<JTexture2D> fruit_normal = std::make_shared<JTexture2D>(device_app, "../assets/Cerberus/Cerberus_N.tga", VK_FORMAT_R8G8B8A8_UNORM);
+    // textures_["pomoFruit_Normal"] = fruit_normal;
 
 
     //allocate descriptor automatically in material class
@@ -478,24 +477,26 @@ void RenderingSystem::loadAssets(){
                                                                         descriptorAllocator_obj, 
                                                                         descriptorSetLayout_asset->descriptorSetLayout(),
                                                                         *samplerManager_app);
-    pbrMat->setAlbedoTexture(*fruit_albedo);
-    pbrMat->setRoughnessTexture(*fruit_rough);
-    pbrMat->setNormalTexture(*fruit_normal);
-    pbrMat->setMetallicTexture(*fruit_metallic);
+    // pbrMat->setAlbedoTexture(*fruit_albedo);
+    // pbrMat->setRoughnessTexture(*fruit_rough);
+    // pbrMat->setNormalTexture(*fruit_normal);
+    // pbrMat->setMetallicTexture(*fruit_metallic);
     materials_["pomoFruit_mat"] = pbrMat;
     
     auto pomoFruit = Scene::JAsset::createAsset();
     pomoFruit.model = models_["pomoFruit"];
     pomoFruit.material = materials_["pomoFruit_mat"];
     pomoFruit.transform.translation = {0.f, 0.f, 0.f};
-    pomoFruit.transform.scale = {0.1f, 0.1f, 0.1f};
+    // pomoFruit.transform.scale = {0.05f, 0.05f, 0.05f};
+    pomoFruit.transform.scale = {1.f, 1.f, 1.f};
     pomoFruit.transform.rotation = {-glm::radians(90.f), 0.f, 0.0f};
     sceneAssets.emplace(pomoFruit.getId(), std::move(pomoFruit));
 }
 
 
 void RenderingSystem::loadEnvMaps(){
-    std::shared_ptr<JCubemap> skybox_texture = std::make_shared<JCubemap>("../assets/german_town_street_2k.hdr", device_app);
+    std::shared_ptr<JCubemap> skybox_texture = std::make_shared<JCubemap>("../assets/rustig_koppie_1k.hdr", device_app);
+    // std::shared_ptr<JCubemap> skybox_texture = std::make_shared<JCubemap>("../assets/park_music_stage_2k.hdr", device_app);
     cubemaps_["skybox"] = skybox_texture;
 
 

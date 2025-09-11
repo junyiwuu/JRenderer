@@ -41,7 +41,7 @@ void JPBRMaterial::initDefault(){
     pImageInfos_.clear();
     pImageInfos_.reserve(4); 
     pImageInfos_.push_back(defaultWhite_->getDescriptorImageInfo(samplerManager.getSampler(SamplerType::TextureGlobal)));
-    pImageInfos_.push_back(defaultBlack_->getDescriptorImageInfo(samplerManager.getSampler(SamplerType::TextureGlobal)));
+    pImageInfos_.push_back(defaultGrey_->getDescriptorImageInfo(samplerManager.getSampler(SamplerType::TextureGlobal)));
     pImageInfos_.push_back(defaultBlack_->getDescriptorImageInfo(samplerManager.getSampler(SamplerType::TextureGlobal)));
     pImageInfos_.push_back(defaultNormal_->getDescriptorImageInfo(samplerManager.getSampler(SamplerType::TextureGlobal)));
 
