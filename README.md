@@ -7,7 +7,8 @@ Personal Vulkan engine project made in C++.
 
 # Overview:
 
-<video src="./images/vulkan_demo.mp4" controls width="1920"></video>
+
+https://github.com/user-attachments/assets/249f8700-3ac5-4825-8e3a-4f90043dea58
 
 
 
