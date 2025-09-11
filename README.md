@@ -8,7 +8,7 @@ Personal Vulkan engine project made in C++.
 # Overview:
 
 
-https://github.com/user-attachments/assets/249f8700-3ac5-4825-8e3a-4f90043dea58
+https://github.com/user-attachments/assets/228cb6f7-9e30-46c1-adb5-e26f7d7ff09f
 
 
 
