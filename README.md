@@ -20,7 +20,7 @@ https://github.com/user-attachments/assets/228cb6f7-9e30-46c1-adb5-e26f7d7ff09f
 - Multisample Anti-aliasing (MSAA)
 - Tangent space normal mapping
 - Built-in ImGUI interface for real-time tweaking material properties
-- backend
+- Dynamic Rendering
 
 **To do list (updating)**
 
